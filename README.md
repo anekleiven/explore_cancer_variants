@@ -1,4 +1,4 @@
-Visualize Variants
+EXPLORE CANCER VARIANTS
 ==================
 
 Small collection of analysis scripts that generate summary plots and tables
