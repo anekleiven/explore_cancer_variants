@@ -21,7 +21,7 @@ Major outputs:
 8. Visualization of frequently mutated genes with high hotspot fractions
 
 All plots are saved in:
-    visualize_variants/plots/
+   explore_cancer_variants/plots/
 
 """
 
@@ -155,9 +155,9 @@ counts = (variants_onco_neutral
 
 print("Plotting number of variants in cancer hotspots...\n")
 
-palette = palette = {"Oncogenic": "#ef6f6c", "Likely Neutral": "#5b8fdc"}
+palette = palette = {"Oncogenic": "#C4473B", "Likely Neutral": "#7e8aa2"}
 
-plt.figure(figsize=(6,4))
+plt.figure(figsize=(8,5))
 sns.barplot(data=counts, 
             x="In_Hotspot",
             y="Variant_Count",
@@ -166,13 +166,14 @@ sns.barplot(data=counts,
             edgecolor="0.1",
             linewidth=0.3) 
 
-plt.title("Number of Variants in Cancer Hotspots")
-plt.ylabel("Counts") 
+plt.title("Number of Variants in Cancer Hotspots", fontsize=14, pad=10)
+plt.xlabel("Variant in Hotspot", fontsize=12)
+plt.ylabel("Counts", fontsize=12) 
 plt.tight_layout() 
-plt.savefig("visualize_variants/plots/variants_in_hotspots.png", dpi=300)
+plt.savefig("explore_cancer_variants/plots/variants_in_hotspots.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'visualize_variants/plots/variants_in_hotspots.png'")
+print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/variants_in_hotspots.png'")
 
 
 # ------------------------------------------------------------
@@ -196,7 +197,7 @@ print(counts, "\n")
 
 print("Plotting fraction of variants in cancer hotspots (oncogenic vs. neutral)...\n")
 
-plt.figure(figsize=(6,4)) 
+plt.figure(figsize=(8,5)) 
 sns.barplot(data=counts, 
             x="In_Hotspot",
             y="Fraction",
@@ -205,13 +206,14 @@ sns.barplot(data=counts,
             edgecolor="0.1",
             linewidth=0.3)
 
-plt.title("Fraction of Variants in Cancer Hotspots") 
-plt.ylabel("Fraction")
+plt.title("Fraction of Variants in Cancer Hotspots", fontsize=14, pad=10) 
+plt.xlabel("Variant in Hotspot", fontsize=12)
+plt.ylabel("Fraction", fontsize=12)
 plt.tight_layout()
-plt.savefig("visualize_variants/plots/fractions_in_hotspots.png", dpi=300)
+plt.savefig("explore_cancer_variants/plots/fractions_in_hotspots.png", dpi=300)
 plt.show() 
 
-print("\nPlotting complete! Plot saved as 'visualize_variants/plots/fractions_in_hotspots.png'\n")
+print("\nPlotting complete! Plot saved as 'explore_variants/plots/fractions_in_hotspots.png'\n")
 
 # ------------------------------------------------------------
 # Identify Oncogenic Variants in Cancer Hotspots Across Genes 
@@ -249,24 +251,25 @@ top_oncogenes = onco_genes.head(20)
 
 print("Plotting Oncogenic Variants in Cancer Hotspots across Genes...\n")
 
-plt.figure(figsize=(6,4))
+plt.figure(figsize=(8,5))
 sns.barplot(data=top_oncogenes,
             x="Hugo_Symbol",
             y="Hotspot_Variant_Count",
-            color="#ef6f6c",
+            color="#C4473B",
             edgecolor="0.1",
             linewidth=0.3) 
 
-plt.title("Top Oncogenic Genes in Cancer Hotspots") 
-plt.xlabel("Hugo Symbol") 
-plt.ylabel("Number of Variants") 
-plt.xticks(rotation=45, ha="right")
+plt.title("Top Oncogenic Genes in Cancer Hotspots", fontsize=14, pad=10) 
+plt.xlabel("Hugo Symbol", fontsize=12) 
+plt.ylabel("Number of Variants", fontsize=12) 
+plt.xticks(rotation=45, ha="right", fontsize=9)
+plt.yticks(fontsize=9) 
 
 plt.tight_layout()
-plt.savefig("visualize_variants/plots/oncogenes_in_hotspots.png", dpi=300)
+plt.savefig("explore_cancer_variants/plots/oncogenes_in_hotspots.png", dpi=300)
 plt.show() 
 
-print("Plotting complete! Plot saved as 'visualize_variants/plots/oncogenes_in_hotspots.png'\n")
+print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/oncogenes_in_hotspots.png'\n")
 
 # ------------------------------------------------------------
 # Gene-level Hotspot Fraction 
@@ -325,7 +328,7 @@ top_genes = oncogenic_gene_summary[
 print("Example output:")
 print(top_genes.head(5),"\n")
 
-plt.figure(figsize=(10, 6)) 
+plt.figure(figsize=(10,6)) 
 sns.barplot(
   data=top_genes.head(15), 
   x="Hugo_Symbol",
@@ -337,18 +340,18 @@ sns.barplot(
   linewidth=0.3
 )
 
+plt.title("Frequently Mutated Genes with Hotspot Enrichment", fontsize=14, pad=10)
 plt.xlabel("Gene", fontsize=12)
 plt.ylabel("Total Oncogenic Mutations", fontsize=12)
-plt.title("Frequently Mutated Genes with Hotspot Enrichment", fontsize=14)
-plt.xticks(rotation=45, ha="right")
+plt.xticks(rotation=45, ha="right", fontsize=9)
+plt.yticks(fontsize=9)
 plt.legend(title="Hotspot Fraction", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
-plt.savefig("visualize_variants/plots/oncogenes_hotspot_fraction.png", dpi=300)
+plt.savefig("explore_cancer_variants/plots/oncogenes_hotspot_fraction.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Figure saved as 'visualize_variants/plots/oncogenes_hotspot_fraction.png'\n")
+print("Plotting complete! Figure saved as 'explore_cancer_variants/plots/oncogenes_hotspot_fraction.png'\n")
 
 print("========================================================")
-print("Variant Hotspot Analysis Complete!")
-print("========================================================\n")
+print("Variant hotspot analysis complete!\n")

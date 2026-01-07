@@ -28,10 +28,18 @@ Key features handled:
 - Topological domain
 
 All plots are saved in:
-    visualize_variants/plots/
+    explore_cancer_variants/plots/
 
 ====================================================================
 """
+
+print("\n========================================================")
+print("VARIANT FUNCTIONAL SITES ANALYSIS")
+print("========================================================")
+
+# ------------------------------------------------------------
+# Import libraries 
+# ------------------------------------------------------------
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -39,13 +47,17 @@ import seaborn as sns
 import os
 
 # ------------------------------------------------------------
-# Setup
+# Setup for analysis 
 # ------------------------------------------------------------
 
 # Create output folder if it doesn't exist
-os.makedirs("visualize_variants/plots", exist_ok=True)
+os.makedirs("explore_cancer_variants/plots", exist_ok=True)
 
-print("\nLoading variant data...\n")
+print("\n------------------------------------------------------")
+print("LOAD VARIANT DATA")
+print("------------------------------------------------------\n")
+
+print("Loading variant data...\n")
 
 variants = pd.read_csv(
     "annotation_pipeline/output/variants_with_func_sites.tsv",
@@ -53,15 +65,21 @@ variants = pd.read_csv(
     low_memory=False
 )
 
-print(f"Loaded {len(variants):,} variants.\n")
+print(f"Loaded {len(variants):,} variants.")
 
 # ------------------------------------------------------------
 # Keep only Oncogenic + Likely Neutral variants
 # ------------------------------------------------------------
 
+print("\n------------------------------------------------------")
+print("FILTER VARIANTS")
+print("------------------------------------------------------\n")
+
+print("Filtering data to only contain oncogenic & likely oncogenic variants...\n")
+
 classes = ["Oncogenic", "Likely Neutral"]
 variants = variants[variants["ONCOGENIC"].isin(classes)]
-print(f"Remaining variants after filtering: {len(variants):,}\n")
+print(f"Remaining variants after filtering: {len(variants):,}")
 
 # Ensure boolean data type
 variants["IN_FUNC_SITE"] = variants["IN_FUNC_SITE"].astype(bool)
@@ -69,6 +87,10 @@ variants["IN_FUNC_SITE"] = variants["IN_FUNC_SITE"].astype(bool)
 # ------------------------------------------------------------
 # Summary: variants inside vs outside functional sites
 # ------------------------------------------------------------
+
+print("\n------------------------------------------------------")
+print("SUMMARY VARIANTS INSIDE VS OUTSIDE FUNCTIONAL SITES")
+print("------------------------------------------------------\n")
 
 summary = []
 for c in classes:
@@ -93,6 +115,10 @@ print(summary_df)
 # Expand FEATURE_TYPE 
 # ------------------------------------------------------------
 
+print("\n------------------------------------------------------")
+print("Expand FEATURE_TYPE")
+print("------------------------------------------------------\n")
+
 expanded = (
     variants
     .dropna(subset=["FEATURE_TYPE"])
@@ -100,13 +126,17 @@ expanded = (
     .explode("FEATURE_TYPE")
 )
 
-print(" \n\nExpanding FEATURE_TYPE so each type is one row...")
+print("Expanding FEATURE_TYPE so each type is one row...")
 expanded["FEATURE_TYPE"] = expanded["FEATURE_TYPE"].str.strip()
 print(f"\nExpanded to {len(expanded):,} feature-variant rows.\n")
 
 # ------------------------------------------------------------
 # Count variants per feature type per class
 # ------------------------------------------------------------
+
+print("\n------------------------------------------------------")
+print("COUNT VARIANTS PER FEATURE TYPE")
+print("------------------------------------------------------\n")
 
 counts = (
     expanded
@@ -115,38 +145,51 @@ counts = (
     .reset_index(name="Variant_Count")
 )
 
-print("Number of variants in each functional site for both classes:\n")
-print(counts, "\n")
+print("Number of variants in each functional site for both classes:")
+print(counts)
 
 # ------------------------------------------------------------
 # Plot raw counts
 # ------------------------------------------------------------
 
-print("Plotting raw counts of variants in functional sites...")
+print("\n------------------------------------------------------")
+print("PLOT COUNTS OF VARIANTS IN FUNCTIONAL SITES")
+print("------------------------------------------------------\n")
 
-palette = {"Oncogenic": "#ef6f6c", "Likely Neutral": "#5b8fdc"}
+print("Plotting raw counts of variants in functional sites...\n")
 
-plt.figure(figsize=(6,4))
+palette = {"Oncogenic": "#C4473B", "Likely Neutral": "#7e8aa2"}
+
+plt.figure(figsize=(8,5))
 sns.barplot(
     data=counts,
     x="FEATURE_TYPE",
     y="Variant_Count",
     hue="ONCOGENIC",
-    palette=palette
+    palette=palette, 
+    edgecolor="0.1",
+    linewidth=0.3
 )
-plt.title("Number of Variants per Functional Site Type", fontweight="bold", fontsize=13)
-plt.xlabel("Functional Site")
-plt.ylabel("Variant Count")
-plt.xticks(rotation=45, ha="right")
+plt.title("Number of Variants per Functional Site Type", fontsize=14, pad=10)
+plt.xlabel("Functional Site", fontsize=12)
+plt.ylabel("Variant Count", fontsize=12)
+plt.xticks(rotation=45, ha="right", fontsize=9)
+plt.yticks(fontsize=9)
+plt.legend(title="Oncogenicity", bbox_to_anchor=(1.05, 1), loc='upper left')
+
 plt.tight_layout()
-plt.savefig("visualize_variants/plots/counts_per_feature_type.png", dpi=300)
+plt.savefig("explore_cancer_variants/plots/counts_per_feature_type.png", dpi=300)
 plt.show()
 
-print(f"Plotting complete. Saved as 'visualize_variants/plots/counts_per_feature_type.png'\n")
+print(f"Plotting complete. Saved as 'explore_cancer_variants/plots/counts_per_feature_type.png'")
 
 # ------------------------------------------------------------
 # Compute fractions
 # ------------------------------------------------------------
+
+print("\n------------------------------------------------------")
+print("COMPUTE FRACTIONS")
+print("------------------------------------------------------\n")
 
 print("Computing fractions of variants in the different functional sites...")
 
@@ -156,35 +199,48 @@ counts = counts.merge(totals, left_on="ONCOGENIC", right_index=True)
 counts["Fraction"] = counts["Variant_Count"] / counts["Total"]
 
 print("\nFraction of variants in each feature type per class:\n")
-print(counts, "\n")
+print(counts)
 
 # ------------------------------------------------------------
 # Plot fractions
 # ------------------------------------------------------------
 
-print("Plotting fractions of variants for each feature type...")
+print("\n------------------------------------------------------")
+print("PLOT FRACTIONS OF VARIANTS IN FUNCTIONAL SITES")
+print("------------------------------------------------------\n")
 
-plt.figure(figsize=(6,4))
+print("Plotting fractions of variants for each feature type...\n")
+
+plt.figure(figsize=(8,5))
 sns.barplot(
     data=counts,
     x="FEATURE_TYPE",
     y="Fraction",
     hue="ONCOGENIC",
-    palette=palette
+    palette=palette, 
+    edgecolor="0.1",
+    linewidth=0.3
 )
-plt.title("Fraction of Variants per Feature Type", fontweight="bold", fontsize=13)
-plt.xlabel("Functional Site Type")
-plt.ylabel("Fraction")
-plt.xticks(rotation=45, ha="right")
+plt.title("Fraction of Variants per Feature Type", fontsize=14, pad=10)
+plt.xlabel("Functional Site Type", fontsize=12)
+plt.ylabel("Fraction", fontsize=12)
+plt.xticks(rotation=45, ha="right", fontsize=9)
+plt.yticks(fontsize=9)
+plt.legend(title="Oncogenicity", bbox_to_anchor=(1.05, 1), loc='upper left')
+
 plt.tight_layout()
-plt.savefig("visualize_variants/plots/fraction_per_feature_type.png", dpi=300)
+plt.savefig("explore_cancer_variants/plots/fraction_per_feature_type.png", dpi=300)
 plt.show()
 
-print("Plotting complete. Saved as 'visualize_variants/plots/fraction_per_feature_type.png'\n")
+print("Plotting complete. Saved as 'explore_cancer_variants/plots/fraction_per_feature_type.png'")
 
 # ------------------------------------------------------------
 # Identify genes enriched in functional sites
 # ------------------------------------------------------------
+
+print("\n------------------------------------------------------")
+print("FIND GENES ENRICHED IN FUNCTIONAL SITES")
+print("------------------------------------------------------\n")
 
 print("Identifying oncogenic driver genes enriched in functional sites..\n")
 
@@ -214,11 +270,15 @@ gene_feature_fraction["Fraction_of_Feature"] = (
 )
 
 print("Example output:\n")
-print(gene_feature_fraction.head(5), "\n")
+print(gene_feature_fraction.head(5))
 
 # ------------------------------------------------------------
 # Plot top genes per functional site
 # ------------------------------------------------------------
+
+print("\n------------------------------------------------------")
+print("PLOT TOP GENES PER FUNCTIONAL SITE")
+print("------------------------------------------------------\n")
 
 print("Plotting top genes per functional site...\n")
 
@@ -226,24 +286,37 @@ for ft in filtered_sites:
     subset = (
         gene_feature_fraction[gene_feature_fraction["FEATURE_TYPE"] == ft]
         .sort_values("Fraction_of_Feature", ascending=False)
-        .head(10)
+        .head(20)
     )
     
-    plt.figure(figsize=(6,4))
-    plt.bar(subset["Hugo_Symbol"], subset["Fraction_of_Feature"], color="#ef6f6c")
-    plt.title(f"Top Driver Genes in '{ft}'", fontweight="bold", fontsize=13)
-    plt.xlabel("Gene")
-    plt.ylabel("Fraction of variants in feature")
-    plt.xticks(rotation=45, ha="right")
+    plt.figure(figsize=(8,5))
+
+    plt.bar(subset["Hugo_Symbol"], 
+            subset["Fraction_of_Feature"], 
+            color="#C4473B", 
+            edgecolor="0.1",
+            linewidth=0.3)
+
+    plt.title(f"Top Driver Genes in '{ft}'", fontsize=14, pad=10)
+    plt.xlabel("Gene", fontsize=12)
+    plt.ylabel("Fraction of variants in feature", fontsize=12)
+    plt.xticks(rotation=45, ha="right", fontsize=9)
+    plt.yticks(fontsize=9)
+
     plt.tight_layout()
-    plt.savefig(f"visualize_variants/plots/topgenes_in_{ft}.png", dpi=300)
+    plt.savefig(f"explore_cancer_variants/plots/topgenes_in_{ft}.png", dpi=300)
     plt.show()
 
-print("Plotting complete! Saved to output folder.\n") 
+print("Plotting complete! Saved in 'explore_cancer_variants/plots'\n")
 
 # ------------------------------------------------------------
-# Compare likely neutral variants in top oncogenic driver genes
+# Compare likely neutral variants to oncogenic variants in top oncogenic driver genes
 # ------------------------------------------------------------
+
+print("\n------------------------------------------------------")
+print("COMPARE VARIANTS IN TOP ONCOGENIC DRIVER GENES")
+print("------------------------------------------------------\n")
+
 
 print("Extracting likely neutral variants...\n")
 
@@ -273,12 +346,16 @@ comparison_top["ratio_onco_neutral"] = (
     (comparison_top["Variant_Count_likely_neutral"] + 1)
 )
 
-print("Example output oncogenic-neutral ratio:\n")
-print(comparison_top.head(), "\n")
+print("Example output oncogenic-neutral ratio:")
+print(comparison_top.head())
 
 # ------------------------------------------------------------
 # Plot oncogenic-neutral ratios
 # ------------------------------------------------------------
+
+print("\n------------------------------------------------------")
+print("PLOT ONCOGENIC-NEUTRAL RATIOS")
+print("------------------------------------------------------\n")
 
 print("Plotting oncogenic-neutral ratio for all feature types...\n")
 
@@ -289,23 +366,36 @@ for ft in filtered_sites:
         .head(20)
     )
 
-    plt.figure(figsize=(7,4))
-    plt.bar(subset["Hugo_Symbol"], subset["ratio_onco_neutral"], color="#ef6f6c")
-    plt.title(f"Oncogenic vs Neutral Variant Ratio in '{ft}'", fontweight="bold", fontsize=13)
-    plt.xlabel("Gene")
-    plt.ylabel("Ratio")
-    plt.xticks(rotation=45, ha="right")
+    plt.figure(figsize=(8,5))
+    plt.bar(subset["Hugo_Symbol"], 
+            subset["ratio_onco_neutral"], 
+            color="#C4473B",
+            edgecolor="0.1",
+            linewidth=0.3)
+
+    plt.title(f"Oncogenic vs Neutral Variant Ratio in '{ft}'", fontsize=14, pad=10)
+    plt.xlabel("Gene", fontsize=12)
+    plt.ylabel("Ratio", fontsize=12)
+    plt.xticks(rotation=45, ha="right", fontsize=9)
+    plt.yticks(fontsize=9)
+
     plt.tight_layout()
-    plt.savefig(f"visualize_variants/plots/onco-neutral-ratio_in_{ft}.png", dpi=300)
+    plt.savefig(f"explore_cancer_variants/plots/onco-neutral-ratio_in_{ft}.png", dpi=300)
     plt.show()
 
-print("Plotting complete! Saved to output folder.\n")
+print("Plotting complete! Saved in 'explore_cancer_variants/plots'\n")
 
 # ------------------------------------------------------------
 # Which genes dominate in each feature type? 
 # ------------------------------------------------------------
 
-# Pick top 10 genes from each feature type
+print("\n------------------------------------------------------")
+print("FIND DOMINATING GENES FOR EACH FEATURE TYPE")
+print("------------------------------------------------------\n")
+
+# Pick top genes from each feature type
+
+print("Extracting top genes per feature type...\n")
 top_genes_per_feature = (
     gene_feature_fraction
     .groupby('FEATURE_TYPE')
@@ -313,16 +403,37 @@ top_genes_per_feature = (
     .reset_index(drop=True)
 )
 
+print("Example output:")
+print(top_genes_per_feature.head(10),"\n")
+
+print("Plotting top genes per feature...\n")
+
 pivot = top_genes_per_feature.pivot(
     index='Hugo_Symbol', 
     columns='FEATURE_TYPE', 
     values='Fraction_of_Feature'
 ).fillna(0)
 
-plt.figure(figsize=(10,8))
-sns.heatmap(pivot, cmap='Reds', annot=True, fmt='.2f')
-plt.title('Gene Distribution Across Functional Site Types')
+plt.figure(figsize=(10,6))
+ax = sns.heatmap(pivot, 
+            cmap='Reds', 
+            annot=True, 
+            fmt='.2f',
+            cbar_kws={"label":"Fraction of variants in feature"},
+            )
+
+ax.set_xlabel("Feature Type", fontsize=12)
+ax.set_ylabel("Gene (Hugo Symbol)", fontsize=12)
+
+plt.title('Gene Distribution Across Functional Site Types', fontsize=14, pad=10)
+
 plt.tight_layout()
+plt.savefig("explore_cancer_variants/plots/top_genes_per_functional_site.png", dpi=300, bbox_inches="tight")
 plt.show()
 
+print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/top_genes_per_functional_site.png'\n")
+
+
+
+print("========================================================")
 print("\nVariant Functional Site Analysis complete!🥳\n")
