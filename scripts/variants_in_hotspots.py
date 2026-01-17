@@ -19,6 +19,7 @@ Major outputs:
 6. Identification of genes with recurrent oncogenic variants in cancer hotspots
 7. Gene-level summary of oncogenic hotspot enrichment
 8. Visualization of frequently mutated genes with high hotspot fractions
+9. Overview and plot of variants meeting  ClinGen/CGC/VICC hotspot criteria
 
 All plots are saved in:
    explore_cancer_variants/plots/
@@ -56,6 +57,7 @@ print(f"Loaded {len(variants):,} variants.\n")
 # Define hotspot membership for each variant
 # ------------------------------------------------------------
 
+# create boolean, check if variants is in hotspot true/false
 variants["In_Hotspot"] = variants["Hotspot_Type"].notna()
 
 # ------------------------------------------------------------
@@ -155,7 +157,7 @@ counts = (variants_onco_neutral
 
 print("Plotting number of variants in cancer hotspots...\n")
 
-palette = palette = {"Oncogenic": "#C4473B", "Likely Neutral": "#7e8aa2"}
+palette = {"Oncogenic": "#C4473B", "Likely Neutral": "#7e8aa2"}
 
 plt.figure(figsize=(8,5))
 sns.barplot(data=counts, 
@@ -353,5 +355,130 @@ plt.show()
 
 print("Plotting complete! Figure saved as 'explore_cancer_variants/plots/oncogenes_hotspot_fraction.png'\n")
 
+# ------------------------------------------------------------
+# Cancer Hotspot Evidence (ClinGen / CGC / VICC Framework)
+# Based on Horak et al.
+# ------------------------------------------------------------
+
+print("Identifying variants meeting ClinGen/CGC/VICC cancer hotspot criteria (OS3, OM3)...\n")
+
+# ------------------------------------------------------------
+# Define hotspot-related evidence components
+# ------------------------------------------------------------
+
+# Variant occurs at a hotspot position with ≥50 somatic samples
+variants_onco_neutral["Hotspot_Pos_50"] = variants_onco_neutral["Samples"] >= 50
+
+# Count how many hotspot samples share the exact amino acid change
+variants_onco_neutral["Exact_AA_Hotspot_Count"] = (
+    variants_onco_neutral
+    .groupby("HGVSp")["In_Hotspot"]
+    .transform("sum")
+)
+
+# Variant has ≥10 hotspot samples with the same amino acid change
+variants_onco_neutral["Exact_AA_10"] = (
+    variants_onco_neutral["Exact_AA_Hotspot_Count"] >= 10
+)
+
+# ------------------------------------------------------------
+# Apply ClinGen/VICC cancer hotspot criteria
+# ------------------------------------------------------------
+
+# OS3: Hotspot + ≥50 samples at position + ≥10 with exact AA change
+variants_onco_neutral["Meets_Hotspot_OS3"] = (
+    variants_onco_neutral["In_Hotspot"] &
+    variants_onco_neutral["Hotspot_Pos_50"] &
+    variants_onco_neutral["Exact_AA_10"]
+)
+
+# OM3: Hotspot + ≥10 samples with exact AA change
+variants_onco_neutral["Meets_Hotspot_OM3"] = (
+    variants_onco_neutral["In_Hotspot"] &
+    variants_onco_neutral["Exact_AA_10"]
+)
+
+print("Preview of annotated variants:")
+print(variants_onco_neutral.head(), "\n")
+
+# ------------------------------------------------------------
+# Summarize variant counts by oncogenicity
+# ------------------------------------------------------------
+
+summary_OS3 = (
+    variants_onco_neutral
+    .groupby(["ONCOGENIC", "Meets_Hotspot_OS3"])
+    .size()
+    .reset_index(name="Variant_Count")
+)
+
+print("Summary of Cancer Hotspot Criterion OS3:")
+print(summary_OS3, "\n")
+
+summary_OM3 = (
+    variants_onco_neutral
+    .groupby(["ONCOGENIC", "Meets_Hotspot_OM3"])
+    .size()
+    .reset_index(name="Variant_Count")
+)
+
+print("Summary of Cancer Hotspot Criterion OM3:")
+print(summary_OM3, "\n")
+
+# ------------------------------------------------------------
+# Plot Cancer Hotspot Evidence
+# ------------------------------------------------------------
+
+print("Plotting cancer hotspot evidence...\n")
+
+hotspot_palette = {True: "#B53226", False: "#A5BAE4"}
+
+
+# OS3 PLOT
+plt.figure(figsize=(8, 5))
+
+sns.barplot(
+    data=summary_OS3,
+    x="ONCOGENIC",
+    y="Variant_Count",
+    hue="Meets_Hotspot_OS3",
+    palette=hotspot_palette,
+    edgecolor="0.1",
+    linewidth=0.3
+)
+
+plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OS3)", fontsize=14, pad=10)
+plt.xlabel("Oncogenicity", fontsize=12)
+plt.ylabel("Number of Variants", fontsize=12)
+plt.legend(title="Meets OS3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
+
+plt.tight_layout()
+plt.savefig("explore_cancer_variants/plots/meets_hotspot_OS3.png", dpi=300)
+plt.show()
+
+
+
+# OM3 PLOT
+plt.figure(figsize=(8, 5))
+
+sns.barplot(
+    data=summary_OM3,
+    x="ONCOGENIC",
+    y="Variant_Count",
+    hue="Meets_Hotspot_OM3",
+    palette=hotspot_palette,
+    edgecolor="0.1",
+    linewidth=0.3
+)
+
+plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OM3)", fontsize=14, pad=10)
+plt.xlabel("Oncogenicity", fontsize=12)
+plt.ylabel("Number of Variants", fontsize=12)
+plt.legend(title="Meets OM3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
+
+plt.tight_layout()
+plt.savefig("explore_cancer_variants/plots/meets_hotspot_OM3.png", dpi=300)
+plt.show()
+
+print("Variant hotspot analysis complete!")
 print("========================================================")
-print("Variant hotspot analysis complete!\n")
