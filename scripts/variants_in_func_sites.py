@@ -28,7 +28,7 @@ Key features handled:
 - Topological domain
 
 All plots are saved in:
-    explore_cancer_variants/plots/
+    plots/
 
 ====================================================================
 """
@@ -51,7 +51,7 @@ import os
 # ------------------------------------------------------------
 
 # Create output folder if it doesn't exist
-os.makedirs("explore_cancer_variants/plots", exist_ok=True)
+os.makedirs("plots", exist_ok=True)
 
 print("\n------------------------------------------------------")
 print("LOAD VARIANT DATA")
@@ -60,7 +60,7 @@ print("------------------------------------------------------\n")
 print("Loading variant data...\n")
 
 variants = pd.read_csv(
-    "annotation_pipeline/output/variants_with_func_sites.tsv",
+    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
     sep="\t",
     low_memory=False
 )
@@ -178,10 +178,10 @@ plt.yticks(fontsize=9)
 plt.legend(title="Oncogenicity", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/counts_per_feature_type.png", dpi=300)
+plt.savefig("plots/counts_per_feature_type.png", dpi=300)
 plt.show()
 
-print(f"Plotting complete. Saved as 'explore_cancer_variants/plots/counts_per_feature_type.png'")
+print(f"Plotting complete. Saved as 'plots/counts_per_feature_type.png'")
 
 # ------------------------------------------------------------
 # Compute fractions
@@ -229,10 +229,10 @@ plt.yticks(fontsize=9)
 plt.legend(title="Oncogenicity", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/fraction_per_feature_type.png", dpi=300)
+plt.savefig("plots/fraction_per_feature_type.png", dpi=300)
 plt.show()
 
-print("Plotting complete. Saved as 'explore_cancer_variants/plots/fraction_per_feature_type.png'")
+print("Plotting complete. Saved as 'plots/fraction_per_feature_type.png'")
 
 # ------------------------------------------------------------
 # Identify genes enriched in functional sites
@@ -304,10 +304,10 @@ for ft in filtered_sites:
     plt.yticks(fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(f"explore_cancer_variants/plots/topgenes_in_{ft}.png", dpi=300)
+    plt.savefig(f"plots/topgenes_in_{ft}.png", dpi=300)
     plt.show()
 
-print("Plotting complete! Saved in 'explore_cancer_variants/plots'\n")
+print("Plotting complete! Saved in 'plots'\n")
 
 # ------------------------------------------------------------
 # Compare likely neutral variants to oncogenic variants in top oncogenic driver genes
@@ -380,10 +380,10 @@ for ft in filtered_sites:
     plt.yticks(fontsize=9)
 
     plt.tight_layout()
-    plt.savefig(f"explore_cancer_variants/plots/onco-neutral-ratio_in_{ft}.png", dpi=300)
+    plt.savefig(f"plots/onco-neutral-ratio_in_{ft}.png", dpi=300)
     plt.show()
 
-print("Plotting complete! Saved in 'explore_cancer_variants/plots'\n")
+print("Plotting complete! Saved in 'plots'\n")
 
 # ------------------------------------------------------------
 # Which genes dominate in each feature type? 
@@ -398,8 +398,9 @@ print("------------------------------------------------------\n")
 print("Extracting top genes per feature type...\n")
 top_genes_per_feature = (
     gene_feature_fraction
+    .sort_values(['FEATURE_TYPE', 'Fraction_of_Feature'], ascending=[True,False])
     .groupby('FEATURE_TYPE')
-    .apply(lambda x: x.nlargest(5, 'Fraction_of_Feature'))
+    .head()
     .reset_index(drop=True)
 )
 
@@ -428,10 +429,10 @@ ax.set_ylabel("Gene (Hugo Symbol)", fontsize=12)
 plt.title('Gene Distribution Across Functional Site Types', fontsize=14, pad=10)
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/top_genes_per_functional_site.png", dpi=300, bbox_inches="tight")
+plt.savefig("plots/top_genes_per_functional_site.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/top_genes_per_functional_site.png'\n")
+print("Plotting complete! Plot saved as 'plots/top_genes_per_functional_site.png'\n")
 
 
 

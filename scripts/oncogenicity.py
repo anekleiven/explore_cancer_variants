@@ -15,7 +15,7 @@ Script content:
 2. Plot distribution of oncogenicity classes 
 
 All plots are saved in:
-    explore_cancer_variants/plots/
+    plots/
 
 """
 print("\n========================================================")
@@ -40,7 +40,7 @@ print("------------------------------------------------------\n")
 
 print("Loading variant data...\n")
 
-variants = pd.read_csv("annotation_pipeline/output/variants_with_func_sites.tsv", sep="\t", low_memory=False)
+variants = pd.read_csv("/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv", sep="\t", low_memory=False)
 
 
 # ------------------------------------------------------------
@@ -98,16 +98,16 @@ sns.barplot(
 
 plt.yscale("log")
 plt.title("Distribution of Oncogenicity Classes", fontsize=14, pad=10)
-plt.xlabel("Oncogenicity class", fontsize=12)
+plt.xlabel("Oncogenicity Class", fontsize=12)
 plt.ylabel("Number of Variants (log-scaled)", fontsize=12)
 plt.xticks(rotation=45, ha='right', fontsize=9)
 plt.yticks(fontsize=9)
 plt.tight_layout()
 
-plt.savefig("explore_cancer_variants/plots/oncogenicity.png", dpi=300, bbox_inches="tight")
+plt.savefig("plots/oncogenicity.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print("\nPlotting complete! Plot saved as 'explore_cancer_variants/plots/oncogenicity.png'\n")
+print("\nPlotting complete! Plot saved as 'plots/oncogenicity.png'\n")
 
 
 print("========================================================")

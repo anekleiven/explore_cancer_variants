@@ -20,7 +20,7 @@ Major outputs:
 
 
 All plots are saved in:
-    explore_cancer_variants/plots/
+    plots/
 
 """
 
@@ -47,7 +47,7 @@ print("------------------------------------------------------\n")
 print("Loading variant data...\n")
 
 variants = pd.read_csv(
-    "annotation_pipeline/output/variants_with_func_sites.tsv",
+    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
     sep="\t",
     low_memory=False
 )
@@ -179,11 +179,11 @@ plt.xticks(rotation=45,
            ha="right")
 plt.legend(title="Oncogenicity")
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/oncogenic_neutral_counts.png")
+plt.savefig("plots/oncogenic_neutral_counts.png")
 
 plt.show()
 
-print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/oncogenic_neutral_counts.png'")
+print("Plotting complete! Plot saved as 'plots/oncogenic_neutral_counts.png'")
 
 # ------------------------------------------------------------
 # Plot top domains enriched for oncogenic variants 
@@ -213,10 +213,10 @@ plt.yticks(fontsize=9)
 
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/domain_oncogenic_enrichment.png")
+plt.savefig("plots/domain_oncogenic_enrichment.png")
 plt.show()
 
-print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/domain_oncogenic_enrichment.png'")
+print("Plotting complete! Plot saved as 'plots/domain_oncogenic_enrichment.png'")
 
 # ------------------------------------------------------------
 # Combined oncogenic + neutral heatmap 
@@ -297,12 +297,12 @@ plt.xticks(fontsize=9)
 plt.yticks(fontsize=9)
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/heatmap_oncogenic_fraction.png",
+plt.savefig("plots/heatmap_oncogenic_fraction.png",
             dpi=300, 
             bbox_inches="tight")
 plt.show()
 
-print("Heatmap complete! Saved as 'explore_cancer_variants/plots/heatmap_oncogenic_fraction.png'")
+print("Heatmap complete! Saved as 'plots/heatmap_oncogenic_fraction.png'")
 
 # ------------------------------------------------------------
 # Identify driver genes enriched in protein domains
@@ -398,11 +398,11 @@ plt.xticks(fontsize=9)
 plt.yticks(fontsize=9)
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/heatmap_topgenes_topdomains.png",
+plt.savefig("plots/heatmap_topgenes_topdomains.png",
             dpi=300, bbox_inches="tight")
 plt.show()
 
-print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/heatmap_topgenes_topdomains.png'\n")
+print("Plotting complete! Plot saved as 'plots/heatmap_topgenes_topdomains.png'\n")
 
 print("========================================================")
 print("Variant protein domain analysis complete!\n")

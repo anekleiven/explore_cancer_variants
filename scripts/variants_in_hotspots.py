@@ -22,7 +22,7 @@ Major outputs:
 9. Overview and plot of variants meeting  ClinGen/CGC/VICC hotspot criteria
 
 All plots are saved in:
-   explore_cancer_variants/plots/
+   plots/
 
 """
 
@@ -45,7 +45,7 @@ import seaborn as sns
 print("\nLoading variant data...\n")
 
 variants = pd.read_csv(
-    "annotation_pipeline/output/variants_with_func_sites.tsv",
+    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
     sep="\t",
     low_memory=False
 )
@@ -172,10 +172,10 @@ plt.title("Number of Variants in Cancer Hotspots", fontsize=14, pad=10)
 plt.xlabel("Variant in Hotspot", fontsize=12)
 plt.ylabel("Counts", fontsize=12) 
 plt.tight_layout() 
-plt.savefig("explore_cancer_variants/plots/variants_in_hotspots.png", dpi=300)
+plt.savefig("plots/variants_in_hotspots.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/variants_in_hotspots.png'")
+print("Plotting complete! Plot saved as 'plots/variants_in_hotspots.png'")
 
 
 # ------------------------------------------------------------
@@ -212,10 +212,10 @@ plt.title("Fraction of Variants in Cancer Hotspots", fontsize=14, pad=10)
 plt.xlabel("Variant in Hotspot", fontsize=12)
 plt.ylabel("Fraction", fontsize=12)
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/fractions_in_hotspots.png", dpi=300)
+plt.savefig("plots/fractions_in_hotspots.png", dpi=300)
 plt.show() 
 
-print("\nPlotting complete! Plot saved as 'explore_variants/plots/fractions_in_hotspots.png'\n")
+print("\nPlotting complete! Plot saved as 'plots/fractions_in_hotspots.png'\n")
 
 # ------------------------------------------------------------
 # Identify Oncogenic Variants in Cancer Hotspots Across Genes 
@@ -268,10 +268,10 @@ plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9) 
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/oncogenes_in_hotspots.png", dpi=300)
+plt.savefig("plots/oncogenes_in_hotspots.png", dpi=300)
 plt.show() 
 
-print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/oncogenes_in_hotspots.png'\n")
+print("Plotting complete! Plot saved as 'plots/oncogenes_in_hotspots.png'\n")
 
 # ------------------------------------------------------------
 # Gene-level Hotspot Fraction 
@@ -350,10 +350,10 @@ plt.yticks(fontsize=9)
 plt.legend(title="Hotspot Fraction", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/oncogenes_hotspot_fraction.png", dpi=300)
+plt.savefig("plots/oncogenes_hotspot_fraction.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Figure saved as 'explore_cancer_variants/plots/oncogenes_hotspot_fraction.png'\n")
+print("Plotting complete! Figure saved as 'plots/oncogenes_hotspot_fraction.png'\n")
 
 # ------------------------------------------------------------
 # Cancer Hotspot Evidence (ClinGen / CGC / VICC Framework)
@@ -453,7 +453,7 @@ plt.ylabel("Number of Variants", fontsize=12)
 plt.legend(title="Meets OS3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/meets_hotspot_OS3.png", dpi=300)
+plt.savefig("plots/meets_hotspot_OS3.png", dpi=300)
 plt.show()
 
 
@@ -477,8 +477,7 @@ plt.ylabel("Number of Variants", fontsize=12)
 plt.legend(title="Meets OM3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
 
 plt.tight_layout()
-plt.savefig("explore_cancer_variants/plots/meets_hotspot_OM3.png", dpi=300)
+plt.savefig("plots/meets_hotspot_OM3.png", dpi=300)
 plt.show()
 
-print("Variant hotspot analysis complete!")
-print("========================================================")
+print("\nVariant hotspot analysis complete!🥳🎉\n")

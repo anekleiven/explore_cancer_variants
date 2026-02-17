@@ -16,7 +16,7 @@ Script content:
 3. Log-scaled KDE-comparison between oncogenic and likely neutral variants. 
 
 All plots are saved in:
-    explore_cancer_variants/plots/
+    plots/
 
 """
 
@@ -44,7 +44,7 @@ print("------------------------------------------------------\n")
 print("Loading variant data...\n")
 
 variants = pd.read_csv(
-    "annotation_pipeline/output/variants_with_func_sites.tsv",
+    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
     sep="\t",
     low_memory=False
 )
@@ -100,7 +100,7 @@ def analyze_gnomad_af(variants: pd.DataFrame, status: str, plotname: str, color:
     plt.legend(loc='upper right')
 
     plt.tight_layout()
-    plt.savefig(f"explore_cancer_variants/plots/{plotname}", dpi=300, bbox_inches="tight")
+    plt.savefig(f"plots/{plotname}", dpi=300, bbox_inches="tight")
     plt.show()
   
 
@@ -141,7 +141,7 @@ analyze_gnomad_af(variants, "Inconclusive", color="#f9c74f", plotname="gnomAD_in
 analyze_gnomad_af(variants, "Likely Neutral", color="#7e8aa2", plotname="gnomAD_likely_neutral.png")
 
 print("gnomAD frequency analysis completed successfully for all oncogenicity classes.")
-print("Plots saved in folder 'explore_cancer_variants/plots/'")
+print("Plots saved in folder 'plots/'")
 
 
 # ============================================================
@@ -189,11 +189,11 @@ plt.xlabel("gnomAD_AF (log10 scale)", fontsize=12)
 plt.ylabel("Density", fontsize=12)
 plt.tight_layout()
 
-plt.savefig("explore_cancer_variants/plots/gnomAD_combined_KDE.png", dpi=300, bbox_inches="tight") 
+plt.savefig("plots/gnomAD_combined_KDE.png", dpi=300, bbox_inches="tight") 
 
 plt.show() 
 
-print("Plotting complete! Plot saved as 'explore_cancer_variants/plots/gnomAD_combined_KDE.png'\n")
+print("Plotting complete! Plot saved as 'plots/gnomAD_combined_KDE.png'\n")
 
 
 print("========================================================")

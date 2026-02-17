@@ -28,7 +28,7 @@ Script content:
    of oncogenicity classes per gene
 
 All plots are saved in:
-    explore_cancer_variants/plots/
+    plots/
 """
 
 print("\n========================================================")
@@ -45,7 +45,7 @@ import matplotlib.pyplot as plt
 import os 
 
 # directory to save plots 
-save_dir = "explore_cancer_variants/plots"
+save_dir = "plots"
 os.makedirs(save_dir, exist_ok=True) 
 
 #--------------------------------------------------------------------
@@ -59,7 +59,7 @@ print("------------------------------------------------------\n")
 print("Loading variant data...\n")
 
 variants = pd.read_csv(
-  "annotation_pipeline/output/variants_with_func_sites.tsv", 
+  "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv", 
   sep="\t", 
   low_memory=False
   )
@@ -195,7 +195,7 @@ plot_top_genes(
     plotname="top_likely_neutral"
 )
 
-print("Plotting complete. All plots saved in 'explore_cancer_variants/plots'\n")
+print("Plotting complete. All plots saved in 'plots'\n")
 
 # ============================================================
 # Class distribution in the top oncogenic genes 
@@ -262,7 +262,7 @@ plt.savefig(f"{save_dir}/distribution_top_onco.png", dpi=300, bbox_inches="tight
 
 plt.show() 
 
-print("Plotting complete! Plot saved in folder 'explore_cancer_variants/plots'\n")
+print("Plotting complete! Plot saved in folder 'plots'\n")
 
 # ============================================================
 # Class distribution in the oncogenic genes (PIVOT)
@@ -314,7 +314,7 @@ plt.savefig(f"{save_dir}/percentage_top_onco.png", dpi=300, bbox_inches="tight")
 
 plt.show() 
 
-print("Plotting complete! Plot saved in folder 'explore_cancer_variants/plots'\n")
+print("Plotting complete! Plot saved in folder 'plots'\n")
 
 
 print("========================================================")
