@@ -17,6 +17,9 @@ Major outputs:
 3. Top genes with MaveDB_score 
 4. Oncogenicity distribution within top genes with MaveDB_score 
 5. Oncogenic vs neutral counts within top genes with MaveDB_score
+6. Descriptive statistics of MAVE scores 
+7. Boxplot of MAVE score distributions per class 
+8. Density plot of MAVE score distributions per class 
 
 
 All plots are saved in:
@@ -244,6 +247,85 @@ plt.savefig("plots/onco_neutral_mave_counts.png", dpi=300, bbox_inches='tight')
 plt.show() 
 
 print("Stacked bar plot saved as 'plots/onco_neutral_mave_counts.png'.")
+
+# ------------------------------------------------------------
+# Descriptive statistics of MAVE scores per oncogenicity class 
+# ------------------------------------------------------------
+
+maves_score_summary = variants_onco_vs_neutral.groupby("ONCOGENIC")["MaveDB_score"].agg(
+    count='count',
+    min ='min',
+    max='max',
+    median='median',
+    mean='mean',
+    std='std'
+).reset_index()
+
+print("Descriptive statistics of MAVE score distributions:")
+print(maves_score_summary, "\n")
+
+# ------------------------------------------------------------
+# Box plot og MAVE scores per oncogenicity class 
+# ------------------------------------------------------------
+
+# remove rows with missing MAVE data 
+mavescore_plot = variants_onco_vs_neutral.dropna(subset=["MaveDB_score"])
+
+# standardize colors 
+palette={
+  "Oncogenic": "#C4473B",
+  "Likely Neutral": "#7e8aa2"
+  }
+
+print("Plotting boxplot of MAVE score data...\n")
+
+plt.figure(figsize=(8,5))
+
+sns.boxplot(
+  data=mavescore_plot, 
+  x="ONCOGENIC", 
+  y="MaveDB_score", 
+  palette=palette)
+
+plt.title("MAVE Score by Oncogenicity Class")
+plt.xlabel("Oncogenicity")
+plt.ylabel("MaveDB Score")
+
+plt.tight_layout() 
+plt.savefig("plots/boxplot_maves.png", dpi=300, bbox_inches="tight")
+plt.show()
+
+print("Plotting complete! Boxplot saved as 'plots/boxplot_maves.png'.\n")
+
+
+# ------------------------------------------------------------
+# Density plot og MAVE scores per oncogenicity class 
+# ------------------------------------------------------------
+
+# Plot settings 
+sns.set_theme(style="whitegrid")
+
+# Density plot with oncogenic and neutral variants 
+print("Plotting distribution of mave scores per oncogenicity class...\n")
+
+plt.figure(figsize=(8,5)) 
+sns.kdeplot(
+  data=mavescore_plot,
+  x="MaveDB_score",
+  hue="ONCOGENIC",
+  fill=True,
+  common_norm=False,
+  palette=palette, 
+  alpha=0.5
+)
+
+plt.title("MAVE Score by Oncogenicity Class", fontsize=14)
+plt.xlabel("MaveDB Score", fontsize=12)
+plt.ylabel("Density", fontsize=12)
+plt.savefig("plots/mave_scores_comparison.png", bbox_inches='tight')
+plt.show()
+
+print("Plotting complete! Plot saved as 'plots/mave_scores_comparison.png'.\n")
 
 
 print("\nMAVE visualization analysis complete!🎉🥳\n")
