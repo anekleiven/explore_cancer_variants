@@ -1,6 +1,6 @@
 # Data Exploration Cancer Variants 👩🏽‍🔬
 
-Script to explore and visualize cancer variants and the annotated classification evidence. 
+Script to explore, visualize and perform statistics on cancer variants and the annotated classification evidence. 
 Each script contains further explanations on content and use. 
 
 ## Requirements 💻
@@ -18,7 +18,7 @@ Each script contains further explanations on content and use.
 
 ## Script Descriptions
 
-`gnomAD_freq.py` - gnomAD frequency distributions among different oncogenicity classes 
+`gnomAD_freq.py` - gnomAD frequency distributions among different oncogenicity classes and statistical analyses. 
 
 `oncogenicity.py` - Oncogenicity distributions
 
