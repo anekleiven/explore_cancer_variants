@@ -14,6 +14,8 @@ Script content:
 1. Function to analyze and plot gnomAD allele frequencies for a given oncogenicity class. 
 2. gnomAD AF analysis for all oncogenicity classes 
 3. Log-scaled KDE-comparison between oncogenic and likely neutral variants. 
+4. Statistical analysis: Mann-Whitney U test
+5. Statistical analysis: Chi-Squared test 
 
 All plots are saved in:
     plots/
@@ -68,7 +70,7 @@ def analyze_gnomad_af(variants: pd.DataFrame, status: str, plotname: str, color:
 
     # Convert to numeric and separate valid frequencies
     subset["gnomAD_AF"] = pd.to_numeric(subset["gnomAD_AF"], errors="coerce")
-    subset_af = subset[subset["gnomAD_AF"].notna()]
+    subset_af = subset[subset["gnomAD_AF"].notna() & subset["gnomAD_AF"] > 0]
     missing_af = subset["gnomAD_AF"].isna().sum()
 
     print(f"{missing_af:,} of {total:,} '{status}' variants "
@@ -160,8 +162,7 @@ filtered = variants[variants["ONCOGENIC"].isin(wanted)].copy()
 filtered["gnomAD_AF"] = pd.to_numeric(filtered["gnomAD_AF"], errors="coerce")
 
 # drop NA and zero values
-filtered = filtered.dropna(subset=["gnomAD_AF"])
-filtered = filtered[filtered["gnomAD_AF"] > 0]
+filtered = filtered[filtered["gnomAD_AF"].notna() & (filtered["gnomAD_AF"] > 0)]
 
 # define colors for the given classes
 palette = {
@@ -196,6 +197,71 @@ plt.show()
 print("Plotting complete! Plot saved as 'plots/gnomAD_combined_KDE.png'\n")
 
 
-print("========================================================")
+# ============================================================
+# Statistical analyses: Mann-Whitney U test 
+# ============================================================
+
+# Hypotheses
+# H0 The distribution of gnomAD allele frequencies is the same for oncogenic and likely neutral variants.
+# H1 The distribution of gnomAD allele frequencies is not the same for oncogenic and likely neutral variants.
+
+# Model assumptions: 
+# The variable (gnomAF) is continuous 
+# The data is assumed to be non-normal (skewed) 
+# The data in both groups should be similar in shape 
+# The samples should be independent 
+
+from scipy.stats import mannwhitneyu
+
+# define the data 
+oncogenic = filtered[filtered["ONCOGENIC"] == "Oncogenic"]["gnomAD_AF"]
+neutral = filtered[filtered["ONCOGENIC"]=="Likely Neutral"]["gnomAD_AF"]
+
+# perform Mann-Whitney U test 
+stat, p = mannwhitneyu(oncogenic, neutral, alternative="two-sided") 
+print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
+
+# calculate rank-biserial correlation 
+# (effect size for mann-whitney u) 
+n1 = len(oncogenic)
+n2 = len(neutral)
+r = 1 - (2 * stat) / (n1 * n2)
+print(f"Rank-biserial correlation: {r:.3f}")
+
+probability = (1+r)/2 
+print(f"The probability of a random oncogene variant having a higher gnomAD_AF than a neutral is: {probability*100:.2f}%.\n")
+
+# ============================================================
+# Statistical analysis: Chi-Squared Test 
+# ============================================================
+
+# check whether there is a significant difference in missing gnomAD samples between oncogenic and neutral samples 
+
+from scipy.stats import chi2_contingency 
+
+# make contingency table 
+oncogenic = variants[variants["ONCOGENIC"] == "Oncogenic"]["gnomAD_AF"]
+neutral = variants[variants["ONCOGENIC"]=="Likely Neutral"]["gnomAD_AF"]
+
+oncogenic_missing = (pd.to_numeric(oncogenic, errors="coerce").isna()).sum() 
+neutral_missing = (pd.to_numeric(neutral, errors="coerce").isna()).sum() 
+
+table = [
+    [len(oncogenic) - oncogenic_missing, oncogenic_missing],
+    [len(neutral) - neutral_missing, neutral_missing]
+]
+
+print("Running Chi-Squared Test of gnomAD_AF variant data...\n")
+
+# run chi-squared test 
+chi2, p, dof, expected = chi2_contingency(table)
+print("Results:")
+print(f"Chi-squared: {chi2:.3f}, p-value: {p:.4f}")
+
+# cramers v (effect size for chi squared) 
+n = sum([sum(row) for row in table])
+cramers_v = np.sqrt(chi2 / (n * (min(2, 2) - 1)))
+print(f"Cramér's V: {cramers_v:.3f}\n")
+
 print("Variant gnomAD allele frequency analysis complete!\n")
 
