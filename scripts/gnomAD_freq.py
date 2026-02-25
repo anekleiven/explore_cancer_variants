@@ -207,8 +207,8 @@ print("Plotting complete! Plot saved as 'plots/gnomAD_combined_KDE.png'\n")
 
 # Model assumptions: 
 # The variable (gnomAF) is continuous 
-# The data is assumed to be non-normal (skewed) 
-# The data in both groups should be similar in shape 
+# The data is assumed to be non-normal
+# The data in both groups have similar distributions 
 # The samples should be independent 
 
 from scipy.stats import mannwhitneyu
@@ -232,14 +232,28 @@ probability = (1+r)/2
 print(f"The probability of a random oncogene variant having a higher gnomAD_AF than a neutral is: {probability*100:.2f}%.\n")
 
 # ============================================================
-# Statistical analysis: Chi-Squared Test 
+# Statistical analysis: Chi-Square
 # ============================================================
 
-# check whether there is a significant difference in missing gnomAD samples between oncogenic and neutral samples 
+# Check whether there is an significant association between variant oncogenicity and  
+# the precence of gnomAD allele frequency data  
+
+# Model assumptions: 
+# Both variables are categorical.
+# All observations are independent.
+# Each observation must only contribute to one cell.
+# The expected frequency in each cell should be at least five.
+
+# Hypotheses: 
+# H0:   There is no association between variant pathogenicity (oncogenic vs. likely neutral) 
+#       and the presence of gnomAD allele frequency data
+# H1:   There is a statistically significant association between variant pathogenicity and 
+#       the presence of gnomAD allele frequency data.
 
 from scipy.stats import chi2_contingency 
+from scipy.stats.contingency import odds_ratio
 
-# make contingency table 
+# make contingency table for observed values 
 oncogenic = variants[variants["ONCOGENIC"] == "Oncogenic"]["gnomAD_AF"]
 neutral = variants[variants["ONCOGENIC"]=="Likely Neutral"]["gnomAD_AF"]
 
@@ -251,17 +265,48 @@ table = [
     [len(neutral) - neutral_missing, neutral_missing]
 ]
 
-print("Running Chi-Squared Test of gnomAD_AF variant data...\n")
+observed_table = pd.DataFrame(
+    table, 
+    columns=["Reported (AF>0)", "Missing (NaN)"],
+    index=["Oncogenic", "Likely Neutral"]
+)
 
-# run chi-squared test 
-chi2, p, dof, expected = chi2_contingency(table)
+print("Contingency table (observed values):")
+print(observed_table) 
+print("-"*30)
+
+print("Running Chi-square test on gnomAD_AF variant data...\n")
+
+# run chi-square test 
+chi2, p, dof, expected = chi2_contingency(observed_table)
+
+# contingency table expected values (under H0) 
+expected_table = pd.DataFrame(
+    expected,
+    columns=["Reported (AF>0)", "Missing (NaN)"],
+    index=["Oncogenic", "Likely Neutral"]
+)
+
+print("Contingency table (expected values):")
+print(expected_table.round(2))
+print("-"*30)
+
+# print results from Chi-square 
 print("Results:")
-print(f"Chi-squared: {chi2:.3f}, p-value: {p:.4f}")
+print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
 
-# cramers v (effect size for chi squared) 
-n = sum([sum(row) for row in table])
+# cramers v (effect size for Chi-square) 
+n = observed_table.values.sum()
 cramers_v = np.sqrt(chi2 / (n * (min(2, 2) - 1)))
-print(f"Cramér's V: {cramers_v:.3f}\n")
+print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}\n")
+print("-"*30)
 
-print("Variant gnomAD allele frequency analysis complete!\n")
+# calculate the odds-ratio 
+result = odds_ratio(observed_table)
+ci = result.confidence_interval(confidence_level=0.95)
+
+print(f"Odds-ratio: {result.statistic:.2f}")
+print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
+
+print("\nVariant gnomAD allele frequency analysis complete!🥳🥳\n")
 

@@ -404,5 +404,75 @@ plt.show()
 
 print("Plotting complete! Plot saved as 'plots/heatmap_topgenes_topdomains.png'\n")
 
-print("========================================================")
-print("Variant protein domain analysis complete!\n")
+# ------------------------------------------------------------
+# Statistical analysis: Chi-Square 
+# ------------------------------------------------------------
+
+# Check whether there is an association between oncogenicity and variants
+# inside / outside protein domains 
+
+# Model assumptions: 
+# Both variables are categorical.
+# All observations are independent.
+# Each observation must only contribute to one cell.
+# The expected frequency in each cell should be at least five.
+
+# Hypotheses: 
+# H0:   There is no association between variant classification (oncogenic vs. likely neutral) 
+#       and their localization relative to protein domains. 
+# H1:   There is a statistically significant association between variant classification and 
+#       localization relative to protein domains.
+
+
+# import library 
+from scipy.stats import chi2_contingency 
+import numpy as np 
+from scipy.stats.contingency import odds_ratio
+
+# make contingency table for observed values 
+oncogenic_in, oncogenic_out, oncogenic_total = count_in_out(oncogenic, "Oncogenic")
+neutral_in, neutral_out, neutral_total = count_in_out(neutral, "Likely Neutral")
+
+observed_table = pd.DataFrame(
+    [[oncogenic_in, oncogenic_out], [neutral_in, neutral_out]],
+    index=["Oncogenic", "Likely Neutral"],
+    columns=["Inside Domain", "Outside Domain"]
+)
+
+print("Contingency table (observed values):")
+print(observed_table)
+print("-"*30)
+
+# run Chi-square 
+chi2, p, dof, expected = chi2_contingency(observed_table)
+
+# contingency table expected values (under H0) 
+expected_table = pd.DataFrame(
+    expected,
+    columns=["Reported (AF>0)", "Missing (NaN)"],
+    index=["Oncogenic", "Likely Neutral"]
+)
+
+print("Contingency table (expected values):")
+print(expected_table.round(2))
+print("-"*30)
+
+# print results from Chi-square 
+print("Results:")
+print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
+
+# cramers v (effect size for Chi-square) 
+n = observed_table.values.sum()
+cramers_v = np.sqrt(chi2 / (n * (min(2, 2) - 1)))
+print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}\n")
+print("-"*30)
+
+# calculate the odds-ratio 
+result = odds_ratio(observed_table)
+ci = result.confidence_interval(confidence_level=0.95)
+
+print(f"Odds-ratio: {result.statistic:.2f}")
+print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
+
+
+print("\nProtein domain analysis complete!🥳🥳\n")
