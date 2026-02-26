@@ -14,8 +14,8 @@ Script content:
 1. Function to analyze and plot gnomAD allele frequencies for a given oncogenicity class. 
 2. gnomAD AF analysis for all oncogenicity classes 
 3. Log-scaled KDE-comparison between oncogenic and likely neutral variants. 
-4. Statistical analysis: Mann-Whitney U test
-5. Statistical analysis: Chi-Squared test 
+4. Statistical analysis: Mann-Whitney U test with rank-biserion correlation 
+5. Statistical analysis: Chi-Squared test with Cramer's V and Odds-Ratio 
 
 All plots are saved in:
     plots/
@@ -232,7 +232,7 @@ probability = (1+r)/2
 print(f"The probability of a random oncogene variant having a higher gnomAD_AF than a neutral is: {probability*100:.2f}%.\n")
 
 # ============================================================
-# Statistical analysis: Chi-Square
+# Statistical test: Chi-Square
 # ============================================================
 
 # Check whether there is an significant association between variant oncogenicity and  
@@ -250,6 +250,8 @@ print(f"The probability of a random oncogene variant having a higher gnomAD_AF t
 # H1:   There is a statistically significant association between variant pathogenicity and 
 #       the presence of gnomAD allele frequency data.
 
+
+# import libraries 
 from scipy.stats import chi2_contingency 
 from scipy.stats.contingency import odds_ratio
 

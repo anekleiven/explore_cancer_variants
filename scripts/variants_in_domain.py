@@ -17,6 +17,7 @@ Major outputs:
 5. Combined heatmap of oncogenic and neutral variants across top domains and top genes 
 6. Identify driver genes enriched in protein domains
 7. Heatmap of oncogenic variants across top domains and top genes 
+8. Statistical analyses (Chi-Square, Cramer's V, OR) 
 
 
 All plots are saved in:
@@ -405,7 +406,7 @@ plt.show()
 print("Plotting complete! Plot saved as 'plots/heatmap_topgenes_topdomains.png'\n")
 
 # ------------------------------------------------------------
-# Statistical analysis: Chi-Square 
+# Statistical test: Chi-Square 
 # ------------------------------------------------------------
 
 # Check whether there is an association between oncogenicity and variants
@@ -424,7 +425,7 @@ print("Plotting complete! Plot saved as 'plots/heatmap_topgenes_topdomains.png'\
 #       localization relative to protein domains.
 
 
-# import library 
+# import libraries
 from scipy.stats import chi2_contingency 
 import numpy as np 
 from scipy.stats.contingency import odds_ratio
@@ -439,7 +440,7 @@ observed_table = pd.DataFrame(
     columns=["Inside Domain", "Outside Domain"]
 )
 
-print("Contingency table (observed values):")
+print("Contingency table (observed values)\n:")
 print(observed_table)
 print("-"*30)
 
@@ -449,11 +450,11 @@ chi2, p, dof, expected = chi2_contingency(observed_table)
 # contingency table expected values (under H0) 
 expected_table = pd.DataFrame(
     expected,
-    columns=["Reported (AF>0)", "Missing (NaN)"],
+    columns=["Inside Domain", "Outside Domain"],
     index=["Oncogenic", "Likely Neutral"]
 )
 
-print("Contingency table (expected values):")
+print("Contingency table (expected values)\n:")
 print(expected_table.round(2))
 print("-"*30)
 
@@ -464,7 +465,7 @@ print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
 # cramers v (effect size for Chi-square) 
 n = observed_table.values.sum()
 cramers_v = np.sqrt(chi2 / (n * (min(2, 2) - 1)))
-print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}\n")
+print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}")
 print("-"*30)
 
 # calculate the odds-ratio 
