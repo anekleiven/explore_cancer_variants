@@ -21,10 +21,9 @@ All plots are saved in:
     plots/
 
 """
-
-print("\n========================================================")
-print("gnomAD ALLELE FREQUENCY ANALYSIS")
-print("========================================================")
+print("-"*50)
+print("gnomAD Allele Frequency Analysis🤓")
+print("-"*50)
 
 # ------------------------------------------------------------
 # Import libraries 
@@ -39,11 +38,7 @@ import numpy as np
 # Load variant data
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("LOAD VARIANT DATA")
-print("------------------------------------------------------\n")
-
-print("Loading variant data...\n")
+print("Loading variant data..")
 
 variants = pd.read_csv(
     "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
@@ -51,18 +46,17 @@ variants = pd.read_csv(
     low_memory=False
 )
 
-print(f"Loaded {len(variants):,} variants.\n")
+print(f"Loaded {len(variants):,} variants.")
 
 
 # ============================================================
 # Function to analyze gnomAD allele frequencies
 # ============================================================
 
-
 def analyze_gnomad_af(variants: pd.DataFrame, status: str, plotname: str, color: str = "teal"):
     """Analyze and plot gnomAD_AF distribution for a given ONCOGENIC category."""
 
-    print(f"Extracting gnomAD allele frequencies for variants with '{status}' oncogenicity...\n")
+    print(f"Extracting gnomAD allele frequencies for variants with '{status}' oncogenicity..")
 
     subset = variants[variants["ONCOGENIC"] == status].copy()
     total = len(subset)
@@ -74,14 +68,10 @@ def analyze_gnomad_af(variants: pd.DataFrame, status: str, plotname: str, color:
     missing_af = subset["gnomAD_AF"].isna().sum()
 
     print(f"{missing_af:,} of {total:,} '{status}' variants "
-          f"({100 * missing_af / total:.1f}%) lack gnomAD allele frequency data.\n")
-
-    # Summary statistics
-    print(f"Summary statistics for gnomAD_AF among '{status}' variants with available data:\n")
-    print(subset_af["gnomAD_AF"].describe())
+          f"({100 * missing_af / total:.1f}%) lack gnomAD allele frequency data.")
 
     # Plot distribution
-    print("\nPlotting gnomAD allele frequency distribution (log scale)...\n")
+    print("\nPlotting gnomAD allele frequency distribution (log-scaled)..\n")
     plt.figure(figsize=(8,5))
 
     sns.histplot(
@@ -105,27 +95,22 @@ def analyze_gnomad_af(variants: pd.DataFrame, status: str, plotname: str, color:
     plt.savefig(f"plots/{plotname}", dpi=300, bbox_inches="tight")
     plt.show()
   
-
     # Count rare vs common
     common = (subset_af["gnomAD_AF"] > 0.01).sum()
     rare = (subset_af["gnomAD_AF"] <= 0.01).sum()
 
+    print("\nDistribution of common vs. rare variants:")
     print(f"Common '{status}' variants (gnomAD_AF > 0.01): {common:,}")
     print(f"Rare   '{status}' variants (gnomAD_AF ≤ 0.01): {rare:,}")
-    print(f"Total with AF available: {len(subset_af):,}\n")
-    print("-" * 60 + "\n")
-
+    print(f"Total with AF available: {len(subset_af):,}")
+    print("-"*30)
 
 # ============================================================
 # Run analysis for all oncogenic categories 
 # ============================================================
 
-print("\n------------------------------------------------------")
-print("CALL gnomAD AF ANALYSIS FUNCTION")
-print("------------------------------------------------------\n")
-
-print("Running gnomAD AF analysis for all given oncogenicity classes...\n")
-print("-" * 60 + "\n")
+print("-"*30)
+print("Running gnomAD AF analysis for all given oncogenicity classes..\n")
 
 # 1. Unknown
 analyze_gnomad_af(variants, "Unknown", color="#848a8e", plotname="gnomAD_unknown.png")
@@ -150,9 +135,9 @@ print("Plots saved in folder 'plots/'")
 # Log-scaled KDE comparison 
 # ============================================================
 
-print("\n------------------------------------------------------")
-print("LOG-SCALED KDE COMPARISON (ONCOGENIC VS LIKELY NEUTRAL)")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("Log-scaled KDE comparison plot (oncogenic vs likely neutral)")
+
 
 # select classes 
 wanted = ["Oncogenic", "Likely Neutral"]
@@ -171,7 +156,7 @@ palette = {
     }
 
 # create log-scaled density plot 
-print("Plotting density of gnomAD allele frequencies for oncogenic vs likely neutral...\n")
+print("Plotting density of gnomAD allele frequencies for oncogenic vs likely neutral..\n")
 
 plt.figure(figsize=(8,5)) 
 
@@ -198,7 +183,7 @@ print("Plotting complete! Plot saved as 'plots/gnomAD_combined_KDE.png'\n")
 
 
 # ============================================================
-# Statistical analyses: Mann-Whitney U test 
+# Statistical test: Mann-Whitney U test 
 # ============================================================
 
 # Hypotheses
@@ -206,12 +191,27 @@ print("Plotting complete! Plot saved as 'plots/gnomAD_combined_KDE.png'\n")
 # H1 The distribution of gnomAD allele frequencies is not the same for oncogenic and likely neutral variants.
 
 # Model assumptions: 
-# The variable (gnomAF) is continuous 
-# The data is assumed to be non-normal
-# The data in both groups have similar distributions 
-# The samples should be independent 
+# 1.  The variable (gnomAF) is continuous 
+# 2.  The data is assumed to be non-normal
+# 3.  The data in both groups have similar distributions 
+# 4.  The samples should be independent 
 
+# import library 
 from scipy.stats import mannwhitneyu
+
+print("-"*30)
+print("Running Mann-Whitney U test on gnomAD_AF variant data..\n")
+
+# Group by oncogenicity and calculate descriptive statistics 
+stats_summary = filtered.groupby("ONCOGENIC")["gnomAD_AF"].agg(
+    count='count',
+    median='median',
+    mean='mean',
+    std='std'
+).reset_index()
+
+print("Decriptive statistics:")
+print(stats_summary,"\n")
 
 # define the data 
 oncogenic = filtered[filtered["ONCOGENIC"] == "Oncogenic"]["gnomAD_AF"]
@@ -225,11 +225,13 @@ print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
 # (effect size for mann-whitney u) 
 n1 = len(oncogenic)
 n2 = len(neutral)
-r = 1 - (2 * stat) / (n1 * n2)
+r = (2 * stat) / (n1 * n2) - 1 
 print(f"Rank-biserial correlation: {r:.3f}")
 
+# calculate probability 
 probability = (1+r)/2 
-print(f"The probability of a random oncogene variant having a higher gnomAD_AF than a neutral is: {probability*100:.2f}%.\n")
+print(f"The probability of a random oncogenic variant having a higher gnomAD_AF than a neutral is: {probability*100:.2f}%.")
+print("-"*30)
 
 # ============================================================
 # Statistical test: Chi-Square
@@ -250,6 +252,7 @@ print(f"The probability of a random oncogene variant having a higher gnomAD_AF t
 # H1:   There is a statistically significant association between variant pathogenicity and 
 #       the presence of gnomAD allele frequency data.
 
+print("Running Chi-square test on gnomAD_AF variant data..\n")
 
 # import libraries 
 from scipy.stats import chi2_contingency 
@@ -275,9 +278,7 @@ observed_table = pd.DataFrame(
 
 print("Contingency table (observed values):")
 print(observed_table) 
-print("-"*30)
 
-print("Running Chi-square test on gnomAD_AF variant data...\n")
 
 # run chi-square test 
 chi2, p, dof, expected = chi2_contingency(observed_table)
@@ -289,19 +290,18 @@ expected_table = pd.DataFrame(
     index=["Oncogenic", "Likely Neutral"]
 )
 
-print("Contingency table (expected values):")
+print("\nContingency table (expected values):")
 print(expected_table.round(2))
-print("-"*30)
 
 # print results from Chi-square 
-print("Results:")
+print("\nResults:")
 print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
 
 # cramers v (effect size for Chi-square) 
 n = observed_table.values.sum()
-cramers_v = np.sqrt(chi2 / (n * (min(2, 2) - 1)))
-print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}\n")
-print("-"*30)
+k = min(observed_table.shape) - 1 
+cramers_v = np.sqrt(chi2 / (n*k))
+print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}")
 
 # calculate the odds-ratio 
 result = odds_ratio(observed_table)
@@ -309,6 +309,7 @@ ci = result.confidence_interval(confidence_level=0.95)
 
 print(f"Odds-ratio: {result.statistic:.2f}")
 print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
+print("-"*30)
 
 print("\nVariant gnomAD allele frequency analysis complete!🥳🥳\n")
 

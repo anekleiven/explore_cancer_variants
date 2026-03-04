@@ -25,9 +25,9 @@ All plots are saved in:
 
 """
 
-print("\n========================================================")
-print("VARIANT PROTEIN DOMAIN ANALYSIS")
-print("========================================================")
+print("-"*50)
+print("Protein Domain Analysis🤓")
+print("-"*50)
 
 # ------------------------------------------------------------
 # Import libraries 
@@ -41,11 +41,7 @@ import seaborn as sns
 # Load variant data
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("LOAD VARIANT DATA")
-print("------------------------------------------------------\n")
-
-print("Loading variant data...\n")
+print("Loading variant data..")
 
 variants = pd.read_csv(
     "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
@@ -53,17 +49,15 @@ variants = pd.read_csv(
     low_memory=False
 )
 
-print(f"Loaded {len(variants):,} variants.\n")
+print(f"Loaded {len(variants):,} variants.")
+
 
 # ------------------------------------------------------------
 # Count variants inside and outside protein domains
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("VARIANT COUNTS INSIDE/OUTSIDE DOMAINS")
-print("------------------------------------------------------\n")
-
-print("Counting variants inside/outside protein domains...\n")
+print("-"*30)
+print("Counting variants inside/outside protein domains..\n")
 
 oncogenic = variants[variants['ONCOGENIC'] == 'Oncogenic']
 neutral = variants[variants['ONCOGENIC'] == 'Likely Neutral']
@@ -79,24 +73,18 @@ def count_in_out(df, class_label):
   print(f"Fraction inside domain: {inside/total:.2%}\n")
   return inside, outside, total 
 
-print("ONCOGENIC\n")
-print(count_in_out(oncogenic, "Oncogenic"))
+print("ONCOGENIC")
+print(count_in_out(oncogenic, "Oncogenic"),"\n")
 
-print("\n","-"*60)
-
-print("\nLIKELY NEUTRAL")
+print("LIKELY NEUTRAL")
 print(count_in_out(neutral, "Likely Neutral")) 
-
 
 # ------------------------------------------------------------
 # Expand DOMAIN_NAME for variants with multiple domains 
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("EXPLODE MULTI-DOMAIN VARIANTS")
-print("------------------------------------------------------\n")
-
-print("Exploding variants with multiple domains...\n")
+print("-"*30)
+print("Exploding variants with multiple domains..")
 
 variants_domains = (
   variants
@@ -107,17 +95,14 @@ variants_domains = (
 
 variants_domains["DOMAIN_NAME"] = variants_domains["DOMAIN_NAME"].str.strip() 
 
-print(f"After exploding: {len(variants_domains):,} domain-variant rows.\n")
+print(f"After exploding: {len(variants_domains):,} domain-variant rows.")
 
 # ------------------------------------------------------------
 # Oncogenic vs neutral enrichment per domain 
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("ONCOGENIC VS NEUTRAL ENRICHMENT PER DOMAIN")
-print("------------------------------------------------------\n")
-
-print("Computing oncogenic vs neutral enrichment per domain...")
+print("-"*30)
+print("Computing oncogenic vs. neutral enrichment per domain..")
 
 # extract oncogenic and likely neutral variants
 variants_domains = variants_domains[variants_domains["ONCOGENIC"].isin(["Oncogenic", "Likely Neutral"])]
@@ -146,23 +131,20 @@ domain_pivot["Onco_Neutral_Ratio"] = (
 domain_enrichment = domain_pivot.sort_values("Onco_Neutral_Ratio", ascending=False)
 
 print("\nPreview of the domain enrichment table:\n")
-print(domain_enrichment.head(10), "\n")
+print(domain_enrichment.head(10))
 
 # ------------------------------------------------------------
 # Plot top domains by number of total variants 
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("PLOT TOP PROTEIN DOMAINS")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("Plotting top protein domains by variant counts..\n")
 
 # find total number of variants
 domain_enrichment["Total"] = domain_enrichment["Oncogenic"] + domain_enrichment["Likely Neutral"]
 
 # extract the domains with the highest number of variants 
 high_count_domains = domain_enrichment.sort_values("Total", ascending=False).head(20) 
-
-print("Plotting top protein domains by variant count...\n")
 
 high_count_domains[["Oncogenic", "Likely Neutral"]].plot(
   kind="bar",
@@ -172,7 +154,6 @@ high_count_domains[["Oncogenic", "Likely Neutral"]].plot(
   linewidth=0.3,
   color={"Oncogenic": "#C4473B", "Likely Neutral": "#7e8aa2"}
 )
-
 plt.title("Top Protein Domains by Variant Count\nOncogenic vs Neutral Distribution")
 plt.xlabel("Domain Name")
 plt.ylabel("Number of Variants")
@@ -190,11 +171,8 @@ print("Plotting complete! Plot saved as 'plots/oncogenic_neutral_counts.png'")
 # Plot top domains enriched for oncogenic variants 
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("PLOT TOP PROTEIN DOMAINS ENRICHED FOR ONCOGENIC VARIANTS")
-print("------------------------------------------------------\n")
-
-print("Plotting top protein domains enriched for oncogenic variants...\n")
+print("-"*30)
+print("Plotting top protein domains enriched for oncogenic variants..\n")
 
 plt.figure(figsize=(8,5))
 sns.barplot(
@@ -212,7 +190,6 @@ plt.ylabel("Oncogenic-to-Neutral Ratio", fontsize=12)
 plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9)
 
-
 plt.tight_layout()
 plt.savefig("plots/domain_oncogenic_enrichment.png")
 plt.show()
@@ -223,9 +200,8 @@ print("Plotting complete! Plot saved as 'plots/domain_oncogenic_enrichment.png'"
 # Combined oncogenic + neutral heatmap 
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("COMBINED HEATMAP (TOP DOMAINS x TOP GENES)")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("Plotting combined heatmap (top domains x top genes)..")
 
 # count oncogenic + neutral variants per domain and gene 
 gene_domain_class_counts = (
@@ -283,14 +259,13 @@ heatmap_combined = combined_top.pivot(
     values="Oncogenic_Fraction"
 ).fillna(0)
 
-print("Creating heatmap of top domains x top genes (neutral + oncogenic variants)...\n")
-
 plt.figure(figsize=(7,6))
 sns.heatmap(heatmap_combined, 
             cmap="Reds", 
             vmin=0, 
             vmax=1, 
             linewidths=0.2)
+
 plt.title("Fraction of Oncogenic Variants per Gene × Domain", fontsize=14, pad=12)
 plt.xlabel("Domain Name", fontsize=12)
 plt.ylabel("Gene (Hugo Symbol)", fontsize=12)
@@ -309,10 +284,7 @@ print("Heatmap complete! Saved as 'plots/heatmap_oncogenic_fraction.png'")
 # Identify driver genes enriched in protein domains
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("ONCOGENIC DRIVER GENES ENRICHED IN PROTEIN DOMAINS")
-print("------------------------------------------------------\n")
-
+print("-"*30)
 print("Identifying oncogenic driver genes enriched in protein domains..\n")
 
 # extract oncogenic variants from the exploded df 
@@ -350,10 +322,7 @@ print(gene_domain_fraction.head(5), "\n")
 # (Based on oncogenic variants only)
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("ONCOGENIC HEATMAP (TOP DOMAINS x TOP GENES)")
-print("------------------------------------------------------\n")
-
+print("-"*30)
 print("Plotting heatmap of top domains x top genes (oncogenic variants)...\n")
 
 n_genes = 20
@@ -424,7 +393,6 @@ print("Plotting complete! Plot saved as 'plots/heatmap_topgenes_topdomains.png'\
 # H1:   There is a statistically significant association between variant classification and 
 #       localization relative to protein domains.
 
-
 # import libraries
 from scipy.stats import chi2_contingency 
 import numpy as np 
@@ -440,9 +408,8 @@ observed_table = pd.DataFrame(
     columns=["Inside Domain", "Outside Domain"]
 )
 
-print("Contingency table (observed values)\n:")
+print("Contingency table (observed values):\n")
 print(observed_table)
-print("-"*30)
 
 # run Chi-square 
 chi2, p, dof, expected = chi2_contingency(observed_table)
@@ -454,19 +421,18 @@ expected_table = pd.DataFrame(
     index=["Oncogenic", "Likely Neutral"]
 )
 
-print("Contingency table (expected values)\n:")
+print("\nContingency table (expected values):")
 print(expected_table.round(2))
-print("-"*30)
 
 # print results from Chi-square 
-print("Results:")
+print("\nResults:")
 print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
 
 # cramers v (effect size for Chi-square) 
 n = observed_table.values.sum()
-cramers_v = np.sqrt(chi2 / (n * (min(2, 2) - 1)))
+k = min(observed_table.shape) - 1 
+cramers_v = np.sqrt(chi2 / (n*k))
 print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}")
-print("-"*30)
 
 # calculate the odds-ratio 
 result = odds_ratio(observed_table)
@@ -474,6 +440,6 @@ ci = result.confidence_interval(confidence_level=0.95)
 
 print(f"Odds-ratio: {result.statistic:.2f}")
 print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
-
+print("-"*30)
 
 print("\nProtein domain analysis complete!🥳🥳\n")

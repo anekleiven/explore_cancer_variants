@@ -27,9 +27,9 @@ All plots are saved in:
 
 """
 
-print("\n========================================================")
-print("VARIANT HOTSPOT ANALYSIS")
-print("========================================================")
+print("-"*50)
+print("Variant Hotspot Analysis🤓")
+print("-"*50)
 
 # ------------------------------------------------------------
 # Import libraries 
@@ -43,7 +43,7 @@ import seaborn as sns
 # Load variant data
 # ------------------------------------------------------------
 
-print("\nLoading variant data...\n")
+print("\nLoading variant data..")
 
 variants = pd.read_csv(
     "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
@@ -51,8 +51,7 @@ variants = pd.read_csv(
     low_memory=False
 )
 
-print(f"Loaded {len(variants):,} variants.\n")
-
+print(f"Loaded {len(variants):,} variants.")
 
 # ------------------------------------------------------------
 # Define hotspot membership for each variant
@@ -68,9 +67,8 @@ variants["In_Hotspot"] = variants["Hotspot_Type"].notna()
 # total number of variants in data set
 total_num = len(variants)
 
-print("------------------------------------------------------")
+print("-"*30)
 print("Variant Overview:")
-print("------------------------------------------------------\n")
 
 # number of variants in cancer hotspots
 variants_in_hotspots = variants["In_Hotspot"].sum()
@@ -82,7 +80,8 @@ print(f"Found {variants_not_in_hotspots:,} variants outside cancer hotspots.")
 
 # fraction of variants in cancer hotspots 
 fraction_in_hotspots = variants_in_hotspots / total_num * 100 
-print(f"{fraction_in_hotspots:.2f}% of the variants in the data is inside cancer hotspots.\n")
+print(f"{fraction_in_hotspots:.2f}% of the variants in the data is inside cancer hotspots.")
+print("-"*30)
 
 
 # ------------------------------------------------------------
@@ -93,9 +92,7 @@ print(f"{fraction_in_hotspots:.2f}% of the variants in the data is inside cancer
 oncogenic = variants[variants["ONCOGENIC"] == "Oncogenic"]
 likely_neutral = variants[variants["ONCOGENIC"] == "Likely Neutral"]
 
-print("------------------------------------------------------")
 print("Oncogenic Variants:")
-print("------------------------------------------------------\n")
 
 # find the number of oncogenic variants in cancer hotspots 
 oncogenic_in_hotspots = oncogenic["In_Hotspot"].sum() 
@@ -117,9 +114,8 @@ print(f"{fraction_oncogenic:.2f} % of all variants in cancer hotspots are oncoge
 # Fraction of Likely Neutral Variants in Cancer Hotspots 
 # ------------------------------------------------------------
 
-print("------------------------------------------------------")
+print("-"*30)
 print("Likely Neutral Variants:")
-print("------------------------------------------------------\n")
 
 # find the number of likely neutral variants in cancer hotspots 
 neutral_in_hotspots = likely_neutral["In_Hotspot"].sum() 
@@ -141,9 +137,8 @@ print(f"{fraction_neutral:.2f} % of all variants in cancer hotspots are likely n
 # Plot number of variants in cancer hotspots (oncogenic vs neutral)
 # ------------------------------------------------------------
 
-print("------------------------------------------------------")
-print("VARIANTS IN CANCER HOTSPOTS PLOT")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("Plotting number of variants in cancer hotspots...\n")
 
 # keep only neutral and oncogenic variants
 classes = ["Oncogenic", "Likely Neutral"]
@@ -155,8 +150,6 @@ counts = (variants_onco_neutral
           .size() 
           .reset_index(name="Variant_Count") 
 )
-
-print("Plotting number of variants in cancer hotspots...\n")
 
 palette = {"Oncogenic": "#C4473B", "Likely Neutral": "#7e8aa2"}
 
@@ -178,27 +171,23 @@ plt.show()
 
 print("Plotting complete! Plot saved as 'plots/variants_in_hotspots.png'")
 
-
 # ------------------------------------------------------------
 # Plot fraction of oncogenic vs neutral variants in cancer hotspots 
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("FRACTION OF VARIANTS IN CANCER HOTSPOTS PLOT")
-print("------------------------------------------------------\n")
-
-print("Computing fraction of variants in cancer hotspots (oncogenic vs. neutral)...\n")
+print("-"*30)
+print("Computing fraction of variants in cancer hotspots (oncogenic vs. neutral)..")
 
 totals = variants_onco_neutral["ONCOGENIC"].value_counts().rename("Total")
 
 counts = counts.merge(totals, left_on="ONCOGENIC", right_index=True)
 counts["Fraction"] = counts["Variant_Count"] / counts["Total"] 
 
-print("Fraction of variants in each feature type per class:\n")
-print(counts, "\n")
+print("Fraction of variants in each feature type per class:")
+print(counts)
+print("-"*30)
 
-
-print("Plotting fraction of variants in cancer hotspots (oncogenic vs. neutral)...\n")
+print("Plotting fraction of variants in cancer hotspots (oncogenic vs. neutral)..")
 
 plt.figure(figsize=(8,5)) 
 sns.barplot(data=counts, 
@@ -216,17 +205,14 @@ plt.tight_layout()
 plt.savefig("plots/fractions_in_hotspots.png", dpi=300)
 plt.show() 
 
-print("\nPlotting complete! Plot saved as 'plots/fractions_in_hotspots.png'\n")
+print("Plotting complete! Plot saved as 'plots/fractions_in_hotspots.png'\n")
 
 # ------------------------------------------------------------
 # Identify Oncogenic Variants in Cancer Hotspots Across Genes 
 # ------------------------------------------------------------
 
-print("------------------------------------------------------")
-print("ONCOGENIC VARIANTS IN CANCER HOTSPOTS ACROSS GENES") 
-print("------------------------------------------------------\n")
-
-print("Identifying oncogenic driver genes in cancer hotspots...\n")
+print("-"*30)
+print("Identifying oncogenic driver genes in cancer hotspots..")
 
 oncogenic = variants_onco_neutral[variants_onco_neutral["ONCOGENIC"] == "Oncogenic"] 
 
@@ -242,17 +228,14 @@ onco_genes = (oncogenic_hotspots
 print("Example of genes with a high number of variants in cancer hotspots:")
 print(onco_genes.head(), "\n")
 
-
 # ------------------------------------------------------------
 # Plot Oncogenic Variants Across Genes 
 # ------------------------------------------------------------
 
-print("------------------------------------------------------")
-print("COUNT OF ONCOGENIC VARIANTS PER GENE IN CANCER HOTSPOTS") 
-print("------------------------------------------------------\n")
-top_oncogenes = onco_genes.head(20) 
-
+print("-"*30)
 print("Plotting Oncogenic Variants in Cancer Hotspots across Genes...\n")
+
+top_oncogenes = onco_genes.head(20) 
 
 plt.figure(figsize=(8,5))
 sns.barplot(data=top_oncogenes,
@@ -278,13 +261,10 @@ print("Plotting complete! Plot saved as 'plots/oncogenes_in_hotspots.png'\n")
 # Gene-level Hotspot Fraction 
 # ------------------------------------------------------------
 
-print("------------------------------------------------------")
-print("GENE-LEVEL HOTSPOT FRACTION") 
-print("------------------------------------------------------\n")
-
 # Find out whether the genes are hotspot-driven or just frequently mutated 
 
-print("Finding the fraction of oncogenic variants in cancer hotspots for highly mutated genes...\n")
+print("-"*30)
+print("Calculate the fraction of oncogenic variants in cancer hotspots for highly mutated genes..")
 
 gene_totals = (
   oncogenic
@@ -311,24 +291,21 @@ oncogenic_gene_summary = oncogenic_gene_summary.sort_values(
   )
 
 print("Gene-level oncogenic hotspot summary:")
-print(oncogenic_gene_summary.head(10),"\n")
+print(oncogenic_gene_summary.head(10))
 
 # ------------------------------------------------------------
 # Plot frequently mutated genes with hotspot enrichment 
 # ------------------------------------------------------------
 
-print("------------------------------------------------------")
-print("GENE-LEVEL HOTSPOT ENRICHMENT PLOT") 
-print("------------------------------------------------------\n")
-
-print("Plotting frequently mutated genes with hotspot enrichment...\n")
+print("-"*30)
+print("Plotting frequently mutated genes with hotspot enrichment..")
 
 top_genes = oncogenic_gene_summary[
   (oncogenic_gene_summary["Total_Oncogenic"] >= 10) &
   (oncogenic_gene_summary["Hotspot_Fraction"] >= 0.3)
 ].sort_values("Total_Oncogenic", ascending=False) 
 
-print("Example output:")
+print("Example output frequently mutated genes:")
 print(top_genes.head(5),"\n")
 
 plt.figure(figsize=(10,6)) 
@@ -361,11 +338,11 @@ print("Plotting complete! Figure saved as 'plots/oncogenes_hotspot_fraction.png'
 # Based on Horak et al.
 # ------------------------------------------------------------
 
-print("Identifying variants meeting ClinGen/CGC/VICC cancer hotspot criteria (OS3, OM3)...\n")
+print("-"*30)
+print("Identifying variants meeting ClinGen/CGC/VICC cancer hotspot criteria (OS3, OM3)..\n")
 
-# ------------------------------------------------------------
+
 # Define hotspot-related evidence components
-# ------------------------------------------------------------
 
 # Variant occurs at a hotspot position with ≥50 somatic samples
 variants_onco_neutral["Hotspot_Pos_50"] = variants_onco_neutral["Samples"] >= 50
@@ -382,9 +359,7 @@ variants_onco_neutral["Exact_AA_10"] = (
     variants_onco_neutral["Exact_AA_Hotspot_Count"] >= 10
 )
 
-# ------------------------------------------------------------
 # Apply ClinGen/VICC cancer hotspot criteria
-# ------------------------------------------------------------
 
 # OS3: Hotspot + ≥50 samples at position + ≥10 with exact AA change
 variants_onco_neutral["Meets_Hotspot_OS3"] = (
@@ -400,7 +375,8 @@ variants_onco_neutral["Meets_Hotspot_OM3"] = (
 )
 
 print("Preview of annotated variants:")
-print(variants_onco_neutral.head(), "\n")
+print(variants_onco_neutral.head(),"\n")
+
 
 # ------------------------------------------------------------
 # Summarize variant counts by oncogenicity
@@ -424,13 +400,14 @@ summary_OM3 = (
 )
 
 print("Summary of Cancer Hotspot Criterion OM3:")
-print(summary_OM3, "\n")
+print(summary_OM3)
+print("-"*30)
 
 # ------------------------------------------------------------
 # Plot Cancer Hotspot Evidence
 # ------------------------------------------------------------
 
-print("Plotting cancer hotspot evidence...\n")
+print("Plotting cancer hotspot evidence..")
 
 hotspot_palette = {True: "#B53226", False: "#A5BAE4"}
 
@@ -457,6 +434,7 @@ plt.tight_layout()
 plt.savefig("plots/meets_hotspot_OS3.png", dpi=300)
 plt.show()
 
+print("OS3 plot saved as 'plots/meets_hotspot_OS3.png'")
 
 
 # OM3 PLOT
@@ -480,6 +458,8 @@ plt.legend(title="Meets OM3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper lef
 plt.tight_layout()
 plt.savefig("plots/meets_hotspot_OM3.png", dpi=300)
 plt.show()
+
+print("OM3 plot saved as 'plots/meets_hotspot_OM3.png'")
 
 # ------------------------------------------------------------
 # Statistical Test: Chi-Square 
@@ -505,7 +485,9 @@ from scipy.stats import chi2_contingency
 import numpy as np 
 from scipy.stats.contingency import odds_ratio
 
-print("Performing statistics on cancer hotspot data...\n")
+print("-"*30)
+print("Performing statistics on cancer hotspot data..\n")
+print("Running Chi-square test..\n")
 
 # create contingency table 
 observed_table = pd.DataFrame([
@@ -514,9 +496,8 @@ observed_table = pd.DataFrame([
   index= ["Oncogenic", "Likely Neutral"],
   columns=["Inside Hotspot", "Outside Hotspot"])
 
-print("Contingency table (observed values):\n")
+print("Contingency table (observed values):")
 print(observed_table)
-print("-"*30)
 
 # run Chi-square 
 chi2, p, dof, expected = chi2_contingency(observed_table)
@@ -528,19 +509,18 @@ expected_table = pd.DataFrame(
     index=["Oncogenic", "Likely Neutral"]
 )
 
-print("Contingency table (expected values):\n")
+print("\nContingency table (expected values):")
 print(expected_table.round(2))
-print("-"*30)
 
 # print results from Chi-square 
-print("Results:")
+print("\nResults:")
 print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
 
-# cramers v (effect size for Chi-square) 
+# cramers v (effect size for Chi-square)  
 n = observed_table.values.sum()
-cramers_v = np.sqrt(chi2 / (n * (min(2, 2) - 1)))
+k = min(observed_table.shape) - 1 
+cramers_v = np.sqrt(chi2 / (n*k))
 print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}")
-print("-"*30)
 
 # calculate the odds-ratio 
 result = odds_ratio(observed_table)
@@ -548,6 +528,6 @@ ci = result.confidence_interval(confidence_level=0.95)
 
 print(f"Odds-ratio: {result.statistic:.2f}")
 print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
-
+print("-"*30)
 
 print("\nCancer hotspot analysis complete!🥳🥳\n")

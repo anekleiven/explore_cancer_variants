@@ -27,9 +27,9 @@ All plots are saved in:
 
 """
 
-print("\n========================================================")
-print("VARIANT MAVEs ANALYSIS")
-print("========================================================")
+print("-"*50)
+print("MAVE score analysis🤓")
+print("-"*50)
 
 # ------------------------------------------------------------
 # Import libraries 
@@ -43,7 +43,7 @@ import seaborn as sns
 # Load variant data 
 # ------------------------------------------------------------
 
-print("\nLoading variant data...\n")
+print("\nLoading variant data..")
 
 variants = pd.read_csv(
     "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
@@ -51,8 +51,8 @@ variants = pd.read_csv(
     low_memory=False
 )
 
-print(f"Loaded {len(variants):,} somatic variants.\n")
-
+print(f"Loaded {len(variants):,} somatic variants.")
+print("-"*30)
 
 # ------------------------------------------------------------
 # Explore number of variants with MAVE scores
@@ -61,7 +61,8 @@ print(f"Loaded {len(variants):,} somatic variants.\n")
 variants_with_mave = variants[variants["MaveDB_score"].notna()]
 
 print(f"Number of variants with MAVE scores: {len(variants_with_mave):,} variants.") 
-print(f"Percentage of variants with MAVE scores: {(len(variants_with_mave)/len(variants)*100):.2f}%.\n")
+print(f"Percentage of variants with MAVE scores: {(len(variants_with_mave)/len(variants)*100):.2f}%.")
+print("-"*30)
 
 # ------------------------------------------------------------
 # Explore number of variants with MAVE scores for
@@ -110,6 +111,7 @@ plt.savefig("plots/oncogenicity_classes_maves.png", dpi=300)
 plt.show()
 
 print("Plotting complete! Plot saved as 'plots/oncogenicity_classes_maves.png'\n")
+print("-"*30)
 
 # ------------------------------------------------------------
 # Explore top genes with MAVEdb_score 
@@ -125,10 +127,10 @@ gene_summary.columns = ["Gene", "Variant_Count"]
 gene_summary = gene_summary.sort_values("Variant_Count", ascending = False) 
 
 print("Number of MaveDB_scores per gene:")
-print(gene_summary,"\n") 
+print(gene_summary) 
 
 # plot summary 
-print("Plotting MaveDB score per Gene...")
+print("Plotting MaveDB score per gene...")
 
 
 plt.figure(figsize=(8,5))
@@ -148,6 +150,7 @@ plt.savefig("plots/top_genes_with_maves.png", dpi=300)
 plt.show()
 
 print("Plotting complete! Plot saved as 'plots/top_genes_with_maves.png'")
+print("-"*30)
 
 # ------------------------------------------------------------
 # Explore oncogenicity within top genes with MAVEdb_score 
@@ -185,6 +188,8 @@ three_classes_palette = {
     "Likely Neutral": "#7e8aa2",
 }
 
+print("Plotting oncogenicity distribution in top genes with MAVE scores..")
+
 plt.figure(figsize=(8,5)) 
 top_genes_pivot.plot(kind='bar', stacked=True, color=[three_classes_palette.get(col, "#cccccc") for col in top_genes_pivot.columns], edgecolor='white', linewidth=0.5, ax=plt.gca()) 
 
@@ -198,6 +203,7 @@ plt.savefig("plots/top_genes_mave_oncogenicity.png", dpi=300, bbox_inches='tight
 plt.show() 
 
 print("Stacked bar plot saved as 'plots/top_genes_mave_oncogenicity.png'.")
+print("-"*30)
 
 # ------------------------------------------------------------
 # Oncogenic vs neutral within top genes with MaveDB_score
@@ -234,6 +240,8 @@ two_classes_palette = {
     "Likely Neutral": "#7e8aa2",
 }
 
+print("Plotting variant counts in top genes with mave scores..")
+
 plt.figure(figsize=(8,5)) 
 top_genes_comparison_pivot.plot(kind='bar', stacked=True, color=[two_classes_palette.get(col, "#cccccc") for col in top_genes_comparison_pivot.columns], edgecolor='white', linewidth=0.5, ax=plt.gca()) 
 
@@ -247,6 +255,7 @@ plt.savefig("plots/onco_neutral_mave_counts.png", dpi=300, bbox_inches='tight')
 plt.show() 
 
 print("Stacked bar plot saved as 'plots/onco_neutral_mave_counts.png'.")
+print("-"*30)
 
 # ------------------------------------------------------------
 # Descriptive statistics of MAVE scores per oncogenicity class 
@@ -262,7 +271,9 @@ maves_score_summary = variants_onco_vs_neutral.groupby("ONCOGENIC")["MaveDB_scor
 ).reset_index()
 
 print("Descriptive statistics of MAVE score distributions:")
-print(maves_score_summary, "\n")
+print(maves_score_summary)
+print("-"*30)
+
 
 # ------------------------------------------------------------
 # Box plot og MAVE scores per oncogenicity class 
@@ -295,7 +306,8 @@ plt.tight_layout()
 plt.savefig("plots/boxplot_maves.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print("Plotting complete! Boxplot saved as 'plots/boxplot_maves.png'.\n")
+print("Plotting complete! Boxplot saved as 'plots/boxplot_maves.png'.")
+print("-"*30)
 
 
 # ------------------------------------------------------------
@@ -325,7 +337,49 @@ plt.ylabel("Density", fontsize=12)
 plt.savefig("plots/mave_scores_comparison.png", bbox_inches='tight')
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/mave_scores_comparison.png'.\n")
+print("Plotting complete! Plot saved as 'plots/mave_scores_comparison.png'.")
+print("-"*30)
 
+# ============================================================
+# Statistical test: Mann-Whitney U test 
+# ============================================================
 
-print("\nMAVE visualization analysis complete!🎉🥳\n")
+# Statistical test to check if there is a significant difference in the distribution 
+# of germline distances between oncogenic and likely neutral variants. 
+
+# Hypotheses
+#       H0 The distribution of MAVE scores is equal for oncogenic and likely neutral variants.
+#       H1 The distribution of MAVE scores is not equal for oncogenic and likely neutral variants.
+
+# Model assumptions: 
+# 1.  The variable (MAVE score) is continuous 
+# 2.  The data is assumed to be non-normal
+# 3.  The data in both groups have similar distributions 
+# 4.  The samples should be independent 
+
+# import library 
+from scipy.stats import mannwhitneyu
+
+# define the data, drop NA values 
+oncogenic = variants[variants["ONCOGENIC"] == "Oncogenic"]["MaveDB_score"].dropna()
+neutral = variants[variants["ONCOGENIC"] == "Likely Neutral"]["MaveDB_score"].dropna()
+
+# perform Mann-Whitney U test 
+print("Running Mann-Whitney U test on the germline proximity data..\n")
+stat, p = mannwhitneyu(oncogenic, neutral, alternative="two-sided") 
+print("Results:")
+print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
+
+# calculate rank-biserial correlation 
+# (effect size for mann-whitney u) 
+n1 = len(oncogenic)
+n2 = len(neutral)
+r = (2 * stat) / (n1 * n2) - 1
+print(f"Rank-biserial correlation: {r:.3f}")
+
+# calculate probability 
+probability = (1+r)/2 
+print(f"The probability of a random oncogenic variant having a higher MAVE score than a neutral variant is: {probability*100:.2f}%.")
+
+print("-"*30)
+print("\nMAVEs analysis complete!🥳🥳\n")

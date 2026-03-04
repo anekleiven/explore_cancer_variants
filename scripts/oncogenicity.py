@@ -18,9 +18,9 @@ All plots are saved in:
     plots/
 
 """
-print("\n========================================================")
-print("ONCOGENICITY DISTRIBUTION ANALYSIS")
-print("========================================================")
+print("-"*50)
+print("Oncogenicity Distribution Analysis🤓")
+print("-"*50)
 
 # ------------------------------------------------------------
 # Import libraries 
@@ -34,22 +34,18 @@ import seaborn as sns
 # Load variant data
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("LOAD VARIANT DATA")
-print("------------------------------------------------------\n")
-
-print("Loading variant data...\n")
+print("Loading variant data..\n")
 
 variants = pd.read_csv("/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv", sep="\t", low_memory=False)
 
+print(f"Successfully loaded {len(variants):,} somatic cancer variants!")
 
 # ------------------------------------------------------------
 # Group by oncogenicity and sort descending
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("GROUP AND SORT VARIANT DATA")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("GROUP AND SORT VARIANT DATA") 
 
 oncogenicity_df = (
 variants["ONCOGENIC"]
@@ -60,10 +56,10 @@ variants["ONCOGENIC"]
 oncogenicity_df.columns = ["Oncogenicity", "Count"]
 oncogenicity_df = oncogenicity_df.sort_values("Count", ascending=False) 
 
-print("\nSummary of Oncogenicity classes:\n")
+print("\nSummary of Oncogenicity classes:")
 print(oncogenicity_df, "\n") 
 
-print("\nTable output for the latex report:\n")
+print("Table output for the latex report:")
 print(oncogenicity_df.to_latex(index=False))
 
 
@@ -71,11 +67,8 @@ print(oncogenicity_df.to_latex(index=False))
 # Plot distribution of Oncogenicity classes 
 # ------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("DISTRIBUTION OF ONCOGENICITY CLASSES")
-print("------------------------------------------------------\n")
-
-print("Plotting distribution of oncogenicity classes...\n")
+print("-"*30)
+print("Plotting distribution of oncogenicity classes..")
 
 palette = {
     "Oncogenic": "#C4473B",
@@ -107,8 +100,8 @@ plt.tight_layout()
 plt.savefig("plots/oncogenicity.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print("\nPlotting complete! Plot saved as 'plots/oncogenicity.png'\n")
+print("Plotting complete! Plot saved as 'plots/oncogenicity.png'\n")
 
 
-print("========================================================")
-print("Oncogenicity distribution analysis complete!\n")
+print("-"*30)
+print("Oncogenicity distribution analysis complete!🥳\n")
