@@ -484,7 +484,7 @@ print("-"*30)
 print("Performing Chi-Square and Fisher test on feature types (one-by-one)..")
 
 from scipy.stats import chi2_contingency, fisher_exact
-from scipy.stats.contingency import odds_ratio as scipy_odds_ratio   # ← added
+from scipy.stats.contingency import odds_ratio as scipy_odds_ratio 
 from statsmodels.stats.multitest import multipletests
 
 def analyze_func_sites(df):

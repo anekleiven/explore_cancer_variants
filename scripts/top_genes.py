@@ -26,14 +26,14 @@ Script content:
    oncogenic genes
 5. Visualize both absolute counts and relative (percentage) distributions
    of oncogenicity classes per gene
+6. Perform statistics on all features for the top 10 oncogenic genes 
 
 All plots are saved in:
     plots/
 """
 
-print("\n========================================================")
-print("TOP GENES ANALYSIS")
-print("========================================================")
+print("\nTop genes analysis🤓")
+print("-"*50)
 
 #--------------------------------------------------------------------
 # Import libraries
@@ -52,11 +52,7 @@ os.makedirs(save_dir, exist_ok=True)
 # Load variant data
 #--------------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("LOAD VARIANT DATA")
-print("------------------------------------------------------\n")
-
-print("Loading variant data...\n")
+print("Loading variant data..")
 
 variants = pd.read_csv(
   "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv", 
@@ -64,15 +60,14 @@ variants = pd.read_csv(
   low_memory=False
   )
 
+print(f"Loaded {len(variants)} variants.")
+print("-"*30)
+
 #--------------------------------------------------------------------
 # Extract 'Oncogenic' variants
 #--------------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("EXTRACT ONCOGENIC VARIANTS")
-print("------------------------------------------------------\n")
-
-print("Extracting oncogenic variants...\n")
+print("Extracting oncogenic variants..")
 
 oncogenic_variants = variants[variants['ONCOGENIC'] == 'Oncogenic']
 
@@ -87,11 +82,7 @@ oncogenic_genes = (
 # Extract 'Likely Oncogenic' variants
 #--------------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("EXTRACT LIKELY ONCOGENIC VARIANTS")
-print("------------------------------------------------------\n")
-
-print("Extracting likely oncogenic variants...\n")
+print("Extracting likely oncogenic variants..")
 
 likely_oncogenic_variants = variants[variants['ONCOGENIC'] == 'Likely Oncogenic']
 
@@ -106,11 +97,7 @@ likely_oncogenic_genes = (
 # Extract 'Likely Neutral' variants
 #--------------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("EXTRACT LIKELY NEUTRAL VARIANTS")
-print("------------------------------------------------------\n")
-
-print("Extracting likely neutral variants...\n")
+print("Extracting likely neutral variants..")
 
 neutral_variants = variants[variants['ONCOGENIC'] == 'Likely Neutral']
 
@@ -119,15 +106,15 @@ neutral_genes = (
   .value_counts()
   .reset_index(name="Variant_Count") 
   .rename(columns={"Hugo_Symbol": "Gene"})
-)
+  )
 
 #--------------------------------------------------------------------
 # Visualize top 30 genes for all oncogenicity classes 
 #--------------------------------------------------------------------
 
-print("\n------------------------------------------------------")
-print("VISUALIZATION OF TOP GENES PER ONCOGENICITY CLASS")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("Plot top genes for all oncogenicity class")
+print("-"*30)
 
 sns.set_theme(style="whitegrid", context="talk") 
 
@@ -135,7 +122,7 @@ sns.set_theme(style="whitegrid", context="talk")
 
 def plot_top_genes(df, title, color, plotname):
     """
-    Create a consistent barplot for top genes based on oncogenicity class
+    Create barplot for top genes based on oncogenicity class
     """
     plt.figure(figsize=(8,5))
     
@@ -167,12 +154,9 @@ def plot_top_genes(df, title, color, plotname):
     plt.savefig(f"{save_dir}/{plotname}.png", dpi=300, bbox_inches="tight")
     plt.show()
      
-
 # ============================================================
 # Plot each oncogenicity class 
 # ============================================================
-
-print("Plotting top genes per oncogenicity class...\n")
 
 plot_top_genes(
     oncogenic_genes.head(30),
@@ -202,11 +186,11 @@ print("Plotting complete. All plots saved in 'plots'\n")
 # (Oncogenic and Likely Neutral)
 # ============================================================
 
-print("\n------------------------------------------------------")
-print("COUNTS CLASS DISTRIBUTION IN THE TOP ONCOGENIC GENES")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("Count class distribution in top oncogenic genes")
+print("-"*30)
 
-print("Exploring oncogenicity distribution within the top oncogenic genes...\n")
+print("Exploring oncogenicity distribution within the top oncogenic genes..")
 
 top_onco_genes = oncogenic_genes.head(30)["Gene"] 
 
@@ -219,7 +203,7 @@ distribution = (
     .reset_index(name="Count")
 )
 
-print("Example output oncogenicity distribution:\n")
+print("Example output oncogenicity distribution:")
 print(distribution.head())
 
 # extract only oncogenic and likely netrual variants
@@ -240,7 +224,7 @@ sns.barplot(
     palette=["#7e8aa2","#C4473B"]
 )
 
-print("\nPlotting distribution...\n")
+print("\nPlotting distribution..")
 
 plt.title("Distribution of Variant Oncogenicity in Top Oncogenic Genes", fontsize=14, pad=10)
 plt.xlabel("Gene", fontsize=12)
@@ -269,11 +253,11 @@ print("Plotting complete! Plot saved in folder 'plots'\n")
 # (Oncogenic and Likely Neutral) 
 # ============================================================
 
-print("\n------------------------------------------------------")
-print("PERCENTAGE CLASS DISTRIBUTION IN THE TOP ONCOGENIC GENES")
-print("------------------------------------------------------\n")
+print("-"*30)
+print("Percentage class distribution in top oncogenic genes")
+print("-"*30)
 
-print("Plotting the percentage class distribution in the top oncogenic genes...\n")
+print("Plotting the percentage class distribution in the top oncogenic genes..")
 
 pivot = distribution_filtered.pivot(
     index="Hugo_Symbol",
@@ -317,5 +301,131 @@ plt.show()
 print("Plotting complete! Plot saved in folder 'plots'\n")
 
 
-print("========================================================")
-print("Top genes analysis complete!\n")
+# ============================================================
+# Statistics: Top genes
+# ============================================================
+
+print("-"*30)
+print("Perform statistics on top 10 oncogenic genes")
+print("-"*30)
+
+# import libraries
+from scipy.stats import mannwhitneyu
+from scipy.stats import chi2_contingency, fisher_exact
+from scipy.stats.contingency import odds_ratio as scipy_odds_ratio 
+from statsmodels.stats.multitest import multipletests
+import numpy as np
+
+# extract top 10 oncogenic genes
+top_10_onco = oncogenic_genes.head(10)["Gene"].tolist()  
+
+# extract variants in top 10 oncogenic genes 
+top_10_variants = variants[variants["Hugo_Symbol"].isin(top_10_onco)]
+
+# add feature 
+top_10_variants["has_gnomAD_AF"] = (
+    (top_10_variants["gnomAD_AF"].notna()) &
+    (top_10_variants["gnomAD_AF"] != "NA") & 
+    (top_10_variants["gnomAD_AF"] != "")
+)
+
+variants["has_gnomAD_AF"] = ( 
+    (variants["gnomAD_AF"].notna()) & 
+    (variants["gnomAD_AF"] != "NA") & 
+    (variants["gnomAD_AF"] != "") 
+)
+
+# define the features 
+features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "Germline_Proximity", "MaveDB_score"]
+
+def analyze_top_genes(df, label="Dataset"):
+    print("\n" + "-"*50)
+    print(f"Statistics: {label}")
+    print("-"*50 + "\n")
+
+    results = []
+
+    for f in features:
+
+        if f in ["gnomAD_AF", "Germline_Proximity", "MaveDB_score"]: 
+            oncogenic = df[df["ONCOGENIC"] == "Oncogenic"][f].dropna()
+            neutral = df[df["ONCOGENIC"] == "Likely Neutral"][f].dropna()
+
+            if len(oncogenic) == 0 or len(neutral) == 0:
+                print(f"[{f}] Skipped (not enough data)\n")
+                continue
+
+            # perform Mann-Whitney U test 
+            stat, p = mannwhitneyu(oncogenic, neutral, alternative="two-sided")
+            # calculate rank-biserial correlation 
+            # (effect size for mann-whitney u) 
+            n1 = len(oncogenic)
+            n2 = len(neutral)
+            r = (2 * stat) / (n1 * n2) - 1
+
+            # calculate probability 
+            probability = (1+r)/2 
+
+            print(f"[{f}]")
+            print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
+            print(f"{'Reject H₀: distributions differ.' if p < 0.05 else 'Failed to reject H₀.'}")
+            print(f"Rank-biserial r: {r:.3f} | P(oncogenic > neutral): {probability*100:.2f}%\n")
+            results.append({"feature": f, "test": "Mann-Whitney", "p_value": p})
+
+
+        else: 
+            onc_in  = len(df[(df["ONCOGENIC"] == "Oncogenic") & (df[f] == True)])
+            onc_out = len(df[(df["ONCOGENIC"] == "Oncogenic") & (df[f] == False)])
+            neu_in  = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (df[f] == True)])
+            neu_out = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (df[f] == False)])
+
+            observed_table = [[onc_in, neu_in], [onc_out, neu_out]]
+
+            # Odds ratio and 95% CI
+            or_result = scipy_odds_ratio(observed_table)
+            ci = or_result.confidence_interval(confidence_level=0.95)
+
+            # select test based on number of observations in each cell
+            # < 5 variants in one cell: Fisher, else: Chi-Square
+            if min(onc_in, onc_out, neu_in, neu_out) < 5: 
+                _, p = fisher_exact(observed_table)           
+                test_used = "Fisher"
+            else: 
+                chi2, p, _, _ = chi2_contingency(observed_table)     
+                test_used = "Chi-Square"
+                n = sum(sum(row) for row in observed_table)
+                k = 1  # only for 2x2 table
+                cramers_v = np.sqrt(chi2 / (n * k))
+
+            if test_used == "Fisher":
+                print(f"[{f}]")
+                print(f"Test: {test_used}")
+                print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f}) | p-value: {p:.4f}\n")
+            else:
+                print(f"[{f}]")
+                print(f"Test: {test_used}")
+                print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f})")
+                print(f"p-value: {p:.4f} | Cramer's V: {cramers_v:.3f}\n")
+
+            results.append({"feature": f, "test": test_used, "p_value": p})
+                
+
+    results_df = pd.DataFrame(results)
+    _, q_values, _, _ = multipletests(results_df["p_value"], method="fdr_bh")
+    results_df["q_value"] = q_values.round(4)
+    results_df["p_value"] = results_df["p_value"].round(4)
+
+
+    print(f"\n{'-'*60}")
+    print("FDR-corrected results (Benjamini-Hochberg)")
+    print(f"{'-'*60}")
+    print(results_df.to_string(index=False))
+
+
+analyze_top_genes(top_10_variants, label="Top 10 Oncogenic genes")
+analyze_top_genes(variants, label="All variants") 
+
+
+
+
+
