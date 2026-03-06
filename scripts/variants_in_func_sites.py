@@ -1,7 +1,6 @@
 """
-====================================================================
 Variant Functional-Site Analysis Script
-====================================================================
+-----------------------------------------------
 
 Script: variants_in_func_sites.py
 Author: Ane Kleiven
@@ -19,7 +18,6 @@ Major outputs:
 6. Comparison of Oncogenic vs Neutral variants in the same genes
 7. Oncogenic-to-neutral ratio plots for each functional site type
 8. Heatmap to see which genes dominate in each functional site type
-9. Statistical analysis: Chi-Square, Cramer's V and odds-ratio 
 
 Key functional site handled:
 ---------------------
@@ -399,155 +397,5 @@ plt.savefig("plots/top_genes_per_functional_site.png", dpi=300, bbox_inches="tig
 plt.show()
 
 print("Plotting complete! Plot saved as 'plots/top_genes_per_functional_site.png'")
-
-# ------------------------------------------------------------
-# Statistical Test: Chi-Square 
-# ------------------------------------------------------------
-
-# Check whether there is an association between oncogenicity and variants
-# inside / outside functional sites 
-
-# Model assumptions: 
-# Both variables are categorical.
-# All observations are independent.
-# Each observation must only contribute to one cell.
-# The expected frequency in each cell should be at least five.
-
-# Hypotheses: 
-# H0:   There is no association between variant classification (oncogenic vs. likely neutral) 
-#       and their localization relative to functional sites 
-# H1:   There is a statistically significant association between variant classification and 
-#       localization relative to functional sites. 
-
-# import libraries
-from scipy.stats import chi2_contingency 
-import numpy as np 
-from scipy.stats.contingency import odds_ratio
-
-print("-"*30)
-print("Performing statistics on functional sites data..\n")
-print("Running Chi-square test..\n")
-
-# prepare the data 
-oncogenic_in = variants.query("ONCOGENIC == 'Oncogenic' and IN_FUNC_SITE")
-oncogenic_out = variants.query("ONCOGENIC == 'Oncogenic' and IN_FUNC_SITE == False")
-neutral_in = variants.query("ONCOGENIC == 'Likely Neutral' and IN_FUNC_SITE")
-neutral_out = variants.query("ONCOGENIC == 'Likely Neutral' and IN_FUNC_SITE == False")
-
-# create contingency table 
-observed_table = pd.DataFrame([
-  [len(oncogenic_in), len(oncogenic_out)],
-  [len(neutral_in), len(neutral_out)]],
-  index= ["Oncogenic", "Likely Neutral"],
-  columns=["Inside func_site", "Outside func_site"])
-
-print("Contingency table (observed values):")
-print(observed_table)
-
-# run Chi-square 
-chi2, p, dof, expected = chi2_contingency(observed_table)
-
-# contingency table expected values (under H0) 
-expected_table = pd.DataFrame(
-    expected,
-    columns=["Inside func_site", "Outside func_site"],
-    index=["Oncogenic", "Likely Neutral"]
-)
-
-print("\nContingency table (expected values):")
-print(expected_table.round(2))
-
-# print results from Chi-square 
-print("\nResults:")
-print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
-
-# cramers v (effect size for Chi-square) 
-n = observed_table.values.sum()
-k = min(observed_table.shape) - 1 
-cramers_v = np.sqrt(chi2 / (n*k))
-print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}")
-
-# calculate the odds-ratio 
-result = odds_ratio(observed_table)
-ci = result.confidence_interval(confidence_level=0.95)
-
-print(f"Odds-ratio: {result.statistic:.2f}")
-print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
-print("-"*30)
-
-
-# ------------------------------------------------------------
-# Statistical Test: Feature by feature 
-# ------------------------------------------------------------
-# check each feature statistically using Chi-Square or Fisher 
-
-print("Performing Chi-Square and Fisher test on feature types (one-by-one)..")
-
-from scipy.stats import chi2_contingency, fisher_exact
-from scipy.stats.contingency import odds_ratio as scipy_odds_ratio 
-from statsmodels.stats.multitest import multipletests
-
-def analyze_func_sites(df):
-    features = df["FEATURE_TYPE"].unique() 
-    results = []
-
-    for f in features: 
-
-        if pd.isna(f): continue
-
-        # create contingency table
-        onc_in  = len(df[(df["ONCOGENIC"] == "Oncogenic") & (df["FEATURE_TYPE"] == f)])
-        onc_out = len(df[(df["ONCOGENIC"] == "Oncogenic") & (df["FEATURE_TYPE"] != f)])
-        neu_in  = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (df["FEATURE_TYPE"] == f)])
-        neu_out = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (df["FEATURE_TYPE"] != f)])
-
-        observed_table = [[onc_in, neu_in], [onc_out, neu_out]]
-
-        # Odds ratio and 95% CI
-        or_result = scipy_odds_ratio(observed_table)
-        or_value = or_result.statistic
-        ci = or_result.confidence_interval(confidence_level=0.95)
-        ci_low, ci_high = ci.low, ci.high
-
-        # select test based on number of observations in each cell
-        # < 5 variants in one cell: Fisher, else: Chi-Square
-        if min(onc_in, onc_out, neu_in, neu_out) < 5: 
-            _, p = fisher_exact(observed_table)           
-            test_used = "Fisher"
-        else: 
-            _, p, _, _ = chi2_contingency(observed_table)      
-            test_used = "Chi-Square"
-        
-        # calculate effect size for chi-square: Cramer's V
-        chi2, _, _, _ = chi2_contingency(observed_table)
-        n = sum(sum(row) for row in observed_table)
-        k = 1  # only for 2x2 table
-        cramers_v = np.sqrt(chi2 / (n * k))
-
-        results.append({
-            "Feature":    f, 
-            "p-value":    p, 
-            "Odds_Ratio": or_value,
-            "CI_95_low":  ci_low,
-            "CI_95_high": ci_high,
-            "Cramer's V": cramers_v if test_used == "Chi-Square" else np.nan,  
-            "Test":       test_used
-        })
-    
-    return pd.DataFrame(results) 
-
-statistics_results = analyze_func_sites(expanded) 
-
-# adjust for multiple testing (Benjamini-Hochberg)
-statistics_results["p_adj"] = multipletests(statistics_results['p-value'], method='fdr_bh')[1]
-
-# add information about significancy 
-statistics_results["Significant"] = statistics_results["p_adj"].apply(lambda x: "Yes" if x < 0.05 else "No")
-
-# sort and print results 
-statistics_results = statistics_results.sort_values("p_adj")
-print("Results one-by-one statistics functional sites:")
-print(statistics_results.to_string(index=False))
-print("-"*30)
 
 print("\nFunctional site analysis complete!🥳\n")

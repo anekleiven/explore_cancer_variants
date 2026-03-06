@@ -20,7 +20,6 @@ Major outputs:
 7. Gene-level summary of oncogenic hotspot enrichment
 8. Visualization of frequently mutated genes with high hotspot fractions
 9. Overview and plot of variants meeting  ClinGen/CGC/VICC hotspot criteria
-10. Statistical analyses (Chi-Square, Cramer's V, OR) 
 
 All plots are saved in:
    plots/
@@ -460,74 +459,5 @@ plt.savefig("plots/meets_hotspot_OM3.png", dpi=300)
 plt.show()
 
 print("OM3 plot saved as 'plots/meets_hotspot_OM3.png'")
-
-# ------------------------------------------------------------
-# Statistical Test: Chi-Square 
-# ------------------------------------------------------------
-
-# Check whether there is an association between oncogenicity and variants
-# inside / outside cancer hotspots  
-
-# Model assumptions: 
-# Both variables are categorical.
-# All observations are independent.
-# Each observation must only contribute to one cell.
-# The expected frequency in each cell should be at least five.
-
-# Hypotheses: 
-# H0:   There is no association between variant classification (oncogenic vs. likely neutral) 
-#       and their localization relative to cancer hotspots.
-# H1:   There is a statistically significant association between variant classification and 
-#       localization relative to cancer hotspots. 
-
-# import libraries
-from scipy.stats import chi2_contingency 
-import numpy as np 
-from scipy.stats.contingency import odds_ratio
-
-print("-"*30)
-print("Performing statistics on cancer hotspot data..\n")
-print("Running Chi-square test..\n")
-
-# create contingency table 
-observed_table = pd.DataFrame([
-  [oncogenic_in_hotspots, oncogenic_not_in_hotspots],
-  [neutral_in_hotspots, neutral_not_in_hotspots]],
-  index= ["Oncogenic", "Likely Neutral"],
-  columns=["Inside Hotspot", "Outside Hotspot"])
-
-print("Contingency table (observed values):")
-print(observed_table)
-
-# run Chi-square 
-chi2, p, dof, expected = chi2_contingency(observed_table)
-
-# contingency table expected values (under H0) 
-expected_table = pd.DataFrame(
-    expected,
-    columns=["Inside Hotspot", "Outside Hotspot"],
-    index=["Oncogenic", "Likely Neutral"]
-)
-
-print("\nContingency table (expected values):")
-print(expected_table.round(2))
-
-# print results from Chi-square 
-print("\nResults:")
-print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
-
-# cramers v (effect size for Chi-square)  
-n = observed_table.values.sum()
-k = min(observed_table.shape) - 1 
-cramers_v = np.sqrt(chi2 / (n*k))
-print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}")
-
-# calculate the odds-ratio 
-result = odds_ratio(observed_table)
-ci = result.confidence_interval(confidence_level=0.95)
-
-print(f"Odds-ratio: {result.statistic:.2f}")
-print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
-print("-"*30)
 
 print("\nCancer hotspot analysis complete!🥳🥳\n")

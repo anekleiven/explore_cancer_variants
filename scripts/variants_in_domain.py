@@ -1,7 +1,6 @@
 """
-====================================================================
 Variant Protein Domain Analysis Script
-====================================================================
+-----------------------------------------------------
 
 Script: variants_in_domain.py
 Author: Ane Kleiven
@@ -17,7 +16,6 @@ Major outputs:
 5. Combined heatmap of oncogenic and neutral variants across top domains and top genes 
 6. Identify driver genes enriched in protein domains
 7. Heatmap of oncogenic variants across top domains and top genes 
-8. Statistical analyses (Chi-Square, Cramer's V, OR) 
 
 
 All plots are saved in:
@@ -373,73 +371,5 @@ plt.savefig("plots/heatmap_topgenes_topdomains.png",
 plt.show()
 
 print("Plotting complete! Plot saved as 'plots/heatmap_topgenes_topdomains.png'\n")
-
-# ------------------------------------------------------------
-# Statistical test: Chi-Square 
-# ------------------------------------------------------------
-
-# Check whether there is an association between oncogenicity and variants
-# inside / outside protein domains 
-
-# Model assumptions: 
-# Both variables are categorical.
-# All observations are independent.
-# Each observation must only contribute to one cell.
-# The expected frequency in each cell should be at least five.
-
-# Hypotheses: 
-# H0:   There is no association between variant classification (oncogenic vs. likely neutral) 
-#       and their localization relative to protein domains. 
-# H1:   There is a statistically significant association between variant classification and 
-#       localization relative to protein domains.
-
-# import libraries
-from scipy.stats import chi2_contingency 
-import numpy as np 
-from scipy.stats.contingency import odds_ratio
-
-# make contingency table for observed values 
-oncogenic_in, oncogenic_out, oncogenic_total = count_in_out(oncogenic, "Oncogenic")
-neutral_in, neutral_out, neutral_total = count_in_out(neutral, "Likely Neutral")
-
-observed_table = pd.DataFrame(
-    [[oncogenic_in, oncogenic_out], [neutral_in, neutral_out]],
-    index=["Oncogenic", "Likely Neutral"],
-    columns=["Inside Domain", "Outside Domain"]
-)
-
-print("Contingency table (observed values):\n")
-print(observed_table)
-
-# run Chi-square 
-chi2, p, dof, expected = chi2_contingency(observed_table)
-
-# contingency table expected values (under H0) 
-expected_table = pd.DataFrame(
-    expected,
-    columns=["Inside Domain", "Outside Domain"],
-    index=["Oncogenic", "Likely Neutral"]
-)
-
-print("\nContingency table (expected values):")
-print(expected_table.round(2))
-
-# print results from Chi-square 
-print("\nResults:")
-print(f"Chi-square: {chi2:.3f}, p-value: {p:.4f}")
-
-# cramers v (effect size for Chi-square) 
-n = observed_table.values.sum()
-k = min(observed_table.shape) - 1 
-cramers_v = np.sqrt(chi2 / (n*k))
-print(f"Cramér's V (effect size Chi-square): {cramers_v:.3f}")
-
-# calculate the odds-ratio 
-result = odds_ratio(observed_table)
-ci = result.confidence_interval(confidence_level=0.95)
-
-print(f"Odds-ratio: {result.statistic:.2f}")
-print(f"95% CI: [{ci.low:.2f}, {ci.high:.2f}]")
-print("-"*30)
 
 print("\nProtein domain analysis complete!🥳🥳\n")

@@ -1,7 +1,6 @@
 """
-====================================================================
 Variants Germline Proximity Analysis 
-====================================================================
+------------------------------------------------------
 
 Script: variants_with_germline_proximity.py
 Author: Ane Kleiven
@@ -18,7 +17,6 @@ Major outputs:
 4. Simple descriptive statistics 
 5. Distribution of germline distance between classes 
 6. Boxplot to spot outliers and look at distribution 
-7. Statistical test: Mann-Whitney U and rank-biserion correlation 
 
 All plots are saved in:
    plots/
@@ -181,60 +179,6 @@ plt.savefig("plots/boxplot_germline_dist.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print("Plotting complete! Boxplot saved as 'plots/boxplot_germline_dist.png'.\n")
-
-# ============================================================
-# Statistical test: Mann-Whitney U test 
-# ============================================================
-
-# Statistical test to check if there is a significant difference in the distribution 
-# of germline distances between oncogenic and likely neutral variants. 
-
-# Hypotheses
-#       H0 The distribution of distances to the nearest germline variant is 
-#       the same for oncogenic and likely neutral variants.
-#       H1 The distribution of distances to the nearest germline variant is 
-#       not the same for oncogenic and likely neutral variants.
-
-# Model assumptions: 
-# 1.  The variable (germline proximity) is continuous 
-# 2.  The data is assumed to be non-normal
-# 3.  The data in both groups have similar distributions 
-# 4.  The samples should be independent 
-
-# import library 
-from scipy.stats import mannwhitneyu
-
-# define the data, drop NA values 
-oncogenic = variants[variants["ONCOGENIC"] == "Oncogenic"]["Germline_Proximity"].dropna()
-neutral = variants[variants["ONCOGENIC"] == "Likely Neutral"]["Germline_Proximity"].dropna()
-
-# perform Mann-Whitney U test 
-print("-"*30)
-print("Running Mann-Whitney U test on the germline proximity data..\n")
-
-alpha = 0.05 
-
-stat, p = mannwhitneyu(oncogenic, neutral, alternative="two-sided") 
-print("Results:")
-print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
-
-if p < alpha:
-    print("Reject the null hypothesis. The germline distances for oncogenic and likely neutral variants come from different distributions.\n")
-else: 
-    print("Failed to reject the null hypothesis.\n") 
-
-# calculate rank-biserial correlation 
-# (effect size for mann-whitney u) 
-n1 = len(oncogenic)
-n2 = len(neutral)
-r = (2 * stat) / (n1 * n2) - 1
-print(f"Rank-biserial correlation: {r:.3f}")
-
-# calculate probability 
-probability = (1+r)/2 
-print(f"The probability of a random oncogenic variant having a higher germline distance than a neutral variant is: {probability*100:.2f}%.")
-
-print("-"*30)
 
 
 # ============================================================

@@ -340,46 +340,4 @@ plt.show()
 print("Plotting complete! Plot saved as 'plots/mave_scores_comparison.png'.")
 print("-"*30)
 
-# ============================================================
-# Statistical test: Mann-Whitney U test 
-# ============================================================
-
-# Statistical test to check if there is a significant difference in the distribution 
-# of germline distances between oncogenic and likely neutral variants. 
-
-# Hypotheses
-#       H0 The distribution of MAVE scores is equal for oncogenic and likely neutral variants.
-#       H1 The distribution of MAVE scores is not equal for oncogenic and likely neutral variants.
-
-# Model assumptions: 
-# 1.  The variable (MAVE score) is continuous 
-# 2.  The data is assumed to be non-normal
-# 3.  The data in both groups have similar distributions 
-# 4.  The samples should be independent 
-
-# import library 
-from scipy.stats import mannwhitneyu
-
-# define the data, drop NA values 
-oncogenic = variants[variants["ONCOGENIC"] == "Oncogenic"]["MaveDB_score"].dropna()
-neutral = variants[variants["ONCOGENIC"] == "Likely Neutral"]["MaveDB_score"].dropna()
-
-# perform Mann-Whitney U test 
-print("Running Mann-Whitney U test on the germline proximity data..\n")
-stat, p = mannwhitneyu(oncogenic, neutral, alternative="two-sided") 
-print("Results:")
-print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
-
-# calculate rank-biserial correlation 
-# (effect size for mann-whitney u) 
-n1 = len(oncogenic)
-n2 = len(neutral)
-r = (2 * stat) / (n1 * n2) - 1
-print(f"Rank-biserial correlation: {r:.3f}")
-
-# calculate probability 
-probability = (1+r)/2 
-print(f"The probability of a random oncogenic variant having a higher MAVE score than a neutral variant is: {probability*100:.2f}%.")
-
-print("-"*30)
 print("\nMAVEs analysis complete!🥳🥳\n")
