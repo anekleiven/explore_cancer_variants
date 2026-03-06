@@ -85,9 +85,9 @@ print(oncogenicity_summary,"\n")
 print("Plotting MAVE score per oncogenicity class...")
 
 oncogenicity_palette = {
-    "Oncogenic": "#C4473B",
+    "Oncogenic": "#c4314a",
     "Likely Oncogenic": "#D98C6A",
-    "Likely Neutral": "#7e8aa2",
+    "Likely Neutral": "#88aed1",
     "Inconclusive": "#f9c74f",
     "Unknown": "#848a8e",
     "Resistance": "#ba7ad4"
@@ -183,9 +183,9 @@ top_genes_pivot = top_genes_data.pivot(index="Hugo_Symbol", columns ="ONCOGENIC"
 top_genes_pivot = top_genes_pivot.loc[top_genes_pivot.sum(axis=1).sort_values(ascending=False).index]
 
 three_classes_palette = {
-    "Oncogenic": "#C4473B",
+    "Oncogenic": "#c4314a",
     "Likely Oncogenic": "#D98C6A",
-    "Likely Neutral": "#7e8aa2",
+    "Likely Neutral": "#88aed1",
 }
 
 print("Plotting oncogenicity distribution in top genes with MAVE scores..")
@@ -236,8 +236,8 @@ top_genes_comparison_pivot = top_genes_comparison_data.pivot(index="Hugo_Symbol"
 top_genes_comparison_pivot = top_genes_comparison_pivot.loc[top_genes_comparison_pivot.sum(axis=1).sort_values(ascending=False).index]
 
 two_classes_palette = {
-    "Oncogenic": "#C4473B",
-    "Likely Neutral": "#7e8aa2",
+    "Oncogenic": "#c4314a",
+    "Likely Neutral": "#88aed1",
 }
 
 print("Plotting variant counts in top genes with mave scores..")
@@ -284,8 +284,8 @@ mavescore_plot = variants_onco_vs_neutral.dropna(subset=["MaveDB_score"])
 
 # standardize colors 
 palette={
-  "Oncogenic": "#C4473B",
-  "Likely Neutral": "#7e8aa2"
+  "Oncogenic": "#c4314a",
+  "Likely Neutral": "#88aed1"
   }
 
 print("Plotting boxplot of MAVE score data...\n")
@@ -328,16 +328,89 @@ sns.kdeplot(
   fill=True,
   common_norm=False,
   palette=palette, 
-  alpha=0.5
+  alpha=0.5,
+  linewidth=0.2, 
+  legend=True
 )
 
-plt.title("MAVE Score by Oncogenicity Class", fontsize=14)
-plt.xlabel("MaveDB Score", fontsize=12)
+plt.title("Distribution of MAVE Scores: Oncogenicity", fontsize=14)
+plt.xlabel("MaveDB Score (Functional Impact)", fontsize=12)
 plt.ylabel("Density", fontsize=12)
+
+plt.tight_layout() 
 plt.savefig("plots/mave_scores_comparison.png", bbox_inches='tight')
 plt.show()
 
 print("Plotting complete! Plot saved as 'plots/mave_scores_comparison.png'.")
 print("-"*30)
+
+
+
+# ------------------------------------------------------------
+# Density plot og MAVE scores per mutation effect (LOF/GOF) 
+# ------------------------------------------------------------
+
+mechanism_map = {
+    "Likely Loss-of-function": "Loss-of-function",
+    "Loss-of-function": "Loss-of-function",
+    "Likely Gain-of-function": "Gain-of-function",
+    "Gain-of-function": "Gain-of-function"
+}
+
+variants['Simplified_Mechanism'] = variants['MUTATION_EFFECT'].map(mechanism_map)
+
+# Filter data
+onco_set = variants[
+    (variants["ONCOGENIC"] == "Oncogenic") & 
+    (variants["Simplified_Mechanism"])
+].copy()
+
+palette = {"Loss-of-function": "#c4314a", "Gain-of-function": "#88aed1"}
+
+# Plot settings 
+sns.set_theme(style="whitegrid")
+plt.figure(figsize=(8,5)) 
+
+# Density plot with oncogenic and neutral variants 
+print("Plotting distribution of mave scores between LoF and GoF variants..")
+
+sns.kdeplot(
+  data=onco_set,
+  x="MaveDB_score",
+  hue="Simplified_Mechanism",
+  fill=True,
+  common_norm=False,
+  palette=palette, 
+  alpha=0.5, 
+  linewidth=0.2, 
+  legend=True
+)
+
+plt.gca().get_legend().set_title("Variant Mechanism")
+plt.title('Distribution of MAVE Scores: GoF vs. LoF (Oncogenic Variants)', fontsize=14)
+plt.xlabel('MaveDB Score (Functional Impact)', fontsize=12)
+plt.ylabel('Density', fontsize=12)
+
+plt.tight_layout() 
+plt.savefig("plots/mave_scores_lof_gof.png", bbox_inches='tight')
+plt.show()
+
+print("Plotting complete! Plot saved as 'plots/mave_scores_lof_gof.png'.")
+print("-"*30)
+
+
+# Filter out variants without MAVE-score 
+mave_variants = variants[variants['MaveDB_score'].notna()]
+
+# Make cross table
+mave_effect_counts = pd.crosstab(
+    mave_variants['MUTATION_EFFECT'], 
+    mave_variants['ONCOGENIC'], 
+    margins=True, 
+    margins_name="Total"
+)
+
+print("Variants with MAVE-score per mutation effect:")
+print(mave_effect_counts)
 
 print("\nMAVEs analysis complete!🥳🥳\n")

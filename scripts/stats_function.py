@@ -49,8 +49,8 @@ def stats_func(df, features, label="Dataset"):
             neutral = df[df["ONCOGENIC"] == "Likely Neutral"][f].dropna()
 
             if f == "gnomAD_AF":
-            oncogenic = oncogenic[oncogenic > 0]
-            neutral = neutral[neutral > 0]
+                oncogenic = oncogenic[oncogenic > 0]
+                neutral = neutral[neutral > 0]
 
             if len(oncogenic) == 0 or len(neutral) == 0:
                 print(f"[{f}] Skipped (not enough data)\n")
@@ -116,14 +116,16 @@ def stats_func(df, features, label="Dataset"):
 
             results.append({"feature": f, "test": test_used, "p_value": p})
                 
-
+     
     results_df = pd.DataFrame(results)
-    _, q_values, _, _ = multipletests(results_df["p_value"], method="fdr_bh")
-    results_df["q_value"] = q_values.round(4)
     results_df["p_value"] = results_df["p_value"].round(4)
 
+    if len(features) > 1:
+        _, q_values, _, _ = multipletests(results_df["p_value"], method="fdr_bh")
+        results_df["q_value"] = q_values.round(4)
 
-    print(f"\n{'-'*50}")
-    print("FDR-corrected results (Benjamini-Hochberg)")
-    print(f"{'-'*50}")
-    print(results_df.to_string(index=False))
+
+        print(f"{'-'*50}")
+        print("FDR-corrected results (Benjamini-Hochberg)")
+        print(f"{'-'*50}")
+        print(results_df.to_string(index=False))
