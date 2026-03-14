@@ -3,7 +3,7 @@
 # ============================================================
 
 print("-"*50)
-print("Statistics Top 10 Oncogenic Genes🔎🔢")
+print("Statistics all variants🔎🔢")
 print("-"*50)
 
 # import libraries 
@@ -35,11 +35,11 @@ variants["has_gnomAD_AF"] = (
 )
 
 # define the features 
-features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "Germline_Proximity", "MaveDB_score"]
+features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE"]
 
 stats_func(variants, features, "All variants") 
 
-##-------------------------------------------
+#-------------------------------------------
 # Statistics MAVEs LOF vs GOF
 #-------------------------------------------
 
