@@ -52,7 +52,7 @@ top_10_gene_variants["has_gnomAD_AF"] = (
 )
 
 # define the features 
-features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "Germline_Proximity", "MaveDB_score"]
+features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE"]
 
 if __name__ == "__main__":
   stats_func(top_10_gene_variants, features, "Top 10 oncogenic genes")

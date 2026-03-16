@@ -12,8 +12,7 @@ Filtered on the following:
   Assembly = GRCh37
   Origin = Germline
   ClinicalSignificance = Benign, Likely Benign 
-  Review status = expert panel
-  gnomAD AF > 0.0001
+  Review status >= 1 review star 
   
 """
 
@@ -78,12 +77,13 @@ print(f"Loaded {len(clinvar_variants):,} variants from ClinVar.\n")
 #   Assembly == GRCh37
 #   Oncogenicity == Benign and Likely Benign 
 #   Origin == germline
-#   ReviewStatus == expert panel 
+#   ReviewStatus >= 1 review star
 
 review_statuses = [
     "practice guideline",
     "reviewed by expert panel",
-    "criteria provided, multiple submitters, no conflicts"
+    "criteria provided, multiple submitters, no conflicts",
+    "criteria provided, single submitter"
 ]
 
 # Value check before filtering 
@@ -113,7 +113,7 @@ print(neutral_clinvar[['Name', 'HGVSp']].head())
 
 # save file 
 output_path = "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/neutral_clinvar_filtered.tsv"
-print(f"Saving {len(neutral_clinvar)} variants to {output_path}...")
+print(f"\nSaving {len(neutral_clinvar)} variants to {output_path}...")
 neutral_clinvar.to_csv(output_path, sep="\t", index=False)
 
 
