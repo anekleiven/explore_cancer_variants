@@ -20,7 +20,7 @@ Major outputs:
 6. Density plot og MaveDB score distributions within top MAVE genes
 
 All plots are saved in:
-   plots/
+   plots/maves
 
 """
 
@@ -236,77 +236,6 @@ g.add_legend(title="Oncogenicity", fontsize=9)
 
 plt.tight_layout()
 plt.savefig("plots/maves/mave_score_density_by_oncogenicity.png", dpi=300, bbox_inches="tight")
-
-print("Plotting complete. Plots saved in folder plots/maves/.")
-
-
-print("MAVE exploratory analyses complete!🥳🥳")
-
-# -------------------------------------------------------------
-# Plot score distributions oncogenic vs synonymous vs likely neutral 
-# -------------------------------------------------------------
-
-synonymous_maves = pd.read_csv(
-    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/synonymous_dataset.tsv", 
-    sep="\t", 
-    low_memory=False)
-
-print(synonymous_maves.columns.tolist())
-
-mave_genes = synonymous_maves.groupby(["Hugo_Symbol", "MaveDB_urn"]).size() 
-print(mave_genes)
-
-# Filter synonymous to the wanted urns (experiments)
-synonymous_filtered = synonymous_maves[synonymous_maves["MaveDB_urn"].isin(wanted_urns)].copy()
-synonymous_filtered["MaveDB_score"] = pd.to_numeric(synonymous_filtered["MaveDB_score"], errors="coerce")
-synonymous_filtered = synonymous_filtered.dropna(subset=["MaveDB_score"])
-
-# Add Group column before combining dfs 
-mave_filtered["Group"] = mave_filtered["ONCOGENIC"]
-synonymous_filtered["Group"] = "Synonymous"
-
-# Combine dfs 
-mave_combined = pd.concat([mave_filtered, synonymous_filtered])
-
-# --- DENSITY PLOT ---
-
-palette_3 = {
-    "Oncogenic": "#c4314a",
-    "Likely Neutral": "#88aed1",
-    "Synonymous": "#a5a8aa"
-}
-
-g = sns.FacetGrid(mave_combined, col="Hugo_Symbol", sharey=False, sharex=False, 
-                  hue="Group", palette=palette_3)
-g.map(sns.kdeplot, "MaveDB_score", fill=True, alpha=0.5)
-
-for ax, gene in zip(g.axes.flat, g.col_names):
-    gene_data = mave_combined[mave_combined["Hugo_Symbol"] == gene]
-    counts = gene_data["Group"].value_counts()
-    
-    n_oncogenic  = counts.get("Oncogenic", 0)
-    n_neutral    = counts.get("Likely Neutral", 0)
-    n_synonymous = counts.get("Synonymous", 0) 
-    
-    ax.annotate(
-        f"n(Oncogenic) = {n_oncogenic}\nn(Likely Neutral) = {n_neutral}\nn(Synonymous) = {n_synonymous}",
-        xy=(0.05, 0.95),
-        xycoords="axes fraction",
-        fontsize=6,
-        va="top",
-        ha="left",
-        bbox=dict(boxstyle="round,pad=0.1", fc="white", alpha=0.5)
-    )
-
-# Titles and axis labels
-g.set_titles(col_template="{col_name}")
-g.set_axis_labels(x_var="MAVE Functional Score", y_var="Density")
-g.figure.suptitle("MAVE Score Distribution by Group",
-                   fontsize=14, y=1.02)
-g.add_legend(title="Group", fontsize=9)
-
-plt.tight_layout()
-plt.savefig("plots/maves/mave_score_density_by_group.png", dpi=300, bbox_inches="tight")
 
 print("Plotting complete. Plots saved in folder plots/maves/.")
 

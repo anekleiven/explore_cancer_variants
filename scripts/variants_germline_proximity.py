@@ -1,6 +1,7 @@
 """
+====================================================================
 Variants Germline Proximity Analysis 
-------------------------------------------------------
+====================================================================
 
 Script: variants_with_germline_proximity.py
 Author: Ane Kleiven
@@ -323,85 +324,3 @@ for gene in top_genes_full.head(15).index:
 
     print(f"Plotting complete! Plot saved as 'plots/germline_proximity/dist_{gene}.png'.\n")
 
-# ------------------------------------------------------------
-# Germline distances in top genes
-# Original data combined with synonymous variant data
-# ------------------------------------------------------------
-
-# Load neutral data 
-neutral_ref = pd.read_csv(
-    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/synonymous_dataset.tsv",
-    sep="\t",
-    low_memory=False
-)
-
-palette_3 = {
-    "Oncogenic": "#c4314a",
-    "Likely Neutral": "#88aed1",
-    "Synonymous": "#a5a8aa"
-}
-
-print("Plotting distribution with extended synonymous variant group..")
-
-for gene in top_genes_full.head(15).index:
-
-    onco_data = variants_plot[
-        (variants_plot["Hugo_Symbol"] == gene) &
-        (variants_plot["ONCOGENIC"] == "Oncogenic")
-    ].copy()
-    onco_data["Group"] = "Oncogenic"
-
-    likely_neut_data = variants_plot[
-        (variants_plot["Hugo_Symbol"] == gene) &
-        (variants_plot["ONCOGENIC"] == "Likely Neutral")
-    ].copy()
-    likely_neut_data["Group"] = "Likely Neutral"
-
-    synonymous_data = neutral_ref[neutral_ref["Hugo_Symbol"] == gene].copy()
-    synonymous_data["Group"] = "Synonymous"
-
-    gene_plot_df = (
-        pd.concat([onco_data, likely_neut_data, synonymous_data])
-        .dropna(subset=["Germline_Proximity"])
-        .copy()
-    )
-
-    if gene_plot_df.empty or gene_plot_df["Group"].nunique() < 2:
-        print(f"Skipping {gene}: Too few groups to compare.\n")
-        continue
-    else: 
-        print(f"Plotting germline distances for {gene}..")
-
-    counts = gene_plot_df["Group"].value_counts()
-    n_onco   = counts.get("Oncogenic", 0)
-    n_l_neut = counts.get("Likely Neutral", 0)
-    n_s_neut = counts.get("Synonymous", 0)
-
-    plt.figure(figsize=(10, 6))
-
-    ax = sns.kdeplot(
-        data=gene_plot_df,
-        x="log_dist",
-        hue="Group",
-        fill=True,
-        common_norm=False,
-        palette=palette_3,
-        alpha=0.3,
-        linewidth=2
-    )
-
-    sns.move_legend(ax, "upper right", title="Variant Category")
-    plt.xlim(-1, 5)
-    plt.title(
-        f"{gene}: Germline Proximity Comparison\n"
-        f"Onco={n_onco}, L.Neut={n_l_neut}, Syn={n_s_neut}",
-        fontsize=13
-    )
-    plt.xlabel("Distance to nearest pathogenic germline variant (Log10 bp + 1)", fontsize=12)
-    plt.ylabel("Density", fontsize=12)
-
-    plt.tight_layout()
-    plt.savefig(f"plots/germline_proximity/dist_extended_{gene}.png", dpi=300, bbox_inches="tight")
-    plt.show()
-
-    print(f"Plotting complete! Plot saved as 'plots/germline_proximity/dist_extended_{gene}.png'.\n")
