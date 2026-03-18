@@ -15,7 +15,7 @@ from scipy.stats.contingency import odds_ratio as scipy_odds_ratio
 from statsmodels.stats.multitest import multipletests
 
 # Import statistics function 
-from stats_function import stats_func
+from scripts.statistics.stats_function import stats_func
 
 # Load variant data 
 print("Loading variants..")

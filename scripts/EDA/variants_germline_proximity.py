@@ -1,8 +1,9 @@
-"""
-====================================================================
-Variants Germline Proximity Analysis 
-====================================================================
 
+# ====================================================================
+# Variants Germline Proximity Analysis 
+# ====================================================================
+
+"""
 Script: variants_with_germline_proximity.py
 Author: Ane Kleiven
 
@@ -13,13 +14,9 @@ known pathogenic germline variants
 Major outputs:
 --------------
 1. Number of variants with a germline distance
-2. Percent of variants with a germline distance
-3. Percent of variants with a germline distance (per class) 
-4. Simple descriptive statistics 
-5. Distribution of germline distance between classes 
-6. Boxplot to spot outliers and look at distribution 
-7. Bi-modal distribution study oncogenic variants
-8. Germline distances per gene (top oncogenic genes)
+2. Simple descriptive statistics 
+3. Distribution of germline distance between classes 
+5. Germline distance distributions per gene (top oncogenic genes)
 
 All plots are saved in:
    plots/germline_proximity/
@@ -58,7 +55,10 @@ print(f"Loaded {len(variants):,} somatic variants.")
 # Find the number of variants with a germline distance 
 # ------------------------------------------------------------
 
-count_with_distance = variants["Germline_Proximity"].notna().sum()
+variants_with_dist = variants[variants["Germline_Proximity"].notna()]
+variants_with_dist["Germline_Proximity"] = pd.to_numeric(variants_with_dist["Germline_Proximity"], errors='coerce')
+
+count_with_distance = variants_with_dist["Germline_Proximity"].sum() 
 print(f"Number of variants with germline distances: {count_with_distance:,}")
 
 percent_with_distance = (count_with_distance / len(variants)) * 100
@@ -68,10 +68,9 @@ print(f"Percent of variants with germline distances: {percent_with_distance:.2f}
 # Number of variants with germline distance within each class 
 # ------------------------------------------------------------
 
-has_dist_summary = variants.groupby("ONCOGENIC")["Germline_Proximity"].apply(
-    lambda x: x.notna().mean() * 100
-)
-print("Percent of variants with a germline distance per class:")
+has_dist_summary = variants_with_dist.groupby("ONCOGENIC")["Germline_Proximity"]
+
+print("Number of variants with a germline distance per class:")
 print(has_dist_summary, "\n")
 
 # ------------------------------------------------------------
@@ -95,8 +94,7 @@ print(stats_summary)
 wanted_classes = ["Oncogenic", "Likely Neutral"]
 
 variants_plot = (
-    variants[variants["ONCOGENIC"].isin(wanted_classes)]
-    .dropna(subset=["Germline_Proximity"])
+    variants_with_dist[variants_with_dist["ONCOGENIC"].isin(wanted_classes)]
     .copy()
 )
 
@@ -109,7 +107,7 @@ palette = {
 }
 
 # ------------------------------------------------------------
-# FIGURE 1: Density plot with both classes
+# Density plot with both classes
 # ------------------------------------------------------------
 
 print("\nPlotting distribution of germline proximity (comparison plot)..\n")
@@ -134,7 +132,7 @@ plt.show()
 print("Plotting complete! Plot saved as 'plots/germline_proximity/combined_dist.png'.\n")
 
 # ------------------------------------------------------------
-# FIGURE 2: Histogram with distance proportions per class 
+# Histogram with distance proportions per class 
 # ------------------------------------------------------------
 
 print("-"*50)
@@ -164,7 +162,7 @@ plt.show()
 print("Plotting complete! Plot saved as 'plots/germline_proximity/dists_per_class.png'.\n")
 
 # ------------------------------------------------------------
-# FIGURE 3: Boxplot of germline distances 
+# Boxplot of germline distances 
 # ------------------------------------------------------------
 
 print("-"*50)
@@ -186,110 +184,22 @@ plt.show()
 
 print("Plotting complete! Boxplot saved as 'plots/germline_proximity/boxplot_germline_dist.png'.\n")
 
-# ------------------------------------------------------------
-# Statistical test: Kolmogorov-Smirnov 
-# ------------------------------------------------------------
-
-# Model assumptions:
-#       The samples should be independent.       
-#       The dependent variable must be measured on an ordinal or continuous scale. 
-#       The distributions should be continuous to avoid ties. 
-
-# Hypotheses: 
-#       H0: The samples come from the same distribution.
-#       H1: The samples come from different distributions. 
-
-print("-"*50)
-print("Running Kolmogorov-Smirnov test on germline distance data (log-transformed)..\n")
-
-oncogenic = variants_plot[variants_plot["ONCOGENIC"] == "Oncogenic"]["log_dist"]
-neutral = variants_plot[variants_plot["ONCOGENIC"] == "Likely Neutral"]["log_dist"]
-
-ks_statistic, p_value = ks_2samp(oncogenic, neutral, alternative="two-sided", mode="auto")
-
-alpha = 0.05
-
-print("Results KS-test:")
-print(f"KS-statistic: {ks_statistic}")
-print(f"p-value: {p_value:.4f}")
-
-if p_value < alpha:
-    print("Reject the null hypothesis. The oncogenic and neutral variants come from two different distributions.")
-else:
-    print("Failed to reject the null hypothesis.")
 
 # ------------------------------------------------------------
-# Investigate the bi-modal distribution for
-# germline distances among oncogenic variants 
+# Find the top oncogenic genes with germline distances
 # ------------------------------------------------------------
-
-print("\nInvestigating the bi-modal distribution for germline distances among oncogenic variants..")
 
 oncogenic_var = variants_plot[variants_plot["ONCOGENIC"] == "Oncogenic"].copy()
-peak_a_variants = oncogenic_var[oncogenic_var["log_dist"] <= 1].copy()
-peak_b_variants = oncogenic_var[oncogenic_var["log_dist"] >= 1.5].copy()
-
 top_genes_full = oncogenic_var["Hugo_Symbol"].value_counts()
-genes_peak_a   = peak_a_variants["Hugo_Symbol"].value_counts()
-genes_peak_b   = peak_b_variants["Hugo_Symbol"].value_counts()
 
 print("\nThe top 10 oncogenic genes total are:")
 print(top_genes_full.head(10), "\n")
-print("The top 10 oncogenic genes in peak A are:")
-print(genes_peak_a.head(10), "\n")
-print("The top 10 oncogenic genes in peak B are:")
-print(genes_peak_b.head(10), "\n")
-
-# ------------------------------------------------------------
-# Proportion plot germline distances
-# ------------------------------------------------------------
-
-print("Plotting distribution of variants in peak A and B for top oncogenic genes..")
-
-peak_a_variants["Peak"] = "Peak A (<10bp)"
-peak_b_variants["Peak"] = "Peak B (>30bp)"
-
-combined_df = pd.concat([peak_a_variants, peak_b_variants])
-top_15_genes = combined_df["Hugo_Symbol"].value_counts().head(15).index
-filtered_df = combined_df[combined_df["Hugo_Symbol"].isin(top_15_genes)]
-
-peak_counts = (
-    filtered_df
-    .groupby(["Hugo_Symbol", "Peak"])
-    .size()
-    .unstack(fill_value=0)
-)
-
-peak_proportions = peak_counts.div(peak_counts.sum(axis=1), axis=0)
-peak_proportions = peak_proportions.sort_values("Peak A (<10bp)", ascending=False)
-
-x_labels = [f"{gene} (n={int(peak_counts.loc[gene].sum())})" for gene in peak_proportions.index]
-
-ax = peak_proportions.plot(
-    kind="bar",
-    stacked=True,
-    figsize=(8, 5),
-    color=("#d16a58", "#d6b4be"),
-    edgecolor="white"
-)
-
-plt.title("Proportion of Oncogenic Variants in Distance Peaks (Top 15 Genes)", fontsize=14, pad=20)
-plt.xlabel("Gene (Total variants in peaks)", fontsize=12)
-plt.ylabel("Proportion of variants", fontsize=12)
-plt.xticks(range(len(x_labels)), x_labels, rotation=45, ha="right", fontsize=10)
-plt.legend(title="Distance to Germline", loc="upper left", bbox_to_anchor=(1, 1))
-
-plt.tight_layout()
-plt.savefig("plots/germline_proximity/germline_proportions.png", dpi=300, bbox_inches="tight")
-plt.show()
-
-print("Plotting complete! Plot saved as 'plots/germline_proximity/germline_proportions.png'\n")
 
 # ------------------------------------------------------------
 # Germline distances in top genes (original data)
 # ------------------------------------------------------------
 
-for gene in top_genes_full.head(15).index:
+for gene in top_genes_full.head(20).index:
     gene_data = variants_plot[variants_plot["Hugo_Symbol"] == gene]
 
     if gene_data["ONCOGENIC"].nunique() < 2:
@@ -322,5 +232,21 @@ for gene in top_genes_full.head(15).index:
     plt.savefig(f"plots/germline_proximity/dist_{gene}.png", bbox_inches="tight")
     plt.show()
 
-    print(f"Plotting complete! Plot saved as 'plots/germline_proximity/dist_{gene}.png'.\n")
+    print(f"\nPlotting complete! Plot saved as 'plots/germline_proximity/dist_{gene}.png'.\n")
 
+# ------------------------------------------------------------
+# Save filtered germline variants in top genes to .tsv 
+# ------------------------------------------------------------
+
+print("Saving filtered germline variants to .tsv file..")
+top_20_genes = top_genes_full.head(20).index.tolist() 
+top_20_variants = variants_plot[variants_plot["Hugo_Symbol"].isin(top_20_genes)]
+
+# save as .tsv 
+output_path = "/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv"
+top_20_variants.to_csv(output_path, sep="\t", index=False) 
+print(f"Filtered germline variant file saved as: \n {output_path}")
+print("-"*30)
+
+
+print("\nGermline distance exploratory analyses complete!🥳🧬")
