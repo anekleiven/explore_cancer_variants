@@ -16,8 +16,8 @@ Major outputs:
 2. Number of MaveDB_scores for each oncogenicity class 
 3. Top genes with MaveDB_score
 4. Filter out wanted MAVE experiments (by number of variants with MAVE score)
-5. Box plot of MaveDB score distributions within top MAVE genes 
-6. Density plot og MaveDB score distributions within top MAVE genes
+5. Box plot of MaveDB score distributions within top MAVE experiments (single genes)
+6. Density plot of MaveDB score distributions within top MAVE experiments (single genes)
 
 All plots are saved in:
    plots/maves
@@ -56,6 +56,7 @@ print("-"*30)
 # ------------------------------------------------------------
 
 variants_with_mave = variants[variants["MaveDB_score"].notna()]
+variants_with_mave["MaveDB_score"] = pd.to_numeric(variants_with_mave["MaveDB_score"], errors='coerce')
 
 print(f"Number of variants with MAVE scores: {len(variants_with_mave):,} variants.") 
 print(f"Percentage of variants with MAVE scores: {(len(variants_with_mave)/len(variants)*100):.2f}%.")
@@ -66,19 +67,18 @@ print("-"*30)
 # different oncogenicity classes 
 # ------------------------------------------------------------
 
-# create summary table 
-oncogenicity_summary = variants_with_mave.groupby("ONCOGENIC").size().reset_index(name="Variant_Count")
-
-# rename column
-oncogenicity_summary.columns = ["Oncogenicity_Class", "Variant_Count"]
-
-# sort by count 
-oncogenicity_summary = oncogenicity_summary.sort_values("Variant_Count", ascending = False) 
+# Create summary table 
+oncogenicity_summary = (
+    variants_with_mave["ONCOGENIC"]
+    .value_counts()
+    .reset_index(name="Variant_Count")
+    .rename(columns={"index": "Oncogenicity_Class", "ONCOGENIC": "Oncogenicity_Class"})
+)
 
 print("Number of MAVE scores per oncogenicity class:")
 print(oncogenicity_summary,"\n") 
 
-# plot summary 
+# Plot summary 
 print("Plotting MAVE score per oncogenicity class...")
 
 oncogenicity_palette = {
@@ -114,19 +114,19 @@ print("-"*30)
 # Explore top genes with MAVEdb_score 
 # ------------------------------------------------------------
 
-# summary per gene 
-gene_summary = variants_with_mave.groupby("Hugo_Symbol").size().reset_index(name="Variant_Count")
-
-# rename columne
-gene_summary.columns = ["Gene", "Variant_Count"]
-
-# sort by count 
-gene_summary = gene_summary.sort_values("Variant_Count", ascending = False) 
-
+# Summary per gene 
+gene_summary = (
+  variants_with_mave.groupby("Hugo_Symbol")
+  .size()
+  .reset_index(name="Variant_Count")
+  .rename(columns={"Hugo_Symbol": "Gene"})
+  .sort_values("Variant_Count", ascending=False)
+)
+# Print summary 
 print("Number of MaveDB_scores per gene:")
 print(gene_summary, "\n") 
 
-# plot summary 
+# Plot summary 
 print("Plotting top genes with MaveDB score (by variant count)..")
 
 plt.figure(figsize=(8,5))
@@ -155,25 +155,22 @@ print("-"*30)
 oncogenicity_classes = ["Likely Neutral", "Oncogenic"] 
 variants_with_mave_filtered = variants_with_mave[variants_with_mave["ONCOGENIC"].isin(oncogenicity_classes)]
 
-mave_summary = variants_with_mave_filtered.groupby(["Hugo_Symbol", "MaveDB_urn", "ONCOGENIC"]).size()
-print("Variant count for different MAVE experiments in different oncogenicity classes:")
-print(mave_summary)
+mave_summary = (
+  variants_with_mave_filtered.groupby(["Hugo_Symbol", "MaveDB_urn", "ONCOGENIC"])
+  .size()) 
+
+print("Variant count for different MAVE experiments in Oncogenic and Likely Neutral variant class:")
+print(mave_summary, "\n")
 
 # -------------------------------------------------------------
 # Explore MAVE genes 
 # -------------------------------------------------------------
 
-print("Filtering out experiments from the top MAVE genes..")
-# filter to wanted MAVE experiments 
+print("Filtering out experiments from the top MAVE genes..\n")
+
+# Wanted MAVE experiments 
 wanted_urns = ["urn:mavedb:00000068-a-1", "urn:mavedb:00000013-a-1", "urn:mavedb:00000115-a-7", "urn:mavedb:00000081-a-2"] 
-
 mave_filtered = variants_with_mave_filtered[variants_with_mave_filtered["MaveDB_urn"].isin(wanted_urns)]
-
-mave_filtered["MaveDB_score"] = pd.to_numeric(
-    mave_filtered["MaveDB_score"], errors="coerce"
-)
-# Drop rows without MAVE score
-mave_filtered = mave_filtered.dropna(subset=["MaveDB_score"])
 
 # -------------------------------------------------------------
 # Plot score distributions for wanted MAVE experiments
@@ -219,7 +216,7 @@ for ax, gene in zip(g.axes.flat, g.col_names):
     
     ax.annotate(
         f"n(Likely Neutral) = {n_neutral}\nn(Oncogenic) = {n_oncogenic}",
-        xy=(0.05, 0.95),           # top-left corner of panel
+        xy=(0.05, 0.95),           
         xycoords="axes fraction",
         fontsize=6,
         va="top",
@@ -237,7 +234,18 @@ g.add_legend(title="Oncogenicity", fontsize=9)
 plt.tight_layout()
 plt.savefig("plots/maves/mave_score_density_by_oncogenicity.png", dpi=300, bbox_inches="tight")
 
-print("Plotting complete. Plots saved in folder plots/maves/.")
+print("Plotting complete. Plots saved in folder plots/maves/.\n")
 
 
-print("MAVE exploratory analyses complete!🥳🥳")
+#----------------------------------------------------------
+# Save filtered MAVE data as .tsv for further analysis
+#----------------------------------------------------------
+
+output_path = "/home/anekl/git/master/explore_cancer_variants/output/mave_urn_filtered.tsv"
+mave_filtered.to_csv(output_path, sep="\t", index=False)
+
+print("-"*50)
+print(f"Saved filtered MAVE data to: \n {output_path}")
+print("-"*50 + "\n")
+
+print("MAVE exploratory analyses complete!🥳🥳\n")
