@@ -4,7 +4,7 @@
 # ====================================================================
 
 """
-Script: variants_in_hotspots.py
+Script: cancerhotspots.py
 Author: Ane Kleiven
 
 This script performs a multi-step analysis to explore how somatic cancer
@@ -180,6 +180,8 @@ sns.barplot(data=counts,
 plt.title("Number of Variants in Cancer Hotspots", fontsize=14, pad=10)
 plt.xlabel("Variant in Hotspot", fontsize=12)
 plt.ylabel("Counts", fontsize=12) 
+plt.xticks(rotate=90, fontsize=10)
+
 plt.tight_layout() 
 plt.savefig("plots/cancerhotspots/variants_in_hotspots.png", dpi=300)
 plt.show()
