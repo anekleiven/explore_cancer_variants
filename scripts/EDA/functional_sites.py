@@ -387,7 +387,7 @@ comparison = gene_feature_counts.merge(
     on=["Hugo_Symbol", "FEATURE_TYPE"],
     how="outer",
     suffixes=("_oncogenic", "_likely_neutral")
-).fillna(0)20 
+).fillna(0)
 
 print("Oncogenic and likely neutral variant counts per gene and functional site:")
 print(comparison.head(),"\n") 
