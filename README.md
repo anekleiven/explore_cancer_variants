@@ -34,3 +34,11 @@ Each script contains further explanations on content and use.
 
 `variants_with_maves.py` - Variant counts with MAVE scores and MAVE score distributions  
 
+
+## Recommended Sources 🛜
+
+- AACR Project GENIE: https://www.aacr.org/professionals/research/aacr-project-genie/
+- OncoKB: https://www.oncokb.org
+
+
+
