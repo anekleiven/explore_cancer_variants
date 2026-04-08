@@ -180,7 +180,7 @@ sns.barplot(data=counts,
 plt.title("Number of Variants in Cancer Hotspots", fontsize=14, pad=10)
 plt.xlabel("Variant in Hotspot", fontsize=12)
 plt.ylabel("Counts", fontsize=12) 
-plt.xticks(rotate=90, fontsize=10)
+plt.xticks(rotation=90, fontsize=10)
 
 plt.tight_layout() 
 plt.savefig("plots/cancerhotspots/variants_in_hotspots.png", dpi=300)
@@ -242,7 +242,7 @@ onco_genes = (oncogenic_hotspots
               .sort_values("Hotspot_Variant_Count", ascending=False)
 )
 
-print("Example of genes with a high number of variants in cancer hotspots:")
+print("Example of genes with a high number of oncogenic variants in cancer hotspots:")
 print(onco_genes.head(), "\n")
 
 # ------------------------------------------------------------

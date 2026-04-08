@@ -14,9 +14,8 @@ Major outputs:
   1. Variant distribution inside/outside protein domains 
   2. Top domains (by variant count)
   3. Top domains enriched for oncogenic variants 
-  4. Heatmap of variants across top domains and top genes 
-  5. Driver genes enriched in protein domains 
-  6. Heatmap of oncogenic variants across top domains and top genes
+  4. Heatmap of oncogenic fractions across top domains and top genes 
+
 
 All plots are saved in:
     plots/proteindomains
@@ -247,8 +246,6 @@ gene_domain_class_counts = (
   .size() 
   .reset_index(name="Count") 
 )
-print("Preview of the gene x domain count table:\n")
-print(gene_domain_class_counts.head(), "\n")
 
 gene_domain_matrix = gene_domain_class_counts.pivot_table(
     index=["Hugo_Symbol", "DOMAIN_NAME"],
@@ -266,7 +263,7 @@ gene_domain_matrix["Oncogenic_Fraction"] = (
   gene_domain_matrix["Oncogenic"] / gene_domain_matrix["Total"]
 ).fillna(0) 
 
-# Filter to top domains 
+# Extract top domains
 top_domains = (
     gene_domain_matrix.groupby("DOMAIN_NAME")["Total"]
     .sum() 
@@ -280,7 +277,7 @@ combined_top = gene_domain_matrix[
     gene_domain_matrix["DOMAIN_NAME"].isin(top_domains)
 ]
 
-# Filter to top genes 
+# Extract top genes
 top_genes_combined = (
     combined_top.groupby("Hugo_Symbol")["Total"]
     .sum()
@@ -297,6 +294,9 @@ heatmap_combined = combined_top.pivot(
     columns="DOMAIN_NAME",
     values="Oncogenic_Fraction"
 ).fillna(0)
+
+print("Preview of oncogenic fraction data:")
+print(heatmap_combined.head())
 
 # Plot heatmap 
 plt.figure(figsize=(7,6))
@@ -317,109 +317,6 @@ plt.savefig("plots/proteindomains/heatmap_oncogenic_fraction.png", dpi=300, bbox
 plt.show()
 
 print("Heatmap complete! Saved as 'plots/proteindomains/heatmap_oncogenic_fraction.png'")
-
-# ------------------------------------------------------------
-# Identify Driver Genes Enriched in Protein Domains
-# ------------------------------------------------------------
-
-# When we look at a specific protein domain, how many of the oncogenic mutations comes from each gene? 
-
-print("-"*50)
-print("Identifying oncogenic driver genes enriched in protein domains..\n")
-
-# Extract oncogenic variants from the exploded df 
-oncogenic_variants = variants_domains[variants_domains["ONCOGENIC"] == "Oncogenic"].copy()
-
-# Count oncogenic variants per gene x domain 
-# "How many oncogenic variants does each gene have in each domain?"
-gene_domain_counts = (
-    oncogenic_variants.groupby(["Hugo_Symbol", "DOMAIN_NAME"])
-    .size()
-    .reset_index(name="Variant_Count")
-    .sort_values("Variant_Count", ascending=False)
-)
-
-# Compute total oncogenic variants per domain 
-domain_oncogenic_totals = (
-    gene_domain_counts.groupby("DOMAIN_NAME")["Variant_Count"]
-    .sum()
-    .reset_index(name="Domain_Total")
-)
-
-# Compute the fraction contributed per gene 
-gene_domain_fraction = gene_domain_counts.merge(
-  domain_oncogenic_totals, on="DOMAIN_NAME")
-
-gene_domain_fraction["Fraction_of_Domain"] = (
-    gene_domain_fraction["Variant_Count"] / gene_domain_fraction["Domain_Total"]
-)
-
-print("Preview of oncogenic driver genes:\n")
-print(gene_domain_fraction.head(5), "\n")
-
-# ------------------------------------------------------------
-# Top Domains x Top Genes 
-# (Oncogenic variants only)
-# ------------------------------------------------------------
-
-print("-"*50)
-print("Plotting heatmap of top domains x top genes (oncogenic variants)...\n")
-
-n_genes = 15
-n_domains = 15
-
-# Top domains by total oncogenic variants 
-top_domains = (
-  gene_domain_fraction.groupby("DOMAIN_NAME")["Variant_Count"]
-  .sum()
-  .sort_values(ascending=False) 
-  .head(n_domains)
-  .index
-)
-
-# Filter to top domains
-gene_domain_fraction_top = gene_domain_fraction[gene_domain_fraction["DOMAIN_NAME"].isin(top_domains)]
-
-# Pick top genes across top domains 
-top_genes = (
-  gene_domain_fraction_top.groupby("Hugo_Symbol")["Variant_Count"]
-  .sum() 
-  .sort_values(ascending=False) 
-  .head(n_genes) 
-  .index
-)
-
-# Filter to top genes 
-gene_domain_fraction_top = gene_domain_fraction_top[gene_domain_fraction_top["Hugo_Symbol"].isin(top_genes)]
-
-# Pivot for heatmap 
-heatmap_df = gene_domain_fraction_top.pivot(
-  index="Hugo_Symbol",
-  columns="DOMAIN_NAME",
-  values="Fraction_of_Domain"
-).fillna(0) 
-
-
-# Plot heatmap
-plt.figure(figsize=(7,6))
-sns.heatmap(heatmap_df, 
-            cmap="Reds", 
-            vmin=0, 
-            vmax=1,
-            linewidths=0.2)
-
-plt.title("Top genes x Top domains (Oncogenic Variants)", fontsize=14, pad=12)
-plt.xlabel("Domain Name", fontsize=12)
-plt.ylabel("Gene (Hugo Symbol)", fontsize=12)
-plt.xticks(fontsize=9)
-plt.yticks(fontsize=9)
-
-plt.tight_layout()
-plt.savefig("plots/proteindomains/heatmap_oncogenic_top.png", dpi=300, bbox_inches="tight")
-plt.show()
-
-print("Plotting complete! Plot saved as 'plots/proteindomains/heatmap_oncogenic_top.png'\n")
-print("-"*50)
 
 
 print("\nProtein domain analysis complete!🥳🥳\n")

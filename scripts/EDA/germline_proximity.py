@@ -1,10 +1,10 @@
 
 # ====================================================================
-# Variants Germline Proximity Analysis 
+# Germline Proximity Analysis 
 # ====================================================================
 
 """
-Script: variants_with_germline_proximity.py
+Script: germline_proximity.py
 Author: Ane Kleiven
 
 This script performs a multi-step analysis to explore how somatic cancer
@@ -14,7 +14,7 @@ known pathogenic germline variants
 Major outputs:
 --------------
 1. Number of variants with a germline distance
-2. Simple descriptive statistics 
+2. Descriptive statistics 
 3. Distribution of germline distance between classes 
 5. Germline distance distributions per gene (top oncogenic genes)
 
@@ -88,7 +88,7 @@ print("Descriptive statistics germline distances:")
 print(stats_summary)
 
 # ------------------------------------------------------------
-# Prepare filtered plot data (used across all figures below)
+# Prepare filtered plot data
 # ------------------------------------------------------------
 
 wanted_classes = ["Oncogenic", "Likely Neutral"]
@@ -235,17 +235,17 @@ for gene in top_genes_full.head(20).index:
     print(f"\nPlotting complete! Plot saved as 'plots/germline_proximity/dist_{gene}.png'.\n")
 
 # ------------------------------------------------------------
-# Save filtered germline variants in top genes to .tsv 
+# Save variants with germline distances in top genes to .tsv 
 # ------------------------------------------------------------
 
-print("Saving filtered germline variants to .tsv file..")
+print("Saving variants with germline distances to .tsv file..")
 top_20_genes = top_genes_full.head(20).index.tolist() 
 top_20_variants = variants_plot[variants_plot["Hugo_Symbol"].isin(top_20_genes)]
 
 # save as .tsv 
 output_path = "/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv"
 top_20_variants.to_csv(output_path, sep="\t", index=False) 
-print(f"Filtered germline variant file saved as: \n {output_path}")
+print(f"Filtered variant file saved as: \n {output_path}")
 print("-"*30)
 
 
