@@ -50,6 +50,7 @@ variants = pd.read_csv(
 )
 
 print(f"Loaded {len(variants):,} somatic variants.")
+print("-"*50) 
 
 # ------------------------------------------------------------
 # Find the number of variants with a germline distance 
@@ -58,7 +59,7 @@ print(f"Loaded {len(variants):,} somatic variants.")
 variants_with_dist = variants[variants["Germline_Proximity"].notna()]
 variants_with_dist["Germline_Proximity"] = pd.to_numeric(variants_with_dist["Germline_Proximity"], errors='coerce')
 
-count_with_distance = variants_with_dist["Germline_Proximity"].sum() 
+count_with_distance = len(variants_with_dist)
 print(f"Number of variants with germline distances: {count_with_distance:,}")
 
 percent_with_distance = (count_with_distance / len(variants)) * 100
@@ -68,7 +69,11 @@ print(f"Percent of variants with germline distances: {percent_with_distance:.2f}
 # Number of variants with germline distance within each class 
 # ------------------------------------------------------------
 
-has_dist_summary = variants_with_dist.groupby("ONCOGENIC")["Germline_Proximity"]
+has_dist_summary = (
+  variants_with_dist
+  .groupby("ONCOGENIC")["Germline_Proximity"]
+  .count()
+)
 
 print("Number of variants with a germline distance per class:")
 print(has_dist_summary, "\n")
@@ -84,11 +89,13 @@ stats_summary = variants.groupby("ONCOGENIC")["Germline_Proximity"].agg(
     std="std"
 ).reset_index()
 
-print("Descriptive statistics germline distances:")
+print("-"*50)
+print("Descriptive statistics of germline distances:")
 print(stats_summary)
+print("-"*50)
 
 # ------------------------------------------------------------
-# Prepare filtered plot data
+# Filtered plot data
 # ------------------------------------------------------------
 
 wanted_classes = ["Oncogenic", "Likely Neutral"]

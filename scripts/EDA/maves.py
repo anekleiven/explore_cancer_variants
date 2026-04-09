@@ -4,7 +4,7 @@
 # ====================================================================
 
 """
-Script: variants_with_maves.py
+Script: maves.py
 Author: Ane Kleiven
 
 This script performs a multi-step analysis to explore how somatic cancer
@@ -13,12 +13,12 @@ Multiplexed Assays of Variant Effect (MAVEs)
 
 Major outputs:
 --------------
-1. Number of variants with MAVEdb scores
-2. Number of MaveDB_scores for each oncogenicity class 
-3. Top genes with MaveDB_score
+1. Number of variants with MAVE scores
+2. Number of variants with MAVE scores for each oncogenicity class 
+3. Top genes with MAVE scores
 4. Filter out wanted MAVE experiments (by number of variants with MAVE score)
 5. Box plot of MaveDB score distributions within top MAVE experiments (single genes)
-6. Density plot of MaveDB score distributions within top MAVE experiments (single genes)
+6. KDE plot of MaveDB score distributions within top MAVE experiments (single genes)
 
 All plots are saved in:
    plots/maves
@@ -125,7 +125,7 @@ gene_summary = (
 )
 # Print summary 
 print("Number of MaveDB_scores per gene:")
-print(gene_summary, "\n") 
+print(gene_summary.head(10), "\n") 
 
 # Plot summary 
 print("Plotting top genes with MaveDB score (by variant count)..")
@@ -150,7 +150,7 @@ print("Plotting complete! Plot saved as 'plots/maves/top_genes_with_maves.png'")
 print("-"*30)
 
 # ------------------------------------------------------------
-# Find oncogenicity distribution within genes with MaveDB_score 
+# Find oncogenicity distribution per gene and MaveDB score set: 
 # ------------------------------------------------------------
 
 oncogenicity_classes = ["Likely Neutral", "Oncogenic"] 
@@ -160,24 +160,24 @@ mave_summary = (
   variants_with_mave_filtered.groupby(["Hugo_Symbol", "MaveDB_urn", "ONCOGENIC"])
   .size()) 
 
-print("Variant count for different MAVE experiments in Oncogenic and Likely Neutral variant class:")
+print("Oncogenic and likely neutral variant counts per gene and MaveDB score set:")
 print(mave_summary, "\n")
 
 # -------------------------------------------------------------
 # Explore MAVE genes 
 # -------------------------------------------------------------
 
-print("Filtering out experiments from the top MAVE genes..\n")
+print("Filtering out wanted MaveDB score sets..\n")
 
-# Wanted MAVE experiments 
+# Wanted MAVE score sets
 wanted_urns = ["urn:mavedb:00000068-a-1", "urn:mavedb:00000013-a-1", "urn:mavedb:00000115-a-7", "urn:mavedb:00000081-a-2"] 
 mave_filtered = variants_with_mave_filtered[variants_with_mave_filtered["MaveDB_urn"].isin(wanted_urns)]
 
 # -------------------------------------------------------------
-# Plot score distributions for wanted MAVE experiments
+# Plot score distributions for wanted MaveDB score sets
 # -------------------------------------------------------------
 
-print("Plotting score distributions for wanted MAVE experiments..")
+print("Plotting score distributions for wanted MaveDB score sets..")
 
 palette = {
     "Oncogenic": "#c4314a",
@@ -203,7 +203,7 @@ plt.tight_layout()
 plt.savefig("plots/maves/mave_score_by_oncogenicity.png", dpi=300, bbox_inches="tight")
 
 
-# --- DENSITY PLOT ---
+# --- KDE PLOT ---
 
 g = sns.FacetGrid(mave_filtered, col="Hugo_Symbol", sharey=False, sharex=False, 
                   hue="ONCOGENIC", hue_order=oncogenicity_classes, palette=palette)
