@@ -10,13 +10,12 @@ variants distribute across different functional protein features.
 
 Major outputs:
 --------------
-1. Counts of Oncogenic vs Likely Neutral variants inside/outside functional sites
-2. Variant counts per functional site type per class
-3. Fractions of variants per functional site type per class 
-4. Top genes by oncogenic variant contribution per functional site
-5. Heatmap of top genes in filtered functional sites  
-6. Comparison of Oncogenic vs Neutral variants in the same genes
-7. Oncogenic-to-neutral ratio plots for each functional site type
+1. Counts and fractions of Oncogenic vs Likely Neutral variants inside/outside functional sites
+2. Plot: Variant counts per functional site type per class
+3. Plot: Fraction of variants per functional site type per class 
+4. Plot: Top genes by oncogenic variant burden per functional site
+5. Plot: Heatmap of top oncogenic genes (variant burden) in filtered functional sites  
+6. Plot: Oncogenic-to-neutral ratios in top oncogenic genes per functional site type
 
 All plots are saved in:
     plots/functionalsites
@@ -227,34 +226,27 @@ print("Plotting complete. Saved as 'plots/functionalsites/fraction_per_site.png'
 # ------------------------------------------------------------
 
 print("-"*50)
-print("Computing gene variant contributions per functional site..")
+print("Computing oncogenic gene contributions per functional site..")
 
 # Oncogenic counts
 oncogenic = expanded[expanded["ONCOGENIC"] == "Oncogenic"].copy()
 
 # Number of oncogenic variants per gene and feature type
-gene_feature_counts = (
+onco_counts = (
     oncogenic.groupby(["Hugo_Symbol", "FEATURE_TYPE"])
     .size()
-    .reset_index(name="Variant_Count")
-    .sort_values("Variant_Count", ascending=False)
+    .reset_index(name="Count"))
+
+feature_totals = onco_counts.groupby("FEATURE_TYPE")["Count"].sum()
+
+# Calculate contribution fraction: 
+# "How much of this sites total oncogenic burden comes from this gene?"
+onco_counts["Contribution_Fraction"] = (
+    onco_counts["Count"] / onco_counts["FEATURE_TYPE"].map(feature_totals)
 )
 
-# Total number of oncogenic variants per feature type 
-feature_totals = (
-    gene_feature_counts.groupby("FEATURE_TYPE")["Variant_Count"]
-    .sum()
-    .rename("Feature_Total")
-)
-
-# Fraction of oncogenic variants contributed by each gene 
-gene_feature_fraction = gene_feature_counts.merge(feature_totals, on="FEATURE_TYPE")
-gene_feature_fraction["Fraction_of_Feature"] = (
-    gene_feature_fraction["Variant_Count"] / gene_feature_fraction["Feature_Total"]
-)
-
-print("Example output gene-feature fraction table:")
-print(gene_feature_fraction.head(5))
+print("Example output oncogenic contributions table:")
+print(onco_counts.head(5))
 
 # ------------------------------------------------------------
 # Plot oncogenic variant contribution by gene
@@ -262,17 +254,17 @@ print(gene_feature_fraction.head(5))
 # ------------------------------------------------------------
 
 print("-"*50)
-print("Plotting gene variant contributions per functional site..")
+print("Plotting oncogenic contribution fractions by gene per functional site..")
 
 # Minimum number of variants for a site to be plotted 
 minimum_var = 20 
 
-top_genes_per_feature = set()  
+top_onco_genes = set()  
 
 # Loop over all feature types
-for ft in gene_feature_fraction["FEATURE_TYPE"].unique():
+for ft in onco_counts["FEATURE_TYPE"].unique():
 
-    total_variants = feature_totals.loc[ft]
+    total_variants = onco_counts[onco_counts["FEATURE_TYPE"] == ft]["Count"].sum()
 
     # Skip features with too few variants
     if total_variants < minimum_var:
@@ -280,24 +272,24 @@ for ft in gene_feature_fraction["FEATURE_TYPE"].unique():
         continue 
 
     subset = (
-        gene_feature_fraction[gene_feature_fraction["FEATURE_TYPE"] == ft]
-        .sort_values("Fraction_of_Feature", ascending=False)
+        onco_counts[onco_counts["FEATURE_TYPE"] == ft]
+        .sort_values("Contribution_Fraction", ascending=False)
         .head(20)
     )
 
-    top_genes_per_feature.update(subset["Hugo_Symbol"].tolist())
+    top_onco_genes.update(subset["Hugo_Symbol"].tolist())
     
     fig, ax = plt.subplots(figsize=(8,5)) 
 
     ax.bar(subset["Hugo_Symbol"],
-           subset["Fraction_of_Feature"], 
+           subset["Contribution_Fraction"], 
            color="#c4314a", 
            edgecolor="0.1",
            linewidth=0.3)
     
-    ax.set_title(f"Oncogenic variant contribution by gene: {ft}", fontsize=14, pad=10)
+    ax.set_title(f"Top genes by oncogenic variant burden — {ft}", fontsize=14, pad=10)
     ax.set_xlabel("Gene", fontsize=12)
-    ax.set_ylabel("Fraction of oncogenic feature variants", fontsize=12)
+    ax.set_ylabel("Fraction of oncogenic variants in site", fontsize=12)
     ax.tick_params(axis="x", rotation=45, labelsize=9)
     ax.tick_params(axis="y", labelsize=9)
 
@@ -318,43 +310,31 @@ print("Plotting complete! Saved in 'plots/functionalsites/'")
 # ------------------------------------------------------------
 
 print("-"*50)
-print("Extracting top contributing genes per functional site type..")
+print("Creating heatmap of top contributing genes per functional site type..")
 
 # filter to functional sites with the most variants 
 filtered_sites = ["Binding site", "Modified residue", "Region", "Topological domain"]
 
 # find the top 5 genes with the highest amount of oncogenic variants per site (fraction) 
-top_genes_per_feature = (
-    gene_feature_fraction[gene_feature_fraction["FEATURE_TYPE"].isin(filtered_sites)]
-    .sort_values(['FEATURE_TYPE', 'Fraction_of_Feature'], ascending=[True,False])
+top_genes = (
+    onco_counts[onco_counts["FEATURE_TYPE"].isin(filtered_sites)]
+    .sort_values(['FEATURE_TYPE', 'Contribution_Fraction'], ascending=[True,False])
     .groupby('FEATURE_TYPE')
     .head(5)
-    .reset_index(drop=True)
 )
 
-print("Example output:")
-print(top_genes_per_feature.head(10),"\n")
-
-print("Plotting top genes per functional site..")
-
 # create matrix for heatmap 
-pivot = top_genes_per_feature.pivot(
+pivot_heatmap = top_genes.pivot(
     index='Hugo_Symbol', 
     columns='FEATURE_TYPE', 
-    values='Fraction_of_Feature'
+    values='Contribution_Fraction'
 ).fillna(0)
 
-plt.figure(figsize=(7,6))
-ax = sns.heatmap(pivot, 
-            cmap='Reds', 
-            annot=True, 
-            fmt='.2f',
-            cbar_kws={"label":"Fraction of oncogenic variants in functional site"},
-            )
-
-ax.set_title("Gene Distribution Across Functional Site Types", fontsize=14, pad=10)
-ax.set_xlabel("Functional Site", fontsize=12)
-ax.set_ylabel("Gene (Hugo Symbol)", fontsize=12)
+plt.figure(figsize=(8,6))
+sns.heatmap(pivot_heatmap, annot=True, cmap="Reds", fmt=".2f")
+plt.title("Gene Contribution per Functional Site Type\n(Fraction of oncogenic variants within each functional site type)", fontsize=14, pad=10)
+plt.xlabel("Functional Site Type", fontsize=12)
+plt.ylabel("Gene", fontsize=12)
 
 plt.tight_layout()
 plt.savefig("plots/functionalsites/top_genes_per_functional_site.png", dpi=300, bbox_inches="tight")
@@ -363,8 +343,7 @@ plt.show()
 print("Plotting complete! Plot saved as 'plots/functionalsites/top_genes_functional_site.png'")
 
 # ------------------------------------------------------------
-# Compare likely neutral variants to oncogenic variants 
-# in top contributing genes (by oncogenic variant count) 
+# Oncogenic-Neutral Variant Ratio in the top contributing genes
 # ------------------------------------------------------------
 
 print("-"*50)
@@ -372,37 +351,20 @@ print("Comparing oncogenic and likely neutral variants in top contributing genes
 
 print("Extracting likely neutral variants..")
 
-likely_neutral = expanded[expanded["ONCOGENIC"] == "Likely Neutral"].copy()
-
-print("Counting likely neutral variants per functional site type..")
-likely_neutral_counts = (
-    likely_neutral.groupby(["Hugo_Symbol", "FEATURE_TYPE"])
+comparison = (
+    expanded.groupby(["Hugo_Symbol", "FEATURE_TYPE", "ONCOGENIC"])
     .size()
-    .reset_index(name="Variant_Count")
+    .unstack(fill_value=0)
 )
+comparison.columns = ["Likely Neutral", "Oncogenic"]
+comparison = comparison.reset_index() 
 
-print("Merging oncogenic and likely neutral count tables..\n")
-comparison = gene_feature_counts.merge(
-    likely_neutral_counts,
-    on=["Hugo_Symbol", "FEATURE_TYPE"],
-    how="outer",
-    suffixes=("_oncogenic", "_likely_neutral")
-).fillna(0)
+# calculate ration with pseudocount (to handle zero values)
+comparison["Ratio"] = (comparison["Oncogenic"] + 1) / (comparison["Likely Neutral"] + 1)
 
+# preview data
 print("Oncogenic and likely neutral variant counts per gene and functional site:")
 print(comparison.head(),"\n") 
-
-print("Filtering to top oncogenic variant contributors..")
-comparison_top = comparison[comparison["Hugo_Symbol"].isin(top_genes_per_feature)]
-
-print("Calculating the oncogenic-neutral ratio for the top contributing genes..")
-comparison_top["ratio_onco_neutral"] = (
-    (comparison_top["Variant_Count_oncogenic"] + 1) /
-    (comparison_top["Variant_Count_likely_neutral"] + 1)
-)
-
-print("Example output oncogenic-neutral ratio:")
-print(comparison_top.head(),"\n")
 
 # ------------------------------------------------------------
 # Plot oncogenic-neutral ratios
@@ -412,50 +374,27 @@ print("-"*50)
 print("Plotting oncogenic-neutral ratio for all functional site types..")
 
 minimum_var = 20
+for ft in filtered_sites: 
+    subset = comparison[comparison["FEATURE_TYPE"] == ft].copy() 
 
-for ft in comparison_top["FEATURE_TYPE"].unique(): 
+    # only look at genes with a high number of oncogenic variants 
+    subset = subset[subset["Oncogenic"] > 2]
+    subset = subset.sort_values("Ratio", ascending=False).head(15) 
 
-    # Functional site totals 
-    n_onco_total = comparison_top[comparison_top["FEATURE_TYPE"] == ft]["Variant_Count_oncogenic"].sum()
-    n_neutral_total = comparison_top[comparison_top["FEATURE_TYPE"] == ft]["Variant_Count_likely_neutral"].sum()
-    total_variants = n_onco_total + n_neutral_total
+    if subset.empty: 
+        continue 
 
-    # Skip features with too few variants
-    if total_variants < minimum_var:
-        print(f"Skipping {ft}. Only {total_variants} variants (< {minimum_var}).")
-        continue
-
-    subset = (
-        comparison_top[comparison_top["FEATURE_TYPE"] == ft]
-        .sort_values("ratio_onco_neutral", ascending=False)
-    )
-
-    # Only keep genes above the pseudocount baseline
-    subset = subset[subset["ratio_onco_neutral"] > 2]
-
-    # Filtered totals for the plot annotation
-    n_onco = subset["Variant_Count_oncogenic"].sum()
-    n_neutral = subset["Variant_Count_likely_neutral"].sum()
-
-    fig, ax = plt.subplots(figsize=(8,5)) 
-    ax.bar(subset["Hugo_Symbol"], 
-            subset["ratio_onco_neutral"], 
-            color="#c4314a",
-            edgecolor="0.1",
-            linewidth=0.3)
-
-    ax.set_title(f"Oncogenic vs. Neutral Variant Ratio in '{ft}'", fontsize=14, pad=10)
-    ax.set_xlabel("Gene", fontsize=12)
-    ax.set_ylabel("Oncogenic-Neutral Variant Ratio", fontsize=12)
-    ax.tick_params(axis="x", rotation=45, labelsize=9)
-    ax.tick_params(axis="y", labelsize=9)
-
-    # Add number of variants in plot 
-    ax.annotate(f"n = {int(n_onco)} oncogenic / {int(n_neutral)} neutral",
-            xy=(0.99, 0.97), xycoords="axes fraction",
-            ha="right", va="top", fontsize=9,
-            color="0.4")
-
+    plt.figure(figsize=(8,5)) 
+    sns.barplot(data=subset,
+                x="Hugo_Symbol",
+                y="Ratio",
+                color="#c4314a",
+                edgecolor="0.1",
+                linewidth=0.3)
+    
+    plt.title(f"Oncogenic-to-Neutral Variant Ratio — {ft}")
+    plt.xticks(rotation=45, ha="right")
+    plt.ylabel("Oncogenic / Neutral ratio (pseudocount +1)")
     plt.tight_layout()
     plt.savefig(f"plots/functionalsites/onco_neutral_ratio_in_{ft}.png", dpi=300)
     plt.show()

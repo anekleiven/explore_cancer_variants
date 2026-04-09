@@ -18,22 +18,6 @@ Each script contains further explanations on content and use.
 
 ## Script Descriptions
 
-`gnomAD_freq.py` - gnomAD frequency distributions among different oncogenicity classes and statistical analyses. 
-
-`oncogenicity.py` - Oncogenicity distributions
-
-`top_genes.py` -  Top genes per oncogenicity class 
-
-`variants_in_domain.py` - Variant distributions inside/outside protein domains 
-
-`variants_in_func_sites.py` - Variant distributions inside/outside functional domains  
-
-`variants_in_hotspots.py` - Variant distributions inside/outside cancer hotspots  
-
-`variants_germline_proximity.py` - Distance between somatic cancer variants and known pathogenic germline variants 
-
-`variants_with_maves.py` - Variant counts with MAVE scores and MAVE score distributions  
-
 
 ## Recommended Sources 🛜
 
