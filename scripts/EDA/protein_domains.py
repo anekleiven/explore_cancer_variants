@@ -49,7 +49,7 @@ def getargs():
         "--variants", 
         type=Path, 
         required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv.tsv",
         help="Path to the input file with variant data."
     )
 

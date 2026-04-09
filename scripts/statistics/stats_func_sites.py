@@ -94,7 +94,7 @@ print("-"*40)
 
 # import variant data 
 variants = pd.read_csv(
-  "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv",
+  "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
   sep="\t",
   low_memory=False)
 

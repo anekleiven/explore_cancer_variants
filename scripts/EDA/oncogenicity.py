@@ -36,7 +36,7 @@ import seaborn as sns
 
 print("Loading variant data..\n")
 
-variants = pd.read_csv("/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves.tsv", sep="\t", low_memory=False)
+variants = pd.read_csv("/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv", sep="\t", low_memory=False)
 
 print(f"Successfully loaded {len(variants):,} somatic cancer variants!")
 
