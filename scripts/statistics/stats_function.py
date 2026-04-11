@@ -19,6 +19,8 @@ Perform statistics on variant features such as:
   functional sites 
   germline proximity 
   MAVE scores 
+  Null variants
+  Null variants in TSG
 
 Statistical tests: 
 *   Mann Whitney U for continuous data (Rank-biserion correlation for effect size) 

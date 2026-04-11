@@ -10,6 +10,10 @@ This script performs a multi-step analysis to explore how somatic cancer
 variant classes distribute oncogenes and tumor suppressor genes. 
 
 Major outputs:
+    1. Distribution of variants in tumor suppressor genes and oncogenes (Oncogenic and Likely Neutral variants) 
+    2. Prevalence of null variants by oncogenicity class 
+    3. Prevelance of null variants in tsg by oncogenicity class 
+    4. Genes with oncogenic null variants in tsg 
 
 
 All plots are saved in:
@@ -27,7 +31,6 @@ print("-"*50)
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
 import argparse
 

@@ -35,7 +35,7 @@ variants["has_gnomAD_AF"] = (
 )
 
 # Define the features 
-features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE"]
+features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "is_null_variant", "is_null_var_tsg"]
 
 # Run statistics function 
 stats_func(variants, features, "All variants") 
