@@ -20,6 +20,7 @@ The classification evidence includes:
 1. **Clone the repository:**
 ```bash
 git clone https://github.com/anekleiven/explore_cancer_variants.git
+cd explore_cancer_variants 
 ``` 
 
 2. **Create Virtual Environment:**
