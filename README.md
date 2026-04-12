@@ -31,30 +31,36 @@ cd explore_cancer_variants
 `pip install -r requirements.txt`
 
 
-## Scripts included in this repository 
+## Exploratory Analysis Scripts
 
-### Exploration of Feature Prevalence in Oncogenic vs. Neutral Variants 
+These scripts explore the prevalence of oncogenicity-associated features across oncogenic and neutral variant classes.
 
-- `oncogenicity.py`: Exploration of oncogenicity class distribution in the dataset. 
-- `top_genes.py`: Identification and exploration of top genes in different oncogenicity classes. 
-- `gnomAD_freq.py`: gnomAD allele frequency distribution analysis for oncogenic and likely neutral variants. 
-- `cancerhotspots.py`:
-- `protein_domains.py`:
-- `functional_sites.py`:
-- `germline_proximity.py`:
-- `neutral_dataset_clinvar.py`:
-- `maves.py`:
-- `tsg_og.py`:
+| Script | Description |
+|---|---|
+| `oncogenicity.py` | Class distribution of oncogenicity labels in the dataset |
+| `top_genes.py` | Identification of top mutated genes across oncogenicity classes |
+| `gnomAD_freq.py` | gnomAD allele frequency distributions for oncogenic and likely neutral variants |
+| `cancerhotspots.py` | Enrichment of oncogenic and likely neutral variants in cancer mutation hotspots |
+| `protein_domains.py` | Distribution of variants across annotated Pfam protein domains |
+| `functional_sites.py` | Overlap of variants with UniProt functional protein sites |
+| `germline_proximity.py` | Proximity analysis to known pathogenic germline variants |
+| `neutral_dataset_clinvar.py` | Construction of a neutral variant dataset from ClinVar germline entries |
+| `maves.py` | Analysis of MaveDB functional scores across oncogenicity classes |
+| `tsg_og.py` | Variant distribution in oncogenes and tumor suppressor genes, including null variant visualization |
 
-### Statistics 
+## Statistics Scripts
 
-- `stats_function.py`:
-- `stats_all_variants.py`:
-- `stats_top_genes.py`:
-- `stats_protein_domains.py`:
-- `stats_func_sites.py`:
-- `stats_germline_proximity.py`:
-- `stats_maves.py`:
+These scripts perform statistical comparisons between oncogenic and neutral variant classes using shared utility functions.
+
+| Script | Description |
+|---|---|
+| `stats_function.py` | Shared statistical utility functions: Mann-Whitney U, Chi-Square, Fisher's exact test, and effect sizes |
+| `stats_all_variants.py` | Statistical analysis across all variants |
+| `stats_top_genes.py` | Statistical comparisons across top mutated genes |
+| `stats_protein_domains.py` | Statistical analysis of variant distribution in protein domains |
+| `stats_func_sites.py` | Statistical analysis of variant overlap with functional sites |
+| `stats_germline_proximity.py` | Statistical analysis of distances to pathogenic germline variants |
+| `stats_maves.py` | Statistical analysis of MaveDB functional scores |
 
 
 ## Recommended Sources 🛜
