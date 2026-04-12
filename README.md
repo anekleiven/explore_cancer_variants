@@ -38,23 +38,23 @@ cd explore_cancer_variants
 - `oncogenicity.py`: Exploration of oncogenicity class distribution in the dataset. 
 - `top_genes.py`: Identification and exploration of top genes in different oncogenicity classes. 
 - `gnomAD_freq.py`: gnomAD allele frequency distribution analysis for oncogenic and likely neutral variants. 
-`cancerhotspots.py`
-`protein_domains.py`
-`functional_sites.py`
-`germline_proximity.py`
-`neutral_dataset_clinvar.py`
-`maves.py`
-`tsg_og.py`
+- `cancerhotspots.py`:
+- `protein_domains.py`:
+- `functional_sites.py`:
+- `germline_proximity.py`:
+- `neutral_dataset_clinvar.py`:
+- `maves.py`:
+- `tsg_og.py`:
 
 ### Statistics 
 
-`stats_function.py`
-`stats_all_variants.py`
-`stats_top_genes.py`
-`stats_protein_domains.py`
-`stats_func_sites.py`
-`stats_germline_proximity.py`
-`stats_maves.py` 
+- `stats_function.py`:
+- `stats_all_variants.py`:
+- `stats_top_genes.py`:
+- `stats_protein_domains.py`:
+- `stats_func_sites.py`:
+- `stats_germline_proximity.py`:
+- `stats_maves.py`:
 
 
 ## Recommended Sources 🛜
