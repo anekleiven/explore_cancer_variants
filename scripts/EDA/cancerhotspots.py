@@ -38,6 +38,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
 from pathlib import Path
+import os 
 
 # -------------------------------------------
 # Argparse function for user input file paths
@@ -52,14 +53,21 @@ def getargs():
         "--variants", 
         type=Path, 
         required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv.tsv",
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
         help="Path to the input file with variant data."
     )
 
     return parser.parse_args() 
 
-
 args = getargs() 
+
+# ------------------------------------------------------------
+# Create output directory 
+# ------------------------------------------------------------
+
+save_dir = "plots/cancerhotspots"
+os.makedirs(save_dir, exist_ok=True) 
+
 
 # ------------------------------------------------------------
 # Load variant data
@@ -169,6 +177,8 @@ counts = (variants_onco_neutral
 palette = {"Oncogenic": "#c4314a", "Likely Neutral": "#88aed1"}
 
 plt.figure(figsize=(8,5))
+sns.set_style("whitegrid")
+
 sns.barplot(data=counts, 
             x="In_Hotspot",
             y="Variant_Count",
@@ -183,10 +193,10 @@ plt.ylabel("Counts", fontsize=12)
 plt.xticks(rotation=90, fontsize=10)
 
 plt.tight_layout() 
-plt.savefig("plots/cancerhotspots/variants_in_hotspots.png", dpi=300)
+plt.savefig(f"{save_dir}/variants_in_hotspots.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/cancerhotspots/variants_in_hotspots.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/variants_in_hotspots.png'")
 
 # ------------------------------------------------------------
 # Plot fraction of oncogenic vs. neutral variants in cancer hotspots 
@@ -207,6 +217,8 @@ print("-"*50)
 print("Plotting fraction of variants in cancer hotspots (oncogenic vs. neutral)..")
 
 plt.figure(figsize=(8,5)) 
+sns.set_style("whitegrid")
+
 sns.barplot(data=counts, 
             x="In_Hotspot",
             y="Fraction",
@@ -219,10 +231,10 @@ plt.title("Fraction of Variants in Cancer Hotspots", fontsize=14, pad=10)
 plt.xlabel("Variant in Hotspot", fontsize=12)
 plt.ylabel("Fraction", fontsize=12)
 plt.tight_layout()
-plt.savefig("plots/cancerhotspots/fractions_in_hotspots.png", dpi=300)
+plt.savefig(f"{save_dir}/fractions_in_hotspots.png", dpi=300)
 plt.show() 
 
-print("Plotting complete! Plot saved as 'plots/cancerhotspots/fractions_in_hotspots.png'\n")
+print(f"Plotting complete! Plot saved as '{save_dir}/fractions_in_hotspots.png'\n")
 
 # ------------------------------------------------------------
 # Identify Oncogenic Variants in Cancer Hotspots Across Genes 
@@ -255,6 +267,8 @@ print("Plotting Oncogenic Variants in Cancer Hotspots across Genes...\n")
 top_oncogenes = onco_genes.head(20) 
 
 plt.figure(figsize=(8,5))
+sns.set_style("whitegrid")
+
 sns.barplot(data=top_oncogenes,
             x="Hugo_Symbol",
             y="Hotspot_Variant_Count",
@@ -269,10 +283,10 @@ plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9) 
 
 plt.tight_layout()
-plt.savefig("plots/cancerhotspots/oncogenes_in_hotspots.png", dpi=300)
+plt.savefig(f"{save_dir}/oncogenes_in_hotspots.png", dpi=300)
 plt.show() 
 
-print("Plotting complete! Plot saved as 'plots/cancerhotspots/oncogenes_in_hotspots.png'\n")
+print(f"Plotting complete! Plot saved as '{save_dir}/oncogenes_in_hotspots.png'\n")
 
 # ------------------------------------------------------------
 # Gene-level Hotspot Fraction 
@@ -326,6 +340,8 @@ print("Example output frequently mutated genes:")
 print(top_genes.head(5),"\n")
 
 plt.figure(figsize=(8,5)) 
+sns.set_style("whitegrid")
+
 sns.barplot(
   data=top_genes.head(15), 
   x="Hugo_Symbol",
@@ -345,10 +361,10 @@ plt.yticks(fontsize=9)
 plt.legend(title="Hotspot Fraction", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
-plt.savefig("plots/cancerhotspots/oncogenes_hotspot_fraction.png", dpi=300)
+plt.savefig(f"{save_dir}/oncogenes_hotspot_fraction.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Figure saved as 'plots/cancerhotspots/oncogenes_hotspot_fraction.png'\n")
+print(f"Plotting complete! Figure saved as '{save_dir}/oncogenes_hotspot_fraction.png'\n")
 
 # ------------------------------------------------------------
 # Cancer Hotspot Evidence (ClinGen / CGC / VICC Framework)
@@ -423,9 +439,9 @@ print("Plotting cancer hotspot evidence..")
 
 hotspot_palette = {True: "#EE6F63", False: "#BFCFEF"}
 
-
 # OS3 PLOT
 plt.figure(figsize=(8,5))
+sns.set_style("whitegrid")
 
 sns.barplot(
     data=summary_OS3,
@@ -443,14 +459,15 @@ plt.ylabel("Number of Variants", fontsize=12)
 plt.legend(title="Meets OS3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
 
 plt.tight_layout()
-plt.savefig("plots/cancerhotspots/meets_hotspot_OS3.png", dpi=300)
+plt.savefig(f"{save_dir}/meets_hotspot_OS3.png", dpi=300)
 plt.show()
 
-print("OS3 plot saved as 'plots/cancerhotspots/meets_hotspot_OS3.png'")
+print(f"OS3 plot saved as '{save_dir}/meets_hotspot_OS3.png'")
 
 
 # OM3 PLOT
 plt.figure(figsize=(8,5))
+sns.set_style("whitegrid")
 
 sns.barplot(
     data=summary_OM3,
@@ -468,10 +485,14 @@ plt.ylabel("Number of Variants", fontsize=12)
 plt.legend(title="Meets OM3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
 
 plt.tight_layout()
-plt.savefig("plots/cancerhotspots/meets_hotspot_OM3.png", dpi=300)
+plt.savefig(f"{save_dir}/meets_hotspot_OM3.png", dpi=300)
 plt.show()
 
-print("OM3 plot saved as 'plots/cancerhotspots/meets_hotspot_OM3.png'")
+print(f"OM3 plot saved as '{save_dir}/meets_hotspot_OM3.png'")
 print("-"*50)
+
+print(variants_onco_neutral["Pos_Total_Samples"].describe())
+print(variants_onco_neutral["Exact_AA_Count"].describe())
+print(variants_onco_neutral["In_Hotspot"].value_counts())
 
 print("\nCancer hotspot analysis complete!🥳🥳\n")

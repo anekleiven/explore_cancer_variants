@@ -35,9 +35,9 @@ cd explore_cancer_variants
 
 ### Exploration of Feature Prevalence in Oncogenic vs. Neutral Variants 
 
-`oncogenicity.py`
-`top_genes.py`
-`gnomAD_freq.py`
+- `oncogenicity.py`: Exploration of oncogenicity class distribution in the dataset. 
+- `top_genes.py`: Identification and exploration of top genes in different oncogenicity classes. 
+- `gnomAD_freq.py`: gnomAD allele frequency distribution analysis for oncogenic and likely neutral variants. 
 `cancerhotspots.py`
 `protein_domains.py`
 `functional_sites.py`

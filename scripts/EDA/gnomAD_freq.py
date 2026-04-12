@@ -1,5 +1,5 @@
 # ===============================================================
-# EDA: gnomAD Allele Frequencies
+# gnomAD Allele Frequency Analysis
 # ===============================================================
 
 """
@@ -19,7 +19,7 @@ Script content:
 
 
 All plots are saved in:
-    plots/
+    plots/gnomad
 
 """
 print("-"*50)
@@ -35,6 +35,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
 from pathlib import Path
+import os
 
 # -------------------------------------------
 # Argparse function for user input file paths
@@ -57,6 +58,13 @@ def getargs():
 
 
 args = getargs() 
+
+# ------------------------------------------------------------
+# Create output directory 
+# ------------------------------------------------------------
+
+save_dir = "plots/gnomad"
+os.makedirs(save_dir, exist_ok=True) 
 
 # ------------------------------------------------------------
 # Load variant data
@@ -126,6 +134,7 @@ def analyze_gnomad_af(df: pd.DataFrame, status: str, plotname: str, color: str =
     # Plot distribution
     print("Plotting gnomAD allele frequency distribution (log-scaled)..\n")
     plt.figure(figsize=(8,5))
+    sns.set_style("whitegrid")
 
     sns.histplot(
         data=subset,
@@ -139,13 +148,13 @@ def analyze_gnomad_af(df: pd.DataFrame, status: str, plotname: str, color: str =
 
     plt.axvline(0.001, color="red", linestyle="--", label="Rare/common cutoff (0.001)")
     plt.axvline(0.01, color="orange", linestyle="--", label="Polymorphism threshold (0.01)")
-    plt.title(f"Distribution of gnomAD AF for '{status}' Variants", fontsize=14, pad=10)
+    plt.title(f"gnomAD AF for '{status}' Variants", fontsize=14, pad=10)
     plt.xlabel("gnomAD_AF (log10 scale)", fontsize=12)
     plt.ylabel("Number of variants", fontsize=12)
     plt.legend(loc='upper right')
 
     plt.tight_layout()
-    plt.savefig(f"plots/gnomad/{plotname}", dpi=300, bbox_inches="tight")
+    plt.savefig(f"{save_dir}/{plotname}", dpi=300, bbox_inches="tight")
     plt.show()
   
     # Count rare vs common
@@ -171,7 +180,7 @@ analyze_gnomad_af(filtered, "Oncogenic", color="#c4314a", plotname="gnomAD_onco.
 analyze_gnomad_af(variants, "Likely Neutral", color="#88aed1", plotname="gnomAD_likely_neutral.png")
 
 print("gnomAD frequency analysis successfully completed for all oncogenicity classes.")
-print("Plots saved in folder 'plots/gnomad/'")
+print(f"Plots saved in folder '{save_dir}'")
 
 
 # ------------------------------------------------------------
@@ -191,6 +200,7 @@ palette = {
 print("Plotting density of gnomAD allele frequencies for Oncogenic vs. Likely Neutral..\n")
 
 plt.figure(figsize=(8,5)) 
+sns.set_style("whitegrid")
 
 sns.kdeplot(
     data=filtered,
@@ -202,15 +212,15 @@ sns.kdeplot(
     common_norm=False
 )
 
-plt.title("gnomAD AF Distribution Across Oncogenicity Classes", fontsize=14, pad=10) 
+plt.title("gnomAD AF (Oncogenic and Neutral Variants)", fontsize=14, pad=10) 
 plt.xlabel("gnomAD_AF (log10 scale)", fontsize=12)
 plt.ylabel("Density", fontsize=12)
 
 plt.tight_layout()
-plt.savefig("plots/gnomad/gnomAD_combined_KDE.png", dpi=300, bbox_inches="tight") 
+plt.savefig(f"{save_dir}/gnomAD_combined_KDE.png", dpi=300, bbox_inches="tight") 
 plt.show() 
 
-print("Plotting complete! Plot saved as 'plots/gnomad/gnomAD_combined_KDE.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/gnomAD_combined_KDE.png'")
 print("-"*50)
 
 

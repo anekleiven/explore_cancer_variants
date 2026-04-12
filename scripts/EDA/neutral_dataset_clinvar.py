@@ -27,7 +27,7 @@ import pandas as pd
 
 # Load somatic variant file 
 print("\nLoading somatic variants..")
-somatic_var = pd.read_csv("/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv.tsv",
+somatic_var = pd.read_csv("/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
     sep="\t",
     low_memory=False)
 print(f"\nLoaded {len(somatic_var)} somatic variants.\n")
