@@ -36,15 +36,55 @@ print("-"*50)
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
+import argparse
+from pathlib import Path
+
+# -------------------------------------------
+# Argparse function for user input file paths
+# -------------------------------------------
+
+def getargs(): 
+    parser = argparse.ArgumentParser(
+        description="Explore MaveDB scores in variant data."
+    ) 
+
+    parser.add_argument(
+        "--variants", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves_expanded.tsv",
+        help="Path to the input file with variant data."
+    )
+
+    parser.add_argument(
+        "--output", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/explore_cancer_variants/output/mave_urn_filtered.tsv",
+        help="Path to the output file path."
+    )
+
+    return parser.parse_args() 
+
+
+args = getargs() 
+
+# ------------------------------------------------------------
+# Create output directory 
+# ------------------------------------------------------------
+
+save_dir = "plots/maves"
+os.makedirs(save_dir, exist_ok=True) 
 
 # ------------------------------------------------------------
 # Load variant data 
 # ------------------------------------------------------------
 
-print("Loading variant data..")
+print(f"Loading variant file:\n{args.variants}")
 
 variants = pd.read_csv(
-    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves_expanded.tsv",
+    args.variants,
     sep="\t",
     low_memory=False
 )
@@ -105,10 +145,10 @@ plt.xlabel("Oncogenicity Class", fontsize=12)
 plt.ylabel("Number of Variants", fontsize=12) 
 plt.xticks(rotation=45, ha='right', fontsize=9)
 plt.tight_layout() 
-plt.savefig("plots/maves/oncogenicity_classes_maves.png", dpi=300)
+plt.savefig(f"{save_dir}/oncogenicity_classes_maves.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/maves/oncogenicity_classes_maves.png'\n")
+print(f"Plotting complete! Plot saved as '{save_dir}/oncogenicity_classes_maves.png'\n")
 print("-"*30)
 
 # ------------------------------------------------------------
@@ -143,10 +183,10 @@ plt.xlabel("Gene", fontsize=12)
 plt.ylabel("Number of Variants", fontsize=12) 
 plt.xticks(rotation=45, ha='right', fontsize=9)
 plt.tight_layout() 
-plt.savefig("plots/maves/top_genes_with_maves.png", dpi=300)
+plt.savefig(f"{save_dir}/top_genes_with_maves.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/maves/top_genes_with_maves.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/top_genes_with_maves.png'")
 print("-"*30)
 
 # ------------------------------------------------------------
@@ -200,7 +240,7 @@ g.figure.suptitle("MAVE Score Distribution by Oncogenicity Class",
                    fontsize=14, y=1.02)
 
 plt.tight_layout()
-plt.savefig("plots/maves/mave_score_by_oncogenicity.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"{save_dir}/mave_score_by_oncogenicity.png", dpi=300, bbox_inches="tight")
 
 
 # --- KDE PLOT ---
@@ -233,20 +273,19 @@ g.figure.suptitle("MAVE Score Distribution by Oncogenicity Class",
 g.add_legend(title="Oncogenicity", fontsize=9)
 
 plt.tight_layout()
-plt.savefig("plots/maves/mave_score_density_by_oncogenicity.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"{save_dir}/mave_score_density_by_oncogenicity.png", dpi=300, bbox_inches="tight")
 
-print("Plotting complete. Plots saved in folder plots/maves/.\n")
+print(f"Plotting complete. Plots saved in folder: {save_dir}.\n")
 
 
 #----------------------------------------------------------
 # Save filtered MAVE data as .tsv for further analysis
 #----------------------------------------------------------
 
-output_path = "/home/anekl/git/master/explore_cancer_variants/output/mave_urn_filtered.tsv"
-mave_filtered.to_csv(output_path, sep="\t", index=False)
+mave_filtered.to_csv(args.output, sep="\t", index=False)
 
 print("-"*50)
-print(f"Saved filtered MAVE data to: \n {output_path}")
+print(f"Saved filtered MAVE data to: \n {args.output}")
 print("-"*50 + "\n")
 
 print("MAVE exploratory analyses complete!🥳🥳\n")

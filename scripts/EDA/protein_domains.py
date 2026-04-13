@@ -35,6 +35,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import argparse
+import os
 
 # -------------------------------------------
 # Argparse function for user input file paths
@@ -59,10 +60,17 @@ def getargs():
 args = getargs() 
 
 # ------------------------------------------------------------
+# Create output directory 
+# ------------------------------------------------------------
+
+save_dir = "plots/proteindomains"
+os.makedirs(save_dir, exist_ok=True) 
+
+# ------------------------------------------------------------
 # Load variant data
 # ------------------------------------------------------------
 
-print("Loading variant data..")
+print(f"Loading variant file:\n{args.variants}")
 
 variants = pd.read_csv(
     args.variants,
@@ -162,10 +170,10 @@ plt.yticks(fontsize=9)
 plt.legend(title="Oncogenicity Class")
 
 plt.tight_layout()
-plt.savefig("plots/proteindomains/top_domains.png", dpi=300)
+plt.savefig(f"{save_dir}/top_domains.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/proteindomains/top_domains.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/top_domains.png'")
 
 # ------------------------------------------------------------
 # Oncogenic vs. Neutral Enrichment per Domain 
@@ -225,10 +233,10 @@ plt.xticks(rotation=90, ha="right", fontsize=9)
 plt.yticks(fontsize=9) 
 
 plt.tight_layout()
-plt.savefig("plots/proteindomains/domain_oncogenic_enrichment.png", dpi=300)
+plt.savefig(f"{save_dir}/domain_oncogenic_enrichment.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/proteindomains/domain_oncogenic_enrichment.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/domain_oncogenic_enrichment.png'")
 
 # ------------------------------------------------------------
 # Combined Oncogenic/Neutral Heatmap 
@@ -313,10 +321,10 @@ plt.xticks(fontsize=9)
 plt.yticks(fontsize=9)
 
 plt.tight_layout()
-plt.savefig("plots/proteindomains/heatmap_oncogenic_fraction.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"{save_dir}/heatmap_oncogenic_fraction.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print("Heatmap complete! Saved as 'plots/proteindomains/heatmap_oncogenic_fraction.png'")
+print(f"Heatmap complete! Saved as '{save_dir}/heatmap_oncogenic_fraction.png'")
 
 
 print("\nProtein domain analysis complete!🥳🥳\n")

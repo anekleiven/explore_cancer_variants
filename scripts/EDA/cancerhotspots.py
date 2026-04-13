@@ -73,7 +73,7 @@ os.makedirs(save_dir, exist_ok=True)
 # Load variant data
 # ------------------------------------------------------------
 
-print("\nLoading variant data..")
+print(f"\nLoading variant file:\n{args.variants}")
 
 variants = pd.read_csv(
     args.variants,

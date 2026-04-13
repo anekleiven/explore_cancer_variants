@@ -40,7 +40,7 @@ from pathlib import Path
 
 def getargs(): 
     parser = argparse.ArgumentParser(
-        description="Explore oncogenes and tumor suppressor genes in variant data."
+        description="Explore oncogenicity classes in somatic variant data."
     ) 
 
     parser.add_argument(
@@ -67,7 +67,7 @@ os.makedirs(save_dir, exist_ok=True)
 # Load variant data
 # ------------------------------------------------------------
 
-print("Loading variant data..\n")
+print(f"Loading variant file:\n{args.variants}\n")
 
 variants = pd.read_csv(args.variants, sep="\t", low_memory=False)
 

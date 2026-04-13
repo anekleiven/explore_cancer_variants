@@ -35,6 +35,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
 from pathlib import Path
+import os
 
 # -------------------------------------------
 # Argparse function for user input file paths
@@ -57,6 +58,14 @@ def getargs():
 
 
 args = getargs() 
+
+# ------------------------------------------------------------
+# Create output directory 
+# ------------------------------------------------------------
+
+save_dir = "plots/functionalsites"
+os.makedirs(save_dir, exist_ok=True) 
+
 
 # ------------------------------------------------------------
 # Import Variant Data
@@ -170,10 +179,10 @@ plt.yticks(fontsize=9)
 plt.legend(title="Oncogenicity", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
-plt.savefig("plots/functionalsites/counts_per_site.png", dpi=300)
+plt.savefig(f"{save_dir}/counts_per_site.png", dpi=300)
 plt.show()
 
-print(f"Plotting complete. Saved as 'plots/functionalsites/counts_per_site.png'")
+print(f"Plotting complete. Saved as '{save_dir}/counts_per_site.png'")
 
 # ------------------------------------------------------------
 # Compute fractions
@@ -215,10 +224,10 @@ plt.yticks(fontsize=9)
 plt.legend(title="Oncogenicity", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
-plt.savefig("plots/functionalsites/fraction_per_site.png", dpi=300)
+plt.savefig(f"{save_dir}/fraction_per_site.png", dpi=300)
 plt.show()
 
-print("Plotting complete. Saved as 'plots/functionalsites/fraction_per_site.png'")
+print(f"Plotting complete. Saved as '{save_dir}/fraction_per_site.png'")
 
 # ------------------------------------------------------------
 # Top genes by oncogenic variant contribution 
@@ -300,10 +309,10 @@ for ft in onco_counts["FEATURE_TYPE"].unique():
                 color="0.4")
 
     plt.tight_layout()
-    plt.savefig(f"plots/functionalsites/contributing_genes_{ft}.png", dpi=300)
+    plt.savefig(f"{save_dir}/contributing_genes_{ft}.png", dpi=300)
     plt.show()
 
-print("Plotting complete! Saved in 'plots/functionalsites/'")
+print(f"Plotting complete! Saved in folder: '{save_dir}/'")
 
 # ------------------------------------------------------------
 # Heatmap of Oncogenic Driver Genes Across Functional Sites
@@ -337,10 +346,10 @@ plt.xlabel("Functional Site Type", fontsize=12)
 plt.ylabel("Gene", fontsize=12)
 
 plt.tight_layout()
-plt.savefig("plots/functionalsites/top_genes_per_functional_site.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"{save_dir}/top_genes_per_functional_site.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/functionalsites/top_genes_functional_site.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/top_genes_functional_site.png'")
 
 # ------------------------------------------------------------
 # Oncogenic-Neutral Variant Ratio in the top contributing genes
@@ -396,10 +405,10 @@ for ft in filtered_sites:
     plt.xticks(rotation=45, ha="right")
     plt.ylabel("Oncogenic / Neutral ratio (pseudocount +1)")
     plt.tight_layout()
-    plt.savefig(f"plots/functionalsites/onco_neutral_ratio_in_{ft}.png", dpi=300)
+    plt.savefig(f"{save_dir}/onco_neutral_ratio_in_{ft}.png", dpi=300)
     plt.show()
 
-print("Plotting complete! Saved in 'plots/functionalsites/'")
+print(f"Plotting complete! Saved in folder: '{save_dir}'")
 print("-"*50)
 
 print("\nFunctional site analysis complete!🥳\n")

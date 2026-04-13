@@ -33,6 +33,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 import argparse
+import os
 
 # -------------------------------------------
 # Argparse function for user input file paths
@@ -57,10 +58,17 @@ def getargs():
 args = getargs() 
 
 # ------------------------------------------------------------
+# Create output directory 
+# ------------------------------------------------------------
+
+save_dir = "plots/tsg_og"
+os.makedirs(save_dir, exist_ok=True) 
+
+# ------------------------------------------------------------
 # Load variant data
 # ------------------------------------------------------------
 
-print("Loading variant data..")
+print(f"Loading variant file:\n{args.variants}")
 
 variants = pd.read_csv(
     args.variants,
@@ -124,10 +132,10 @@ plt.xticks(rotation=45, fontsize=9)
 plt.legend(title="Oncogenicity Class", fontsize=12)
 
 plt.tight_layout()
-plt.savefig("plots/tsg_og/gene_categories.png", dpi=300)
+plt.savefig(f"{save_dir}/gene_categories.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/tsg_og/gene_categories.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/gene_categories.png'")
 print("-"*50)
 
 # ------------------------------------------------------------
@@ -158,10 +166,10 @@ plt.xticks(rotation=45, fontsize=9)
 plt.legend(title="Oncogenicity Class", fontsize=12)
 
 plt.tight_layout()
-plt.savefig("plots/tsg_og/null_var.png", dpi=300)
+plt.savefig(f"{save_dir}/null_var.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/tsg_og/null_var.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/null_var.png'")
 print("-"*50)
 
 # ------------------------------------------------------------
@@ -191,10 +199,10 @@ plt.xticks(rotation=45, fontsize=9)
 plt.legend(title="Oncogenicity Class", fontsize=12)
 
 plt.tight_layout()
-plt.savefig("plots/tsg_og/null_var_in_tsg.png", dpi=300)
+plt.savefig(f"{save_dir}/null_var_in_tsg.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/tsg_og/null_var_in_tsg.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/null_var_in_tsg.png'")
 print("-"*50)
 
 
@@ -224,10 +232,10 @@ plt.xlabel("Gene Symbol", fontsize=12)
 plt.xticks(rotation=45)
 
 plt.tight_layout()
-plt.savefig("plots/tsg_og/genes_null_var_in_tsg.png", dpi=300)
+plt.savefig(f"{save_dir}/genes_null_var_in_tsg.png", dpi=300)
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/tsg_og/genes_null_var_in_tsg.png'")
+print(f"Plotting complete! Plot saved as '{save_dir}/genes_null_var_in_tsg.png'")
 print("-"*50)
 
 

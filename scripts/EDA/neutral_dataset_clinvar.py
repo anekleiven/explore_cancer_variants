@@ -18,27 +18,70 @@ Filtered on the following:
   
 """
 
+# -------------------------------------------
 # Import libraries 
+# -------------------------------------------
+
 import pandas as pd 
+import os
+import argparse
+from pathlib import Path
+
+# -------------------------------------------
+# Argparse function for user input file paths
+# -------------------------------------------
+
+def getargs(): 
+    parser = argparse.ArgumentParser(
+        description="Create neutral dataset from ClinVar"
+    ) 
+
+    parser.add_argument(
+        "--variants", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        help="Path to the input file with ClinVar variant data."
+    )
+
+    parser.add_argument(
+        "--clinvar", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/data/variant_summary.txt/variant_summary.txt",
+        help="Path to the input file with ClinVar variant data."
+    )
+
+    parser.add_argument(
+        "--output", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/neutral_clinvar_filtered.tsv",
+        help="Path to the output file path."
+    )
+
+    return parser.parse_args() 
+
+
+args = getargs() 
 
 # -----------------------------------------------
 # Read variant files 
 # -----------------------------------------------
 
 # Load somatic variant file 
-print("\nLoading somatic variants..")
-somatic_var = pd.read_csv("/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+print(f"\nLoading somatic variant file:\n{args.variants}")
+somatic_var = pd.read_csv(args.variants,
     sep="\t",
     low_memory=False)
+
 print(f"\nLoaded {len(somatic_var)} somatic variants.\n")
 
 # Extract unique gene IDs 
 somatic_gene_ids = set(somatic_var["Entrez_Gene_Id"].dropna().unique())
 
 # Load ClinVar variant file 
-print("Loading ClinVar variant file..\n")
-
-clinvar_path = "/home/anekl/git/master/cancer_variants_annotation_pipeline/data/variant_summary.txt/variant_summary.txt"
+print(f"Loading ClinVar variant file:\n{args.clinvar}\n")
 
 # Columns to read: 
 germline_cols = [
@@ -59,7 +102,7 @@ germline_cols = [
 chunks =  []
 
 for chunk in pd.read_csv(
-  clinvar_path, 
+  args.clinvar, 
   sep="\t", 
   usecols=germline_cols, 
   chunksize=100000,
@@ -114,9 +157,8 @@ print(neutral_clinvar[['Name', 'HGVSp']].head())
 
 
 # save file 
-output_path = "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/neutral_clinvar_filtered.tsv"
-print(f"\nSaving {len(neutral_clinvar)} variants to {output_path}...")
-neutral_clinvar.to_csv(output_path, sep="\t", index=False)
+print(f"\nSaving {len(neutral_clinvar)} variants to {args.output}...")
+neutral_clinvar.to_csv(args.output, sep="\t", index=False)
 
 
 print("\nNeutral ClinVar data complete!🎉")

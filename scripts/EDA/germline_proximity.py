@@ -36,15 +36,55 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from scipy.stats import ks_2samp
+import os
+import argparse
+from pathlib import Path
+
+# -------------------------------------------
+# Argparse function for user input file paths
+# -------------------------------------------
+
+def getargs(): 
+    parser = argparse.ArgumentParser(
+        description="Explore distance to pathogenic germline variants in somatic variant data."
+    ) 
+
+    parser.add_argument(
+        "--variants", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        help="Path to the input file with variant data."
+    )
+
+    parser.add_argument(
+        "--output", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv",
+        help="Path to the output file path."
+    )
+
+    return parser.parse_args() 
+
+
+args = getargs() 
+
+# ------------------------------------------------------------
+# Create output directory 
+# ------------------------------------------------------------
+
+save_dir = "plots/germline_proximity"
+os.makedirs(save_dir, exist_ok=True) 
 
 # ------------------------------------------------------------
 # Load variant data 
 # ------------------------------------------------------------
 
-print("Loading variant data..")
+print(f"Loading variant file:\n{args.variants}\n")
 
 variants = pd.read_csv(
-    "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+    args.variants,
     sep="\t",
     low_memory=False
 )
@@ -133,10 +173,10 @@ sns.kdeplot(
 plt.title("Distribution of Germline Distances (Comparison)", fontsize=14)
 plt.xlabel("Distance to nearest pathogenic germline variant (Log10 bp + 1)", fontsize=12)
 plt.ylabel("Density", fontsize=12)
-plt.savefig("plots/germline_proximity/combined_dist.png", bbox_inches="tight")
+plt.savefig(f"{save_dir}/combined_dist.png", bbox_inches="tight")
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/germline_proximity/combined_dist.png'.\n")
+print(f"Plotting complete! Plot saved as '{save_dir}/combined_dist.png'.\n")
 
 # ------------------------------------------------------------
 # Histogram with distance proportions per class 
@@ -163,10 +203,10 @@ for ax, label in zip(g.axes.flat, wanted_classes):
 g.set_axis_labels("Log10(Distance + 1)", "Proportion")
 
 plt.tight_layout()
-plt.savefig("plots/germline_proximity/dists_per_class.png", bbox_inches="tight")
+plt.savefig(f"{save_dir}/dists_per_class.png", bbox_inches="tight")
 plt.show()
 
-print("Plotting complete! Plot saved as 'plots/germline_proximity/dists_per_class.png'.\n")
+print(f"Plotting complete! Plot saved as '{save_dir}/dists_per_class.png'.\n")
 
 # ------------------------------------------------------------
 # Boxplot of germline distances 
@@ -186,10 +226,10 @@ sns.boxplot(
 plt.title("Boxplot of Distances (Log-scaled)")
 plt.ylabel("Log10(Distance + 1)")
 plt.tight_layout()
-plt.savefig("plots/germline_proximity/boxplot_germline_dist.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"{save_dir}/boxplot_germline_dist.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print("Plotting complete! Boxplot saved as 'plots/germline_proximity/boxplot_germline_dist.png'.\n")
+print(f"Plotting complete! Boxplot saved as '{save_dir}/boxplot_germline_dist.png'.\n")
 
 
 # ------------------------------------------------------------
@@ -236,10 +276,10 @@ for gene in top_genes_full.head(20).index:
     plt.title(f"{gene}: Germline Proximity\n(Oncogenic n={n_onco}, Neutral n={n_neut})", fontsize=14)
     plt.xlabel("Distance to nearest pathogenic germline variant (Log10 bp + 1)", fontsize=12)
     plt.ylabel("Density", fontsize=12)
-    plt.savefig(f"plots/germline_proximity/dist_{gene}.png", bbox_inches="tight")
+    plt.savefig(f"{save_dir}/dist_{gene}.png", bbox_inches="tight")
     plt.show()
 
-    print(f"\nPlotting complete! Plot saved as 'plots/germline_proximity/dist_{gene}.png'.\n")
+    print(f"\nPlotting complete! Plot saved as '{save_dir}/dist_{gene}.png'.\n")
 
 # ------------------------------------------------------------
 # Save variants with germline distances in top genes to .tsv 
@@ -250,9 +290,8 @@ top_20_genes = top_genes_full.head(20).index.tolist()
 top_20_variants = variants_plot[variants_plot["Hugo_Symbol"].isin(top_20_genes)]
 
 # save as .tsv 
-output_path = "/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv"
-top_20_variants.to_csv(output_path, sep="\t", index=False) 
-print(f"Filtered variant file saved as: \n {output_path}")
+top_20_variants.to_csv(args.output, sep="\t", index=False) 
+print(f"Filtered variant file saved as: \n {args.output}")
 print("-"*30)
 
 
