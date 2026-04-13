@@ -3,18 +3,6 @@
 # Statistics: Germline proximity in top oncogenic genes 
 # ============================================================
 
-"""
-Script: stats_germline_proximity.py
-Author: Ane Kleiven
-
-Major output: 
-    Run Mann-Whitney U and Rank-biserion correlation on variants with germline distance in top oncogenic genes. 
-    Purpose: See if there is a difference in distances between oncogenic and neutral variants
-    for the given genes. 
-    Using the stats_func() 
-
-""" 
-
 print("-"*50)
 print("Statistics Germline Proximity🔎🔢")
 print("-"*50)

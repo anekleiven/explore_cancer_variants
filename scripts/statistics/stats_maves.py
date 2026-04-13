@@ -3,19 +3,6 @@
 # Statistics: MAVE experiments
 # ============================================================
 
-"""
-Script: stats_maves.py
-Author: Ane Kleiven
-
-Major output: 
-  1. Run Mann-Whitney U and Rank-biserion correlation on the urn:mavedb:00000068-a-1 experiment
-     Purpose: See if there is a difference in MAVE scores between oncogenic and neutral variants
-     for the given MAVE experiment in gene TP53 
-     Using the stats_func() 
-  2. Run statistics on PTEN, KRAS and BRCA1 (note: insufficient data)
-
-""" 
-
 print("-"*50)
 print("Statistics MAVE EXPERIMENT🔎🔢")
 print("-"*50)
