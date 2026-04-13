@@ -20,23 +20,54 @@ print("-"*50)
 print("Statistics MAVE EXPERIMENT🔎🔢")
 print("-"*50)
 
+# -------------------------------------------
 # Import libraries 
+# -------------------------------------------
+
 import pandas as pd
 import numpy as np
 from scipy.stats import mannwhitneyu
 from scipy.stats import chi2_contingency, fisher_exact
 from scipy.stats.contingency import odds_ratio as scipy_odds_ratio
 from statsmodels.stats.multitest import multipletests
+from pathlib import Path
+import argparse
 
+# -------------------------------------------
 # Import statistics function 
+# -------------------------------------------
+
 from scripts.statistics.stats_function import stats_func
 
-#-----------------------------------------------------------------------------------
+# -------------------------------------------
+# Argparse function for user input file paths
+# -------------------------------------------
 
+def getargs(): 
+    parser = argparse.ArgumentParser(
+        description="Perform statistics on variant data."
+    ) 
+
+    parser.add_argument(
+        "--variants", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/explore_cancer_variants/output/mave_urn_filtered.tsv",
+        help="Path to the input file with variant data."
+    )
+
+    return parser.parse_args() 
+
+args = getargs() 
+
+# -------------------------------------------
 # Load filtered MAVE data 
-print("Loading MAVE variants from selected experiments (filtered and cleaned)..")
+# -------------------------------------------
+
+print(f"Loading MAVE variants from selected experiments:\n{args.variants}")
+
 variants = pd.read_csv(
-    "/home/anekl/git/master/explore_cancer_variants/output/mave_urn_filtered.tsv", 
+    args.variants, 
     sep = "\t", 
     low_memory=False)
 
@@ -123,4 +154,4 @@ print(f"Neutral BRCA1 variants: {len(variants_BRCA1[variants_BRCA1['ONCOGENIC'] 
 stats_func(variants_BRCA1, features, "urn:mavedb:00000081-a-2 BRCA1 variants") 
 print("-"*30)
 
-print("MAVE statistics complete🥳!")
+print("MAVE statistics complete🥳!\n") 

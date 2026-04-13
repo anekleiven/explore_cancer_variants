@@ -2,16 +2,45 @@
 # Statistics: Protein Domains (Top 10) - One-by-one
 # ============================================================
 
-# Import libraries 
-import pandas as pd
-import numpy as np
-from scipy.stats import chi2_contingency, fisher_exact
-from scipy.stats.contingency import odds_ratio as scipy_odds_ratio 
-from statsmodels.stats.multitest import multipletests
-
 print("-" * 50)
 print("Statistics Protein Domains (Top 10)")
 print("-" * 50)
+
+# -------------------------------------------
+# Import libraries 
+# -------------------------------------------
+
+import pandas as pd
+from scipy.stats import chi2_contingency, fisher_exact
+from scipy.stats.contingency import odds_ratio as scipy_odds_ratio 
+from statsmodels.stats.multitest import multipletests
+import argparse
+from pathlib import Path
+
+# -------------------------------------------
+# Argparse function for user input file paths
+# -------------------------------------------
+
+def getargs(): 
+    parser = argparse.ArgumentParser(
+        description="Perform statistics on variant data."
+    ) 
+
+    parser.add_argument(
+        "--variants", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        help="Path to the input file with variant data."
+    )
+
+    return parser.parse_args() 
+
+args = getargs() 
+
+# -------------------------------------------
+# Create stats function protein domains 
+# -------------------------------------------
 
 def analyze_top_domains(df, n_top=10):
     """
@@ -73,11 +102,13 @@ def analyze_top_domains(df, n_top=10):
 
     return results_df
 
- # ---Perform statistics---
+# -------------------------------------------
+# Perform statistics
+# -------------------------------------------
 
-# import variant data 
+# Import variant data 
 variants = pd.read_csv(
-  "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+  args.variants,
   sep="\t",
   low_memory=False)
 
@@ -104,4 +135,4 @@ stats_domains_top = analyze_top_domains(df_top_genes_domains, n_top=10)
 print(stats_domains_top.to_string(index=False))
 
 
-print("\nProtein domain statistics complete!🥳")
+print("\nProtein domain statistics complete!🥳\n")

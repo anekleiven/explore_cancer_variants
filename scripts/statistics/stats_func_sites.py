@@ -6,14 +6,43 @@ print("-"*50)
 print("Statistics Functional Sites (One-by-one)")
 print("-"*50)
 
-# import libraries
+# -------------------------------------------
+# import libraries 
+# -------------------------------------------
+
 import pandas as pd
 import numpy as np
 from scipy.stats import chi2_contingency, fisher_exact
 from scipy.stats.contingency import odds_ratio as scipy_odds_ratio 
 from statsmodels.stats.multitest import multipletests
+from pathlib import Path
+import argparse 
 
+# -------------------------------------------
+# Argparse function for user input file paths
+# -------------------------------------------
+
+def getargs(): 
+    parser = argparse.ArgumentParser(
+        description="Perform statistics on variant data."
+    ) 
+
+    parser.add_argument(
+        "--variants", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        help="Path to the input file with variant data."
+    )
+
+    return parser.parse_args() 
+
+args = getargs() 
+
+# -------------------------------------------
 # define statistics function 
+# -------------------------------------------
+
 def analyze_func_sites(df):
     # Find all unique functional site types from the semicolon-separated column 
     all_features = set()
@@ -92,20 +121,28 @@ print("-"*40)
 print("All variants") 
 print("-"*40)
 
-# import variant data 
+# -------------------------------------------
+# Load and clean variant data 
+# -------------------------------------------
+
+print(f"Loading variant file:\n{args.variants}")
 variants = pd.read_csv(
-  "/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
-  sep="\t",
-  low_memory=False)
+    args.variants, 
+    sep = "\t", 
+    low_memory=False)
+
+print(f"Loaded {len(variants)} variants.")
 
 # clean column for regex 
 variants['FEATURE_TYPE'] = variants['FEATURE_TYPE'].str.strip()
 
-print(f"Loaded {len(variants)} variants.")
-
 # filter to rows with a functional site annotation 
 df_with_func_sites = variants.dropna(subset=["FEATURE_TYPE"])
 stats_all = analyze_func_sites(df_with_func_sites)
+
+# -------------------------------------------
+# Perform statistics 
+# -------------------------------------------
 
 print("Performing statistics on feature types (one-by-one)..\n")
 

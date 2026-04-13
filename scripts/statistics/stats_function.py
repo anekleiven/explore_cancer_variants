@@ -29,13 +29,20 @@ Statistical tests:
 
 """
 
+# -------------------------------------------
 # import libraries 
+# -------------------------------------------
+
 import pandas as pd
 import numpy as np
 from scipy.stats import mannwhitneyu
 from scipy.stats import chi2_contingency, fisher_exact
 from scipy.stats.contingency import odds_ratio as scipy_odds_ratio
 from statsmodels.stats.multitest import multipletests
+
+# -------------------------------------------
+# Define statistics function 
+# -------------------------------------------
 
 def stats_func(df, features, label="Dataset"):
     print("\n" + "-"*50)

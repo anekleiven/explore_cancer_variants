@@ -8,10 +8,10 @@ Script: stats_germline_proximity.py
 Author: Ane Kleiven
 
 Major output: 
-  1. Run Mann-Whitney U and Rank-biserion correlation on variants with germline distance in top oncogenic genes. 
-     Purpose: See if there is a difference in distances between oncogenic and neutral variants
-     for the given genes. 
-     Using the stats_func() 
+    Run Mann-Whitney U and Rank-biserion correlation on variants with germline distance in top oncogenic genes. 
+    Purpose: See if there is a difference in distances between oncogenic and neutral variants
+    for the given genes. 
+    Using the stats_func() 
 
 """ 
 
@@ -19,25 +19,52 @@ print("-"*50)
 print("Statistics Germline Proximity🔎🔢")
 print("-"*50)
 
+# -------------------------------------------
 # Import libraries 
+# -------------------------------------------
+
 import pandas as pd
-import numpy as np
 from scipy.stats import mannwhitneyu
 from scipy.stats import chi2_contingency, fisher_exact
 from scipy.stats.contingency import odds_ratio as scipy_odds_ratio
 from statsmodels.stats.multitest import multipletests
+from pathlib import Path
+import argparse
 
+# -------------------------------------------
 # Import statistics function 
+# -------------------------------------------
+
 from scripts.statistics.stats_function import stats_func
 
-#-----------------------------------------------------------------------------------
-# Load variant data
-#-----------------------------------------------------------------------------------
+# -------------------------------------------
+# Argparse function for user input file paths
+# -------------------------------------------
 
-# Load filtered germline data
-print("Loading filtered variants with germline distances in top oncogenic genes (filtered and cleaned)..")
+def getargs(): 
+    parser = argparse.ArgumentParser(
+        description="Perform statistics on variant data."
+    ) 
+
+    parser.add_argument(
+        "--variants", 
+        type=Path, 
+        required=False, 
+        default="/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv",
+        help="Path to the input file with variant data."
+    )
+
+    return parser.parse_args() 
+
+args = getargs() 
+
+# -------------------------------------------
+# Load variant data
+# -------------------------------------------
+
+print(f"Loading variants with germline distances in top oncogenic genes:\n{args.variants}")
 variants = pd.read_csv(
-    "/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv", 
+    args.variants, 
     sep = "\t", 
     low_memory=False)
 
@@ -47,18 +74,15 @@ print("-"*30)
 # Select feature 
 features = ['Germline_Proximity'] 
 
-#-----------------------------------------------------------------------------------
+# -------------------------------------------
 # Loop through each gene and run statistics 
-#-----------------------------------------------------------------------------------
+# -------------------------------------------
 
 # Fetch gene names 
 top_genes = variants['Hugo_Symbol'].unique()
 
-print(f"Starting statistics for {len(top_genes)} genes...")
-
 p_values_list = []
 gene_names = []
-
 
 # Loop through each gene 
 for gene in top_genes:
@@ -85,9 +109,9 @@ for gene in top_genes:
         print(f"\nGene: {gene} skipped (Onc: {len(onc)}, Neu: {len(neu)}).")
         
 
-#-----------------------------------------------------------------------------------
+# -------------------------------------------
 # Benjamini Hochberg (multiple testing) 
-#-----------------------------------------------------------------------------------
+# -------------------------------------------
 
 if p_values_list:
     # Run Benjamini Hochberg on all p-values
@@ -108,4 +132,4 @@ if p_values_list:
     print("-"*50)
 
 
-print("\nGermline proximity statistics complete! 🧬")
+print("\nGermline proximity statistics complete!🧬\n")
