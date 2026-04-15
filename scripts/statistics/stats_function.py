@@ -157,11 +157,11 @@ def stats_func(df, features, label="Dataset"):
         return
      
     results_df = pd.DataFrame(results)
-    results_df["p_value"] = results_df["p_value"].round(4)
 
     if len(features) > 1:
         _, q_values, _, _ = multipletests(results_df["p_value"], method="fdr_bh")
         results_df["q_value"] = q_values.round(4)
+        results_df["p_value"] = results_df["p_value"].round(4) 
 
 
         print(f"{'-'*50}")
@@ -169,4 +169,4 @@ def stats_func(df, features, label="Dataset"):
         print(f"{'-'*50}")
         print(results_df.to_string(index=False))
 
-        return results 
+    return results_df

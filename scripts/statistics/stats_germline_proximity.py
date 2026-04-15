@@ -12,7 +12,6 @@ print("-"*50)
 # -------------------------------------------
 
 import pandas as pd
-from scipy.stats import mannwhitneyu
 from statsmodels.stats.multitest import multipletests
 from pathlib import Path
 import argparse
@@ -80,9 +79,9 @@ for gene in top_genes:
     
     res = stats_func(gene_df, features, label=f"{gene}")
 
-    if res:
-        for item in res:
-            p_values_list.append(item['p_value'])
+    if res is not None:
+        for _, row in res.iterrows():
+            p_values_list.append(row['p_value'])
             gene_names.append(gene)
 
 # -------------------------------------------
@@ -91,6 +90,7 @@ for gene in top_genes:
 
 if p_values_list:
     reject, q_values, _, _ = multipletests(p_values_list, method='fdr_bh')
+    
     summary = pd.DataFrame({
         'Gene': gene_names,
         'P_value': p_values_list,
@@ -98,11 +98,14 @@ if p_values_list:
         'Significant_FDR': reject 
     }).sort_values("Q_value")
 
+    # round values
+    summary["P_value"] = summary["P_value"].round(4)
+    summary["Q_value"] = summary["Q_value"].round(4)
+
     print("\n" + "="*60)
     print("OVERALL GENE SUMMARY (FDR-CORRECTED)")
     print("="*60)
-    print(summary.to_string(index=False, float_format=lambda x: f"{x:.4g}"))
+    print(summary.to_string(index=False))
     print("="*60)
-
 
 print("\nGermline proximity statistics complete!🧬\n")
