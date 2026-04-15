@@ -13,8 +13,6 @@ print("-"*50)
 
 import pandas as pd
 from scipy.stats import mannwhitneyu
-from scipy.stats import chi2_contingency, fisher_exact
-from scipy.stats.contingency import odds_ratio as scipy_odds_ratio
 from statsmodels.stats.multitest import multipletests
 from pathlib import Path
 import argparse
@@ -80,32 +78,19 @@ for gene in top_genes:
     onc = gene_df[gene_df["ONCOGENIC"] == "Oncogenic"]['Germline_Proximity']
     neu = gene_df[gene_df["ONCOGENIC"] == "Likely Neutral"]['Germline_Proximity']
     
-    if len(onc) > 0 and len(neu) > 0:
-        # Run statistics function 
-        stats_func(gene_df, features, label=f"{gene}")
-        print(f"{len(onc)} oncogenic variants for the {gene} gene.")
-        print(f"{len(neu)} likely neutral variants for the {gene} gene.")
+    res = stats_func(gene_df, features, label=f"{gene}")
 
-        _, p = mannwhitneyu(onc, neu, alternative="two-sided")
-        p_values_list.append(p)
-        gene_names.append(gene) 
-
-    else:
-        print("\n" + "-"*50)
-        print(f"Statistics: {gene}")
-        print("-"*50)
-        print(f"\nGene: {gene} skipped (Onc: {len(onc)}, Neu: {len(neu)}).")
-        
+    if res:
+        for item in res:
+            p_values_list.append(item['p_value'])
+            gene_names.append(gene)
 
 # -------------------------------------------
 # Benjamini Hochberg (multiple testing) 
 # -------------------------------------------
 
 if p_values_list:
-    # Run Benjamini Hochberg on all p-values
     reject, q_values, _, _ = multipletests(p_values_list, method='fdr_bh')
-
-    # Create summary
     summary = pd.DataFrame({
         'Gene': gene_names,
         'P_value': p_values_list,
@@ -113,11 +98,11 @@ if p_values_list:
         'Significant_FDR': reject 
     }).sort_values("Q_value")
 
-    print("\n" + "-"*50)
-    print("Summary FDR-corrected testing:")
-    print("-"*50)
-    print(summary.to_string(index=False))
-    print("-"*50)
+    print("\n" + "="*60)
+    print("OVERALL GENE SUMMARY (FDR-CORRECTED)")
+    print("="*60)
+    print(summary.to_string(index=False, float_format=lambda x: f"{x:.4g}"))
+    print("="*60)
 
 
 print("\nGermline proximity statistics complete!🧬\n")

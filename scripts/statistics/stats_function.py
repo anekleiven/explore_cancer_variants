@@ -61,13 +61,21 @@ def stats_func(df, features, label="Dataset"):
                 oncogenic = oncogenic[oncogenic > 0]
                 neutral = neutral[neutral > 0]
 
-            if len(oncogenic) == 0 or len(neutral) == 0:
-                print(f"[{f}] Skipped (not enough data)\n")
+            n1 = len(oncogenic)
+            n2 = len(neutral)
+            
+            # Mann-Whitney U sample cutoff
+            min_samples = 10
+
+            if n1 < min_samples or n2 < min_samples:
+                print(f"[{f}] Skipped (insufficient sample size: oncogenic={len(oncogenic)}, neutral={len(neutral)})\n")
+                print(f"n (oncogenic): {n1}, n (neutral): {n2}")
                 continue
 
             # perform Mann-Whitney U test 
             stat, p = mannwhitneyu(oncogenic, neutral, alternative="two-sided")
             test_used = "Mann-Whitney U"
+
             # calculate rank-biserial correlation 
             # (effect size for mann-whitney u) 
             n1 = len(oncogenic)
@@ -79,6 +87,7 @@ def stats_func(df, features, label="Dataset"):
 
             print(f"[{f}]")
             print(f"Test: {test_used}")
+            print(f"n (oncogenic): {n1}, n (neutral): {n2}")
             print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
             print(f"Rank-biserial r: {r:.3f} | P(oncogenic > neutral): {probability*100:.2f}%")
             results.append({"feature": f, "test": "Mann-Whitney", "p_value": p})
@@ -90,6 +99,17 @@ def stats_func(df, features, label="Dataset"):
             onc_out = len(df[(df["ONCOGENIC"] == "Oncogenic") & (df[f] == False)])
             neu_in  = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (df[f] == True)])
             neu_out = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (df[f] == False)])
+
+            total = onc_in + onc_out + neu_in + neu_out
+
+            min_total = 10
+
+            if total < min_total:
+                print(f"[{f}] Skipped (insufficient sample size: n={total})\n")
+                print(f"{'Group':<12} | {'In Feature':<10} | {'Out Feature':<10} | {'Total':<6}")
+                print("-" * 45)
+                print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
+                continue
 
             observed_table = [[onc_in, neu_in], [onc_out, neu_out]]
 
@@ -114,17 +134,27 @@ def stats_func(df, features, label="Dataset"):
             if test_used == "Fisher":
                 print(f"[{f}]")
                 print(f"Test: {test_used}")
+                print(f"{'Group':<12} | {'In Feature':<10} | {'Out Feature':<10} | {'Total':<6}")
+                print("-" * 45)
+                print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
+                print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
                 print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f}) | p-value: {p:.4f}")
                 print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < 0.05 else 'Failed to reject H₀.'}\n")
             else:
                 print(f"[{f}]")
                 print(f"Test: {test_used}")
+                print(f"{'Group':<12} | {'In Feature':<10} | {'Out Feature':<10} | {'Total':<6}")
+                print("-" * 45)
+                print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
+                print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
                 print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f})")
                 print(f"p-value: {p:.4f} | Cramer's V: {cramers_v:.3f}")
                 print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < 0.05 else 'Failed to reject H₀.'}\n")
 
             results.append({"feature": f, "test": test_used, "p_value": p})
-                
+            
+    if not results:
+        return
      
     results_df = pd.DataFrame(results)
     results_df["p_value"] = results_df["p_value"].round(4)
@@ -138,3 +168,5 @@ def stats_func(df, features, label="Dataset"):
         print("FDR-corrected results (Benjamini-Hochberg)")
         print(f"{'-'*50}")
         print(results_df.to_string(index=False))
+
+        return results 

@@ -11,10 +11,6 @@ print("-"*50)
 # -------------------------------------------
 
 import pandas as pd
-from scipy.stats import mannwhitneyu
-from scipy.stats import chi2_contingency, fisher_exact
-from scipy.stats.contingency import odds_ratio as scipy_odds_ratio
-from statsmodels.stats.multitest import multipletests
 from pathlib import Path
 import argparse 
 

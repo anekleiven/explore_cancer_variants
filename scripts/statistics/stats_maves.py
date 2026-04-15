@@ -1,10 +1,10 @@
 
 # ============================================================
-# Statistics: MAVE experiments
+# Statistics: MAVE experiment for TP53 gene
 # ============================================================
 
 print("-"*50)
-print("Statistics MAVE EXPERIMENT🔎🔢")
+print("Statistics TP53 MAVE EXPERIMENT🔎🔢")
 print("-"*50)
 
 # -------------------------------------------
@@ -12,11 +12,6 @@ print("-"*50)
 # -------------------------------------------
 
 import pandas as pd
-import numpy as np
-from scipy.stats import mannwhitneyu
-from scipy.stats import chi2_contingency, fisher_exact
-from scipy.stats.contingency import odds_ratio as scipy_odds_ratio
-from statsmodels.stats.multitest import multipletests
 from pathlib import Path
 import argparse
 
@@ -82,63 +77,4 @@ print(f"Neutral TP53 variants: {len(variants_tp53[variants_tp53['ONCOGENIC'] == 
 stats_func(variants_tp53, features, "urn:mavedb:00000068-a-1 TP53 variants") 
 print("-"*30)
 
-
-#-----------------------------------------------------------------
-# Extra: Statistics on other MAVE experiments 
-# (NB: insufficient data)
-#-----------------------------------------------------------------
-
-# ---PTEN gene--- 
-
-# Filter to wanted urn 
-urn = "urn:mavedb:00000013-a-1"
-print("---PTEN---")
-print(f"Filter to data to variants in {urn} ")
-variants_PTEN = variants[variants["MaveDB_urn"] == urn]
-print(f"After filtering, the data contains {len(variants_PTEN)} variants.")
-
-print(f"Oncogenic PTEN variants: {len(variants_PTEN[variants_PTEN['ONCOGENIC'] == 'Oncogenic'])}")
-print(f"Neutral PTEN variants: {len(variants_PTEN[variants_PTEN['ONCOGENIC'] == 'Likely Neutral'])}\n")
-
-# Run statistics 
-stats_func(variants_PTEN, features, "urn:mavedb:00000013-a-1 PTEN variants") 
-print("-"*30)
-
-#-----------------------------------------------------------------------------------
-
-# ---KRAS gene---
-
-# Filter to wanted urn 
-urn = "urn:mavedb:00000115-a-7"
-print("---KRAS---")
-print(f"Filter to data to variants in {urn} ")
-variants_KRAS = variants[variants["MaveDB_urn"] == urn]
-print(f"After filtering, the data contains {len(variants_KRAS)} variants.")
-
-print(f"Oncogenic KRAS variants: {len(variants_KRAS[variants_KRAS['ONCOGENIC'] == 'Oncogenic'])}")
-print(f"Neutral KRAS variants: {len(variants_KRAS[variants_KRAS['ONCOGENIC'] == 'Likely Neutral'])}\n")
-
-# Run statistics 
-stats_func(variants_KRAS, features, "urn:mavedb:00000115-a-7 KRAS variants") 
-print("-"*30)
-
-
-#-----------------------------------------------------------------------------------
-
-# ---BRCA1 gene---
-
-# Filter to wanted urn 
-urn = "urn:mavedb:00000081-a-2"
-print("---BRCA1---")
-print(f"Filter to data to variants in {urn} ")
-variants_BRCA1 = variants[variants["MaveDB_urn"] == urn]
-print(f"After filtering, the data contains {len(variants_BRCA1)} variants.")
-
-print(f"Oncogenic BRCA1 variants: {len(variants_BRCA1[variants_BRCA1['ONCOGENIC'] == 'Oncogenic'])}")
-print(f"Neutral BRCA1 variants: {len(variants_BRCA1[variants_BRCA1['ONCOGENIC'] == 'Likely Neutral'])}\n")
-
-# Run statistics 
-stats_func(variants_BRCA1, features, "urn:mavedb:00000081-a-2 BRCA1 variants") 
-print("-"*30)
-
-print("MAVE statistics complete🥳!\n") 
+print("MAVE TP53 statistics complete🥳!\n") 
