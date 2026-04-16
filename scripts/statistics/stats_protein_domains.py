@@ -67,9 +67,8 @@ def analyze_top_domains(df, n_top=10, alpha=0.05):
     for d in top_domains:
         if not d: continue
         
-        # Regex-matching: Make sure 'Pkinase' do not match 'Pkinase_Tyr' by mistake
-        pattern = rf"(^|;)\s*{d}\s*($|;)"
-        has_d = df['DOMAIN_NAME'].str.contains(pattern, na=False, regex=True)
+        has_d = df['DOMAIN_NAME'].str.split(';').apply(
+            lambda x: d in [item.strip() for item in x] if isinstance(x, list) else False)
         
         # Contingency table
         onc_in  = len(df[(df["ONCOGENIC"] == "Oncogenic") & (has_d)])
@@ -92,8 +91,8 @@ def analyze_top_domains(df, n_top=10, alpha=0.05):
 
         # skip functional sites with 0 values in a whole row or column 
         if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
-            print(f"[{d}] Skipped: Sample size too small.")
-            
+            print(f"[{d}] Skipped: Sample size too small.\n")
+            continue
 
         # Select test based on expected values in each cell.
         # Expected < 5 in any cell: use Fisher's exact, else: Chi-Square.

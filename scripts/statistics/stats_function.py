@@ -111,11 +111,12 @@ def stats_func(df, features, label="Dataset", alpha=0.05):
                 print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
                 continue
 
-            observed_table = [[onc_in, neu_in], [onc_out, neu_out]]
+            observed_table = np.array([[onc_in, neu_in], [onc_out, neu_out]])
 
-            # Odds ratio and 95% CI
-            or_result = scipy_odds_ratio(observed_table)
-            ci = or_result.confidence_interval(confidence_level=0.95)
+            # skip functional sites with 0 values in a whole row or column 
+            if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
+                print(f"[{f}] Skipped: Sample size too small.\n")
+                continue
 
             # Select test based on expected values in each cell.
             # Expected < 5 in any cell: use Fisher's exact, else: Chi-Square.
@@ -132,6 +133,10 @@ def stats_func(df, features, label="Dataset", alpha=0.05):
                 n = sum(sum(row) for row in observed_table)
                 k = 1 # only for 2x2 tables
                 cramers_v = np.sqrt(chi2 / (n * k))
+            
+            # Odds ratio and 95% CI
+            or_result = scipy_odds_ratio(observed_table)
+            ci = or_result.confidence_interval(confidence_level=0.95)
 
             if test_used == "Fisher":
                 print(f"[{f}]")

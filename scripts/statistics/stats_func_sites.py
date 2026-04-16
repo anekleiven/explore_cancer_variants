@@ -67,8 +67,9 @@ def analyze_func_sites(df, alpha=0.05):
     for f in all_features:
         # Check original df 
         # Does this variant have feature x 
-        pattern = rf"(^|;)\s*{f}\s*($|;)"
-        has_f = df['FEATURE_TYPE'].str.contains(pattern, na=False, regex=True)
+        # Split by semicolon, strip whitespace, and check if 'f' is in the resulting list
+        has_f = df['FEATURE_TYPE'].str.split(';').apply(
+        lambda x: f in [i.strip() for i in x] if isinstance(x, list) else False)
         
         onc_in  = len(df[(df["ONCOGENIC"] == "Oncogenic") & (has_f)])
         onc_out = len(df[(df["ONCOGENIC"] == "Oncogenic") & (~has_f)])
@@ -76,7 +77,6 @@ def analyze_func_sites(df, alpha=0.05):
         neu_out = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (~has_f)])
 
         observed_table = np.array([[onc_in, onc_out], [neu_in, neu_out]])
-
         total = onc_in + onc_out + neu_in + neu_out
 
         min_total = 10
@@ -92,7 +92,7 @@ def analyze_func_sites(df, alpha=0.05):
 
         # skip functional sites with 0 values in a whole row or column 
         if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
-            print(f"[{f}] Skipped: Sample size too small.")
+            print(f"[{f}] Skipped: Sample size too small.\n")
             continue
 
         # Select test based on expected values in each cell.
