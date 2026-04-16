@@ -3,10 +3,6 @@
 # Statistics: Top 10 oncogenic genes (by variant counts)
 # ============================================================
 
-print("-"*50)
-print("Statistics Top 10 Oncogenic Genes🔎🔢")
-print("-"*50)
-
 # -------------------------------------------
 # import libraries 
 # -------------------------------------------

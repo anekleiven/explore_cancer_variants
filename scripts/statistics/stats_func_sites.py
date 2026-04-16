@@ -35,6 +35,14 @@ def getargs():
         help="Path to the input file with variant data."
     )
 
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        required=False,
+        default=0.05,
+        help="Significance level for hypothesis testing (default: 0.05)."
+    )
+
     return parser.parse_args() 
 
 args = getargs() 
@@ -43,13 +51,15 @@ args = getargs()
 # define statistics function 
 # -------------------------------------------
 
-def analyze_func_sites(df):
+def analyze_func_sites(df, alpha=0.05):
     # Find all unique functional site types from the semicolon-separated column 
     all_features = set()
     df['FEATURE_TYPE'].dropna().str.split(';').apply(
         lambda x: [all_features.add(f.strip()) for f in x]
         )
-    
+
+    print(f"Significance level: α = {alpha}\n")
+
     results = []
     for f in sorted(list(all_features)):
         if not f: continue 
@@ -65,33 +75,46 @@ def analyze_func_sites(df):
         neu_in  = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (has_f)])
         neu_out = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (~has_f)])
 
-        observed_table = [[onc_in, neu_in], [onc_out, neu_out]]
+        observed_table = np.array([[onc_in, onc_out], [neu_in, neu_out]])
 
-        # skip feature if there is not enough samples
-        if (onc_in + neu_in) == 0: continue
-        
+        total = onc_in + onc_out + neu_in + neu_out
+
+        min_total = 10
+
+        # skip functional sites with less than ten samples in total 
+        if total < min_total:
+            print(f"[{f}] Skipped (insufficient sample size: n={total})\n")
+            print(f"{'Group':<12} | {'In Feature':<10} | {'Out Feature':<10} | {'Total':<6}")
+            print("-" * 45)
+            print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
+            print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
+            continue
+
+        # skip functional sites with 0 values in a whole row or column 
+        if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
+            print(f"[{f}] Skipped: Sample size too small.")
+            continue
+
+        # Select test based on expected values in each cell.
+        # Expected < 5 in any cell: use Fisher's exact, else: Chi-Square.
+        # Expected = 0 in any cell: use Fisher's exact, else: Chi-Square
+        chi2, _, _, expected = chi2_contingency(observed_table)
+
+        if expected.min() < 5 or any(0 in row for row in observed_table):
+            _, p = fisher_exact(observed_table)
+            test_used = "Fisher"
+            cramers_v = np.nan
+        else:
+            _, p, _, _ = chi2_contingency(observed_table)
+            test_used = "Chi-Square"
+            n = onc_in + onc_out + neu_in + neu_out
+            k = 1  # only for 2x2 table
+            cramers_v = np.sqrt(chi2 / (n * k)) if n > 0 else 0
+
         # Odds ratio and 95% CI
         or_result = scipy_odds_ratio(observed_table)
         or_value = or_result.statistic
         ci = or_result.confidence_interval(confidence_level=0.95)
-
-        # select test based on number of observations in each cell
-        # < 5 variants in one cell: Fisher, else: Chi-Square
-        if min(onc_in, onc_out, neu_in, neu_out) < 5: 
-            _, p = fisher_exact(observed_table)           
-            test_used = "Fisher"
-        else: 
-            _, p, _, _ = chi2_contingency(observed_table)      
-            test_used = "Chi-Square"
-        
-        # calculate effect size for chi-square: Cramer's V
-        if test_used == "Chi-Square":
-            chi2, _, _, _ = chi2_contingency(observed_table)
-            n = onc_in + onc_out + neu_in + neu_out
-            k = 1  # only for 2x2 table
-            cramers_v = np.sqrt(chi2 / (n * k)) if n > 0 else 0 
-        else:
-            cramers_v = np.nan
 
         results.append({
             "Feature":     f, 
@@ -99,8 +122,8 @@ def analyze_func_sites(df):
             "Odds_Ratio": or_value,
             "CI_95_low":  ci.low,
             "CI_95_high": ci.high,
-            "Count_Onco": onc_in,
-            "Count_Neu":  neu_in,
+            "Count_Onco_in": onc_in,
+            "Count_Neu_in":  neu_in,
             "Cramer's V": cramers_v, 
             "Test":       test_used
         })
@@ -108,7 +131,7 @@ def analyze_func_sites(df):
     # build dataframe and adjust for multiple testing (Benjamini-Hochberg)
     results_df = pd.DataFrame(results)
     results_df["p_adj"] = multipletests(results_df["p_value"], method="fdr_bh")[1]
-    results_df["Significant"] = results_df["p_adj"].apply(lambda x: "Yes" if x < 0.05 else "No")
+    results_df["Significant"] = results_df["p_adj"].apply(lambda x: "Yes" if x < alpha else "No")
     results_df = results_df.sort_values("p_adj").reset_index(drop=True)
 
     return results_df
@@ -138,7 +161,7 @@ variants['FEATURE_TYPE'] = variants['FEATURE_TYPE'].str.strip()
 
 # filter to rows with a functional site annotation 
 df_with_func_sites = variants.dropna(subset=["FEATURE_TYPE"])
-stats_all = analyze_func_sites(df_with_func_sites)
+stats_all = analyze_func_sites(df_with_func_sites, alpha=args.alpha)
 
 # -------------------------------------------
 # Perform statistics 
@@ -169,7 +192,7 @@ print(f"Top 10 genes: {top_10_onco_genes}")
 
 # extract top oncogenic variants
 df_top_genes = df_with_func_sites[df_with_func_sites["Hugo_Symbol"].isin(top_10_onco_genes)]
-stats_top_10 = analyze_func_sites(df_top_genes) 
+stats_top_10 = analyze_func_sites(df_top_genes, alpha=args.alpha) 
 
 print("Results top 10 oncogenic genes:")
 print(stats_top_10.to_string(index=False))

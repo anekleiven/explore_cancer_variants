@@ -11,6 +11,7 @@ print("-" * 50)
 # -------------------------------------------
 
 import pandas as pd
+import numpy as np 
 from scipy.stats import chi2_contingency, fisher_exact
 from scipy.stats.contingency import odds_ratio as scipy_odds_ratio 
 from statsmodels.stats.multitest import multipletests
@@ -34,6 +35,14 @@ def getargs():
         help="Path to the input file with variant data."
     )
 
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        required=False,
+        default=0.05,
+        help="Significance level for hypothesis testing (default: 0.05)."
+    )
+
     return parser.parse_args() 
 
 args = getargs() 
@@ -42,7 +51,7 @@ args = getargs()
 # Create stats function protein domains 
 # -------------------------------------------
 
-def analyze_top_domains(df, n_top=10):
+def analyze_top_domains(df, n_top=10, alpha=0.05):
     """
     Analyzing n top protein domains 
     Using regex to match domain names in semicolon lists 
@@ -52,7 +61,8 @@ def analyze_top_domains(df, n_top=10):
     top_domains = all_counts.head(n_top).index.tolist()
     
     print(f"Analyzing the top {len(top_domains)} most frequent domains...")
-    
+    print(f"Significance level: α = {alpha}\n")
+
     results = []
     for d in top_domains:
         if not d: continue
@@ -67,20 +77,40 @@ def analyze_top_domains(df, n_top=10):
         neu_in  = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (has_d)])
         neu_out = len(df[(df["ONCOGENIC"] == "Likely Neutral") & (~has_d)])
 
-        observed_table = [[onc_in, neu_in], [onc_out, neu_out]]
-        
+        observed_table = np.array([[onc_in, neu_in], [onc_out, neu_out]])
+
+        total = onc_in + onc_out + neu_in + neu_out
+        min_total = 10
+
+        if total < min_total:
+            print(f"[{d}] Skipped (insufficient data)")
+            print(f"{'Group':<12} | {'In Feature':<10} | {'Out Feature':<10} | {'Total':<6}")
+            print("-" * 45)
+            print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
+            print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
+            continue
+
+        # skip functional sites with 0 values in a whole row or column 
+        if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
+            print(f"[{d}] Skipped: Sample size too small.")
+            
+
+        # Select test based on expected values in each cell.
+        # Expected < 5 in any cell: use Fisher's exact, else: Chi-Square.
+        # Expected = 0 in any cell: use Fisher's exact, else: Chi-Square
+        chi2, _, _, expected = chi2_contingency(observed_table)
+
+        if expected.min() < 5 or any(0 in row for row in observed_table):
+            _, p = fisher_exact(observed_table)
+            test_used = "Fisher"
+        else:
+            _, p, _, _ = chi2_contingency(observed_table)
+            test_used = "Chi-Square"
+
         # Odds ratio 
         or_result = scipy_odds_ratio(observed_table)
         or_value = or_result.statistic
         ci = or_result.confidence_interval()
-
-        # Statistical testing
-        if min(onc_in, onc_out, neu_in, neu_out) < 5: 
-            _, p = fisher_exact(observed_table)           
-            test_used = "Fisher"
-        else: 
-            _, p, _, _ = chi2_contingency(observed_table)      
-            test_used = "Chi-Square"
         
         results.append({
             "Domain":      d, 
@@ -88,8 +118,8 @@ def analyze_top_domains(df, n_top=10):
             "Odds_Ratio":  or_value,
             "CI_95_low":   ci.low,
             "CI_95_high":  ci.high,
-            "Count_Onco":  onc_in,
-            "Count_Neu":   neu_in,
+            "Count_Onco_in":  onc_in,
+            "Count_Neu_in":   neu_in,
             "Test":        test_used
         })
     
@@ -97,7 +127,7 @@ def analyze_top_domains(df, n_top=10):
     results_df = pd.DataFrame(results)
     if not results_df.empty:
         results_df["p_adj"] = multipletests(results_df["p_value"], method="fdr_bh")[1]
-        results_df["Significant"] = results_df["p_adj"].apply(lambda x: "Yes" if x < 0.05 else "No")
+        results_df["Significant"] = results_df["p_adj"].apply(lambda x: "Yes" if x < alpha else "No")
         results_df = results_df.sort_values("p_adj").reset_index(drop=True)
 
     return results_df
@@ -117,11 +147,10 @@ df_domains['DOMAIN_NAME'] = df_domains['DOMAIN_NAME'].str.strip()
 
 # Analyze for all variants
 print("\nResults: Top 10 Domains (All Variants)")
-stats_domains_all = analyze_top_domains(df_domains, n_top=10)
+stats_domains_all = analyze_top_domains(df_domains, n_top=10, alpha=args.alpha)
 print(stats_domains_all.to_string(index=False))
 
 # Analyze for top 10 oncogenes
-
 top_10_onco_genes = (
     variants[variants['ONCOGENIC'] == 'Oncogenic']['Hugo_Symbol']
     .value_counts()
@@ -131,7 +160,7 @@ top_10_onco_genes = (
 
 print("\nResults: Top 10 Domains (Top 10 Oncogenic Genes)")
 df_top_genes_domains = df_domains[df_domains["Hugo_Symbol"].isin(top_10_onco_genes)]
-stats_domains_top = analyze_top_domains(df_top_genes_domains, n_top=10)
+stats_domains_top = analyze_top_domains(df_top_genes_domains, n_top=10, alpha=args.alpha)
 print(stats_domains_top.to_string(index=False))
 
 

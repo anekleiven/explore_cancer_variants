@@ -1,4 +1,3 @@
-
 #========================================================================
 # Statistics Function Cancer Variants
 #========================================================================
@@ -44,9 +43,10 @@ from statsmodels.stats.multitest import multipletests
 # Define statistics function 
 # -------------------------------------------
 
-def stats_func(df, features, label="Dataset"):
+def stats_func(df, features, label="Dataset", alpha=0.05):
     print("\n" + "-"*50)
     print(f"Statistics: {label}")
+    print(f"Significance level: α = {alpha}")
     print("-"*50 + "\n")
 
     results = []
@@ -91,7 +91,7 @@ def stats_func(df, features, label="Dataset"):
             print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
             print(f"Rank-biserial r: {r:.3f} | P(oncogenic > neutral): {probability*100:.2f}%")
             results.append({"feature": f, "test": "Mann-Whitney", "p_value": p})
-            print(f"{'Reject H₀: distributions differ.' if p < 0.05 else 'Failed to reject H₀.'}\n")
+            print(f"{'Reject H₀: distributions differ.' if p < alpha else 'Failed to reject H₀.'}\n")
 
 
         else: 
@@ -117,15 +117,17 @@ def stats_func(df, features, label="Dataset"):
             or_result = scipy_odds_ratio(observed_table)
             ci = or_result.confidence_interval(confidence_level=0.95)
 
-            # select test based on number of observations in each cell
-            # < 5 variants in one cell: Fisher, else: Chi-Square
-            cramers_v = None 
+            # Select test based on expected values in each cell.
+            # Expected < 5 in any cell: use Fisher's exact, else: Chi-Square.
+            cramers_v = None
 
-            if min(onc_in, onc_out, neu_in, neu_out) < 5: 
-                _, p = fisher_exact(observed_table)           
+            chi2, _, _, expected = chi2_contingency(observed_table)
+
+            if expected.min() < 5 or any(0 in row for row in observed_table):
+                _, p = fisher_exact(observed_table)
                 test_used = "Fisher"
-            else: 
-                chi2, p, _, _ = chi2_contingency(observed_table)     
+            else:
+                _, p, _, _ = chi2_contingency(observed_table)
                 test_used = "Chi-Square"
                 n = sum(sum(row) for row in observed_table)
                 k = 1 # only for 2x2 tables
@@ -139,7 +141,7 @@ def stats_func(df, features, label="Dataset"):
                 print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
                 print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
                 print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f}) | p-value: {p:.4f}")
-                print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < 0.05 else 'Failed to reject H₀.'}\n")
+                print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < alpha else 'Failed to reject H₀.'}\n")
             else:
                 print(f"[{f}]")
                 print(f"Test: {test_used}")
@@ -149,7 +151,7 @@ def stats_func(df, features, label="Dataset"):
                 print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
                 print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f})")
                 print(f"p-value: {p:.4f} | Cramer's V: {cramers_v:.3f}")
-                print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < 0.05 else 'Failed to reject H₀.'}\n")
+                print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < alpha else 'Failed to reject H₀.'}\n")
 
             results.append({"feature": f, "test": test_used, "p_value": p})
             
@@ -161,11 +163,11 @@ def stats_func(df, features, label="Dataset"):
     if len(features) > 1:
         _, q_values, _, _ = multipletests(results_df["p_value"], method="fdr_bh")
         results_df["q_value"] = q_values.round(4)
-        results_df["p_value"] = results_df["p_value"].round(4) 
-
+        results_df["p_value"] = results_df["p_value"].round(4)
+        results_df["Significant"] = results_df["q_value"].apply(lambda x: "Yes" if x < alpha else "No")
 
         print(f"{'-'*50}")
-        print("FDR-corrected results (Benjamini-Hochberg)")
+        print(f"FDR-corrected results (Benjamini-Hochberg, α = {alpha})")
         print(f"{'-'*50}")
         print(results_df.to_string(index=False))
 
