@@ -51,13 +51,14 @@ args = getargs()
 # Create stats function protein domains 
 # -------------------------------------------
 
-def analyze_top_domains(df, n_top=10, alpha=0.05):
+def analyse_top_domains(df, n_top=10, alpha=0.05):
     """
-    Analyzing n top protein domains 
-    Using regex to match domain names in semicolon lists 
+    Analysing n top protein domains
+    By oncogenic variant count
     """
-    # Find top domains (by variant counts)
-    all_counts = df['DOMAIN_NAME'].dropna().str.split(';').explode().str.strip().value_counts()
+    # Find top domains (by oncogenic variant counts)
+    onco_df = df[df["ONCOGENIC"] == "Oncogenic"]
+    all_counts = onco_df['DOMAIN_NAME'].dropna().str.split(';').explode().str.strip().value_counts()
     top_domains = all_counts.head(n_top).index.tolist()
     
     print(f"Analyzing the top {len(top_domains)} most frequent domains...")
@@ -91,7 +92,7 @@ def analyze_top_domains(df, n_top=10, alpha=0.05):
 
         # skip functional sites with 0 values in a whole row or column 
         if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
-            print(f"[{d}] Skipped: Sample size too small.\n")
+            print(f"[{d}] Skipped: One or more categories have zero total observations.\n")
             continue
 
         # Select test based on expected values in each cell.
@@ -146,7 +147,7 @@ df_domains['DOMAIN_NAME'] = df_domains['DOMAIN_NAME'].str.strip()
 
 # Analyze for all variants
 print("\nResults: Top 10 Domains (All Variants)")
-stats_domains_all = analyze_top_domains(df_domains, n_top=10, alpha=args.alpha)
+stats_domains_all = analyse_top_domains(df_domains, n_top=10, alpha=args.alpha)
 print(stats_domains_all.to_string(index=False))
 
 # Analyze for top 10 oncogenes
@@ -159,7 +160,7 @@ top_10_onco_genes = (
 
 print("\nResults: Top 10 Domains (Top 10 Oncogenic Genes)")
 df_top_genes_domains = df_domains[df_domains["Hugo_Symbol"].isin(top_10_onco_genes)]
-stats_domains_top = analyze_top_domains(df_top_genes_domains, n_top=10, alpha=args.alpha)
+stats_domains_top = analyse_top_domains(df_top_genes_domains, n_top=10, alpha=args.alpha)
 print(stats_domains_top.to_string(index=False))
 
 

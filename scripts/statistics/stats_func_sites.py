@@ -51,7 +51,7 @@ args = getargs()
 # define statistics function 
 # -------------------------------------------
 
-def analyze_func_sites(df, alpha=0.05):
+def analyse_func_sites(df, alpha=0.05):
     # Find all unique functional site types from the semicolon-separated column 
     all_features = set()
     df['FEATURE_TYPE'].dropna().str.split(';').apply(
@@ -92,7 +92,7 @@ def analyze_func_sites(df, alpha=0.05):
 
         # skip functional sites with 0 values in a whole row or column 
         if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
-            print(f"[{f}] Skipped: Sample size too small.\n")
+            print(f"[{f}] Skipped: One or more categories have zero total observations.\n")
             continue
 
         # Select test based on expected values in each cell.
@@ -156,18 +156,18 @@ variants = pd.read_csv(
 
 print(f"Loaded {len(variants)} variants.")
 
-# clean column for regex 
+# clean column
 variants['FEATURE_TYPE'] = variants['FEATURE_TYPE'].str.strip()
-
-# filter to rows with a functional site annotation 
-df_with_func_sites = variants.dropna(subset=["FEATURE_TYPE"])
-stats_all = analyze_func_sites(df_with_func_sites, alpha=args.alpha)
 
 # -------------------------------------------
 # Perform statistics 
 # -------------------------------------------
 
 print("Performing statistics on feature types (one-by-one)..\n")
+
+# filter to rows with a functional site annotation 
+df_with_func_sites = variants.dropna(subset=["FEATURE_TYPE"])
+stats_all = analyse_func_sites(df_with_func_sites, alpha=args.alpha)
 
 print("Results all variants:")
 print(stats_all.to_string(index=False))
@@ -192,7 +192,7 @@ print(f"Top 10 genes: {top_10_onco_genes}")
 
 # extract top oncogenic variants
 df_top_genes = df_with_func_sites[df_with_func_sites["Hugo_Symbol"].isin(top_10_onco_genes)]
-stats_top_10 = analyze_func_sites(df_top_genes, alpha=args.alpha) 
+stats_top_10 = analyse_func_sites(df_top_genes, alpha=args.alpha) 
 
 print("Results top 10 oncogenic genes:")
 print(stats_top_10.to_string(index=False))

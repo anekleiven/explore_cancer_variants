@@ -279,7 +279,7 @@ print(f"Plotting complete. Plots saved in folder: {save_dir}.\n")
 
 
 #----------------------------------------------------------
-# Save filtered MAVE data as .tsv for further analysis
+# Save filtered MAVE data as .tsv for statistics
 #----------------------------------------------------------
 
 mave_filtered.to_csv(args.output, sep="\t", index=False)

@@ -115,7 +115,7 @@ def stats_func(df, features, label="Dataset", alpha=0.05):
 
             # skip functional sites with 0 values in a whole row or column 
             if np.any(observed_table.sum(axis=0) == 0) or np.any(observed_table.sum(axis=1) == 0):
-                print(f"[{f}] Skipped: Sample size too small.\n")
+                print(f"[{f}] Skipped: One or more categories have zero total observations.\n")
                 continue
 
             # Select test based on expected values in each cell.
