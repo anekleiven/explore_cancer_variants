@@ -95,9 +95,7 @@ filtered["gnomAD_AF"] = pd.to_numeric(filtered["gnomAD_AF"], errors="coerce")
 # Drop NA and zero values
 filtered = filtered[filtered["gnomAD_AF"].notna() & (filtered["gnomAD_AF"] > 0)]
 
-print(f"Variants after filtering: {len(filtered)}")
-print(f"Variants with missing gnomAD: {len(variants) - len(filtered)}")
-print(f"{len(filtered)/len(variants) * 100:.2f}% variants have gnomAD allele frequencies.")
+print(f"{len(filtered)} oncogenic and neutral variants have gnomAD allele frequencies.")
 print("-"*50)
 
 # ------------------------------------------------------------
