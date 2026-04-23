@@ -88,6 +88,15 @@ print(f"Loaded {len(variants)} variants.")
 print("-"*30)
 
 #--------------------------------------------------------------------
+# Check number of unique genes
+#--------------------------------------------------------------------
+
+# Check number of unique genes 
+n_unique_genes = variants["Hugo_Symbol"].nunique() 
+
+print(f"The variant dataset consists of {n_unique_genes:,} unique genes.")
+
+#--------------------------------------------------------------------
 # Extract 'Oncogenic' variants
 #--------------------------------------------------------------------
 
@@ -101,6 +110,9 @@ oncogenic_genes = (
   .reset_index(name="Variant_Count") 
   .rename(columns={"Hugo_Symbol": "Gene"})
 )
+
+n_unique_onco = oncogenic_variants["Hugo_Symbol"].nunique() 
+print(f"Total number of genes with oncogenic variants: {n_unique_onco}")
 
 #--------------------------------------------------------------------
 # Extract 'Likely Oncogenic' variants
@@ -117,6 +129,9 @@ likely_oncogenic_genes = (
   .rename(columns={"Hugo_Symbol": "Gene"})
 )
 
+n_unique_likely_onco = likely_oncogenic_variants["Hugo_Symbol"].nunique() 
+print(f"Total number of genes with likely oncogenic variants: {n_unique_likely_onco}")
+
 #--------------------------------------------------------------------
 # Extract 'Likely Neutral' variants
 #--------------------------------------------------------------------
@@ -131,6 +146,9 @@ neutral_genes = (
   .reset_index(name="Variant_Count") 
   .rename(columns={"Hugo_Symbol": "Gene"})
   )
+
+n_unique_neutral = neutral_variants["Hugo_Symbol"].nunique() 
+print(f"Total number of genes with neutral variants: {n_unique_neutral}")
 
 #--------------------------------------------------------------------
 # Visualize top 30 genes for all oncogenicity classes 
@@ -237,7 +255,7 @@ distribution_filtered = distribution[
 
 sns.set_style(style="whitegrid") 
 
-plt.figure(figsize=(10,6)) 
+plt.figure(figsize=(12,7)) 
 
 sns.barplot(
     data=distribution_filtered,

@@ -491,8 +491,4 @@ plt.show()
 print(f"OM3 plot saved as '{save_dir}/meets_hotspot_OM3.png'")
 print("-"*50)
 
-print(variants_onco_neutral["Pos_Total_Samples"].describe())
-print(variants_onco_neutral["Exact_AA_Count"].describe())
-print(variants_onco_neutral["In_Hotspot"].value_counts())
-
 print("\nCancer hotspot analysis complete!🥳🥳\n")
