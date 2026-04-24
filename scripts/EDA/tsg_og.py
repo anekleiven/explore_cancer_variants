@@ -228,7 +228,7 @@ gene_counts.plot(kind="bar", color="#c4314a", edgecolor="0.1", linewidth=0.3)
 
 plt.title("Genes with Oncogenic Null Variants in TSGs", fontsize=14)
 plt.ylabel("Number of Variants", fontsize=12)
-plt.xlabel("Gene Symbol", fontsize=12)
+plt.xlabel("Gene", fontsize=12)
 plt.xticks(rotation=45)
 
 plt.tight_layout()

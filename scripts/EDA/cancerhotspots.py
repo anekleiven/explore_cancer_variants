@@ -353,9 +353,9 @@ sns.barplot(
   linewidth=0.3
 )
 
-plt.title("Frequently Mutated Genes with Hotspot Enrichment", fontsize=14, pad=10)
+plt.title("Oncogenic Genes with Hotspot Enrichment", fontsize=14, pad=10)
 plt.xlabel("Gene", fontsize=12)
-plt.ylabel("Total Oncogenic Mutations", fontsize=12)
+plt.ylabel("Oncogenic Variants", fontsize=12)
 plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9)
 plt.legend(title="Hotspot Fraction", bbox_to_anchor=(1.05, 1), loc='upper left')
