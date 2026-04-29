@@ -471,6 +471,7 @@ ax = sns.barplot(
     data=summary_OS3,
     x="ONCOGENIC",
     y="Variant_Count",
+    order=['Oncogenic', 'Likely Neutral'],
     hue="Meets_Hotspot_OS3",
     palette={True: "#f0483c", False: "#d9d7d7"},
     edgecolor="black",
@@ -480,10 +481,10 @@ ax = sns.barplot(
 sns.despine()
 
 plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OS3)", fontsize=14, pad=15)
-plt.xlabel("Oncogenicity", fontsize=12, labelpad=10)
+plt.xlabel("Oncogenicity Class", fontsize=12, labelpad=10)
 plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
 
-plt.legend(title="Criterion Met", bbox_to_anchor=(1.05, 1), loc="upper left", frameon=False)
+plt.legend(title="Hotspot Criterion Met", bbox_to_anchor=(1.05, 1), loc="upper left", frameon=False)
 
 plt.tight_layout()
 plt.savefig(f"{save_dir}/meets_hotspot_OS3.png", dpi=300, bbox_inches="tight")
@@ -502,6 +503,7 @@ ax = sns.barplot(
     x="ONCOGENIC",
     y="Variant_Count",
     hue="Meets_Hotspot_OM3",
+    order=['Oncogenic', 'Likely Neutral'],
     palette={True: "#ff8c45", False: "#d9d7d7"},
     edgecolor="black",
     linewidth=0.8
@@ -510,10 +512,10 @@ ax = sns.barplot(
 sns.despine()
 
 plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OM3)", fontsize=14, pad=15)
-plt.xlabel("Oncogenicity", fontsize=12, labelpad=10)
+plt.xlabel("Oncogenicity Class", fontsize=12, labelpad=10)
 plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
 
-plt.legend(title="Criterion Met", bbox_to_anchor=(1.05, 1), loc="upper left", frameon=False)
+plt.legend(title="Hotspot Criterion Met", bbox_to_anchor=(1.05, 1), loc="upper left", frameon=False)
 
 plt.tight_layout()
 plt.savefig(f"{save_dir}/meets_hotspot_OM3.png", dpi=300, bbox_inches="tight")

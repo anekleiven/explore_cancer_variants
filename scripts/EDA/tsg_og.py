@@ -246,11 +246,14 @@ palette = {
 plot_data_null_tsg = null_var_tsg_summary.reset_index().melt(id_vars='is_null_var_tsg')
 plot_data_null_tsg.columns = ['Is_Null_TSG', 'Oncogenicity', 'Count']
 
+plot_data_null_tsg['Is_Null_TSG'] = plot_data_null_tsg['Is_Null_TSG'].map({True: 'Null Variant in TSG', False: 'Other Variants'})
+
 # Plot
 ax = sns.barplot(
     data=plot_data_null_tsg,
     x='Is_Null_TSG',
     y='Count',
+    order=['Null Variant in TSG', 'Other Variants'],
     hue='Oncogenicity',
     palette=palette,
     edgecolor="black",
@@ -261,8 +264,8 @@ sns.despine()
 
 plt.title("Prevalence of Null Variants in TSGs by Oncogenicity Class", fontsize=14, pad=15)
 plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
-plt.xlabel("Null Variant in TSG (True/False)", fontsize=12, labelpad=10)
-plt.xticks(rotation=45, fontsize=9)
+plt.xlabel("Variant Type", fontsize=12, labelpad=10)
+plt.xticks(rotation=0, fontsize=9)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout()

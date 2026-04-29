@@ -209,11 +209,17 @@ print("Plotting fractions of variants for each functional site type..\n")
 sns.set_style("white")
 plt.figure(figsize=(8,5))
 
+feature_order = (
+    counts[counts["ONCOGENIC"] == "Oncogenic"]
+    .sort_values("Fraction", ascending=False)["FEATURE_TYPE"]
+    .tolist()
+)
 sns.barplot(
     data=counts,
     x="FEATURE_TYPE",
     y="Fraction",
     hue="ONCOGENIC",
+    order=feature_order,
     palette=palette, 
     edgecolor="black",
     linewidth=0.8
@@ -224,7 +230,7 @@ sns.despine()
 plt.title("Fraction of Variants per Functional Site Type", fontsize=14, pad=15)
 plt.xlabel("Functional Site", fontsize=12, labelpad=10)
 plt.ylabel("Fraction", fontsize=12, labelpad=10)
-plt.xticks(rotation=45, ha="right", fontsize=9)
+plt.xticks(rotation=40, ha="right", fontsize=9)
 plt.yticks(fontsize=9)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
