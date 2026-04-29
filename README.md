@@ -3,6 +3,16 @@
 Scripts to explore, visualize and perform statistics on somatic cancer variants and evidence for oncogenicity classification. 
 Each script contains further explanations on purpose and outputs.
 
+<figure>
+  <p align="center">
+    <img src="scripts/EDA/plots/proteindomains/heatmap_oncogenic_fraction.png" width="600">
+  </p>
+  <figcaption align="center">
+    <b>Oncogenic fraction of somatic variants per gene and protein domain.</b> 
+    Color intensity reflects the proportion of variants classified as oncogenic within each gene–domain combination.
+  </figcaption>
+</figure>
+
 The classification evidence includes: 
 - Population frequencies from gnomAD
 - Cancer mutation hotspots from cancerhotspots.org
@@ -11,15 +21,6 @@ The classification evidence includes:
 - Distance to known pathogenic germline variants from ClinVar 
 - Functional score assays from MaveDB 
 - Null variants in Tumor Suppressor genes 
-
-<figure>
-  <p align="center">
-    <img src="scripts/EDA/plots/proteindomains/heatmap_oncogenic_fraction.png" width="600">
-  </p>
-  <figcaption align="center">
-    <b> Figure 1: Fraction of oncogenic variants across different genes and Pfam protein domains. 
-  </figcaption>
-</figure>  
 
 ## Requirements 💻
 - Python 3.10+
