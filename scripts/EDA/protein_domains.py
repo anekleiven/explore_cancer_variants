@@ -157,20 +157,20 @@ ax = domain_plot_data.plot(
     kind="bar",
     stacked=True,
     figsize=(8,5),
-    edgecolor="0.1",
-    linewidth=0.3,
+    edgecolor="black",
+    linewidth=0.5,
     color={"Oncogenic": "#c4314a", "Likely Neutral": "#88aed1"}
 )
 
 plt.title("Top Protein Domains by Variant Count", fontsize=14, pad=15)
-plt.xlabel("Domain Name", fontsize=12)
-plt.ylabel("Number of Variants", fontsize=12)
+plt.xlabel("Domain Name", fontsize=12, labelpad=10)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
 plt.xticks(rotation=90, ha="right", fontsize=9)
 plt.yticks(fontsize=9) 
-plt.legend(title="Oncogenicity Class")
+plt.legend(title="Oncogenicity Class", frameon=False)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/top_domains.png", dpi=300)
+plt.savefig(f"{save_dir}/top_domains.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Plot saved as '{save_dir}/top_domains.png'")

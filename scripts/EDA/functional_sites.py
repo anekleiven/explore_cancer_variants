@@ -206,22 +206,27 @@ print(counts)
 print("-"*50)
 print("Plotting fractions of variants for each functional site type..\n")
 
+sns.set_style("white")
 plt.figure(figsize=(8,5))
+
 sns.barplot(
     data=counts,
     x="FEATURE_TYPE",
     y="Fraction",
     hue="ONCOGENIC",
     palette=palette, 
-    edgecolor="0.1",
-    linewidth=0.3
+    edgecolor="black",
+    linewidth=0.5
 )
-plt.title("Variant Fractions per Functional Site Type", fontsize=14, pad=10)
-plt.xlabel("Functional Site", fontsize=12)
-plt.ylabel("Fraction", fontsize=12)
+
+sns.despine() 
+
+plt.title("Fraction of Variants per Functional Site Type", fontsize=14, pad=15)
+plt.xlabel("Functional Site", fontsize=12, labelpad=10)
+plt.ylabel("Fraction", fontsize=12, labelpad=10)
 plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9)
-plt.legend(title="Oncogenicity", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout()
 plt.savefig(f"{save_dir}/fraction_per_site.png", dpi=300)
@@ -341,9 +346,10 @@ pivot_heatmap = top_genes.pivot(
 
 plt.figure(figsize=(8,6))
 sns.heatmap(pivot_heatmap, annot=True, cmap="Reds", fmt=".2f", cbar_kws={'label': 'Fraction of total oncogenic variants in site type'})
-plt.title("Oncogenic Variant Contribution per Functional Site Type", fontsize=14, pad=10)
-plt.xlabel("Functional Site Type", fontsize=12)
-plt.ylabel("Gene", fontsize=12)
+
+plt.title("Oncogenic Variant Contribution per Functional Site Type", fontsize=14, pad=15)
+plt.xlabel("Functional Site Type", fontsize=12, labelpad=10)
+plt.ylabel("Gene", fontsize=12, labelpad=10)
 
 plt.tight_layout()
 plt.savefig(f"{save_dir}/top_genes_per_functional_site.png", dpi=300, bbox_inches="tight")

@@ -362,7 +362,7 @@ sns.barplot(
   hue="Hotspot_Fraction",
   palette="YlOrRd",
   edgecolor="black",
-  linewidth=0.8
+  linewidth=0.5
 )
 
 sns.despine()

@@ -311,15 +311,15 @@ pivot_pct.plot(
     stacked=True, 
     figsize=(10,6),
     color=["#88aed1","#c4314a"],
-    edgecolor="0.1",
-    linewidth=0.5
+    edgecolor="black",
+    linewidth=0.6
 )
 
 sns.despine() 
 
-plt.title("Oncogenicity Distribution in Top Oncogenic Genes (%)", fontsize=14, pad=10) 
-plt.xlabel("Gene", fontsize=12)
-plt.ylabel("Percentage of Variants (%)", fontsize=12) 
+plt.title("Oncogenicity Distribution in Top Oncogenic Genes (%)", fontsize=14, pad=15) 
+plt.xlabel("Gene", fontsize=12, labelpad=10)
+plt.ylabel("Percentage of Variants (%)", fontsize=12, labelpad=10) 
 plt.xticks(rotation=45, ha="right", fontsize=9) 
 plt.yticks(fontsize=9)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10, title_fontsize=11, markerscale=0.9, frameon=False)

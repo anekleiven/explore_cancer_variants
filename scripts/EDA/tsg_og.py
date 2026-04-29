@@ -31,6 +31,7 @@ print("-"*50)
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from pathlib import Path
 import argparse
 import os
@@ -123,20 +124,42 @@ print("-"*50)
 
 print("Plotting gene category distributions for oncogenic and likely neutral variants..")
 
-og_tsg_summary.plot(kind='bar', figsize=(8, 5), color=['#88aed1', '#c4314a'], edgecolor="0.1", linewidth=0.3)
+# Melt data from wide to long format 
+plot_data = og_tsg_summary.reset_index().melt(id_vars='gene_category')
+plot_data.columns = ['Gene Category', 'Oncogenicity', 'Variant Count']
 
-plt.title("Distribution of Variant Classes per Gene Category", fontsize=14)
-plt.ylabel("Number of Variants", fontsize=12)
-plt.xlabel("Gene Category", fontsize=12)
-plt.xticks(rotation=45, fontsize=9)
-plt.legend(title="Oncogenicity Class", fontsize=12)
+# Define colors for each class 
+palette = {
+    "Oncogenic": "#c4314a",
+    "Likely Neutral": "#88aed1",
+}
+
+# Plot 
+plt.figure(figsize=(8,5))
+sns.set_style("white")
+
+ax = sns.barplot(
+    data=plot_data,
+    x='Gene Category',
+    y='Variant Count',
+    hue='Oncogenicity',
+    palette=palette,
+    edgecolor="black",
+    linewidth=0.8
+)
+
+sns.despine()
+
+plt.title("Distribution of Variants Across Gene Categories", fontsize=14, pad=15)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
+plt.xlabel("Gene Category", fontsize=12, labelpad=10)
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/gene_categories.png", dpi=300)
+plt.savefig(f"{save_dir}/og_tsg_distribution.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-print(f"Plotting complete! Plot saved as '{save_dir}/gene_categories.png'")
-print("-"*50)
+print(f"Plotting complete! Plot saved as '{save_dir}/og_tsg_distribution.png'")
 
 # ------------------------------------------------------------
 # Check null variants distribution 
@@ -157,20 +180,41 @@ print("-"*50)
 
 print("Plotting null variant distributions for oncogenic and likely neutral variants..")
 
-null_var_summary.plot(kind='bar', figsize=(8, 5), color=['#88aed1', '#c4314a'], edgecolor="0.1", linewidth=0.3)
+# set style
+plt.figure(figsize=(8, 5))
+sns.set_style("white")
+palette = {
+    "Oncogenic": "#c4314a",
+    "Likely Neutral": "#88aed1",
+}
 
-plt.title("Prevalence of Null Variants by Oncogenicity Class", fontsize=14)
-plt.ylabel("Number of Variants", fontsize=12)
-plt.xlabel("Null Variant (True/False)", fontsize=12)
-plt.xticks(rotation=45, fontsize=9)
-plt.legend(title="Oncogenicity Class", fontsize=12)
+# Melt data from wide to long format 
+plot_data_null = null_var_summary.reset_index().melt(id_vars='is_null_variant')
+plot_data_null.columns = ['Is_Null', 'Oncogenicity', 'Count']
+
+# Plot
+ax = sns.barplot(
+    data=plot_data_null,
+    x='Is_Null',
+    y='Count',
+    hue='Oncogenicity',
+    palette=palette,
+    edgecolor="black",
+    linewidth=0.8
+)
+
+sns.despine()
+
+plt.title("Prevalence of Null Variants by Oncogenicity Class", fontsize=14, pad=15)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
+plt.xlabel("Null Variant Status", fontsize=12, labelpad=10)
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/null_var.png", dpi=300)
+plt.savefig(f"{save_dir}/null_var.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Plot saved as '{save_dir}/null_var.png'")
-print("-"*50)
 
 # ------------------------------------------------------------
 # Check null variants in tsg distribution 
@@ -190,16 +234,39 @@ print("-"*50)
 
 print("Plotting null variant in tsg distribution for oncogenic and likely neutral variants..")
 
-null_var_tsg_summary.plot(kind='bar', figsize=(8, 5), color=['#88aed1', '#c4314a'], edgecolor="0.1", linewidth=0.3)
+# set style
+plt.figure(figsize=(8, 5))
+sns.set_style("white")
+palette = {
+    "Oncogenic": "#c4314a",
+    "Likely Neutral": "#88aed1",
+}
 
-plt.title("Prevalence of Null Variants in TSGs by Oncogenicity Class", fontsize=14)
-plt.ylabel("Number of Variants", fontsize=12)
-plt.xlabel("Null Variant in TSG (True/False)", fontsize=12)
+# Melt data from wide to long format 
+plot_data_null_tsg = null_var_tsg_summary.reset_index().melt(id_vars='is_null_var_tsg')
+plot_data_null_tsg.columns = ['Is_Null_TSG', 'Oncogenicity', 'Count']
+
+# Plot
+ax = sns.barplot(
+    data=plot_data_null_tsg,
+    x='Is_Null_TSG',
+    y='Count',
+    hue='Oncogenicity',
+    palette=palette,
+    edgecolor="black",
+    linewidth=0.8
+)
+
+sns.despine()
+
+plt.title("Prevalence of Null Variants in TSGs by Oncogenicity Class", fontsize=14, pad=15)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
+plt.xlabel("Null Variant in TSG (True/False)", fontsize=12, labelpad=10)
 plt.xticks(rotation=45, fontsize=9)
-plt.legend(title="Oncogenicity Class", fontsize=12)
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/null_var_in_tsg.png", dpi=300)
+plt.savefig(f"{save_dir}/null_var_in_tsg.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Plot saved as '{save_dir}/null_var_in_tsg.png'")
@@ -224,15 +291,22 @@ print(gene_counts)
 
 # Plot results
 plt.figure(figsize=(8, 5))
-gene_counts.plot(kind="bar", color="#c4314a", edgecolor="0.1", linewidth=0.3)
+sns.set_style("white") 
 
-plt.title("Genes with Oncogenic Null Variants in TSGs", fontsize=14)
-plt.ylabel("Number of Variants", fontsize=12)
-plt.xlabel("Gene", fontsize=12)
-plt.xticks(rotation=45)
+sns.barplot(gene_counts,
+            color="#c4314a", 
+            edgecolor="black",
+            linewidth=0.8)
+
+sns.despine() 
+
+plt.title("Genes with Oncogenic Null Variants in TSGs", fontsize=14, pad=15)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
+plt.xlabel("Gene", fontsize=12, labelpad=10)
+plt.xticks(rotation=45, fontsize=9)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/genes_null_var_in_tsg.png", dpi=300)
+plt.savefig(f"{save_dir}/genes_null_var_in_tsg.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Plot saved as '{save_dir}/genes_null_var_in_tsg.png'")
