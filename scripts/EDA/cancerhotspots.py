@@ -195,7 +195,7 @@ sns.barplot(data=counts_plot,
 sns.despine() 
 
 plt.title("Variants in Cancer Mutation Hotspots", fontsize=14, pad=15)
-plt.xlabel("Variant in Hotspot", fontsize=12, labelpad=10)
+plt.xlabel("Hotspot Status", fontsize=12, labelpad=10)
 plt.ylabel("Counts", fontsize=12, labelpad=10) 
 plt.xticks(rotation=0, fontsize=9)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
@@ -243,7 +243,7 @@ sns.barplot(data=counts_plot2,
 sns.despine() 
 
 plt.title("Fraction of Variants in Cancer Mutation Hotspots", fontsize=14, pad=15) 
-plt.xlabel("Variant in Hotspot", fontsize=12, labelpad=10)
+plt.xlabel("Hotspot Status", fontsize=12, labelpad=10)
 plt.ylabel("Fraction", fontsize=12, labelpad=10)
 plt.xticks(rotation=0, fontsize=9)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
