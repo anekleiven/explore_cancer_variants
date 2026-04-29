@@ -158,7 +158,7 @@ print("-"*30)
 print("Plot top genes for all \noncogenicity class")
 print("-"*30)
 
-sns.set_theme(style="whitegrid", context="talk") 
+sns.set_theme(style="white") 
 
 # Function to make consistent plots for each oncogenicity class
 
@@ -166,6 +166,7 @@ def plot_top_genes(df, title, color, plotname):
     """
     Create barplot for top genes based on oncogenicity class
     """
+
     plt.figure(figsize=(8,5))
     
     # sort count values in descending order 
@@ -177,19 +178,19 @@ def plot_top_genes(df, title, color, plotname):
         x="Gene",
         y="Variant_Count",
         color=color,
-        edgecolor="0.1", 
-        linewidth=0.3
+        edgecolor="black", 
+        linewidth=0.8
     )
 
+    sns.despine() 
+
     # Style titles and labels
-    plt.title(title, fontsize=14, pad=10)
-    plt.xlabel("Gene", fontsize=12)
-    plt.ylabel("Number of Variants", fontsize=12)
+    plt.title(title, fontsize=14, pad=15)
+    plt.xlabel("Gene", fontsize=12, labelpad=10)
+    plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
     plt.xticks(rotation=45, ha="right", fontsize=9)
     plt.yticks(fontsize=9)
 
-    # Clean style
-    sns.despine()
     plt.tight_layout()
     plt.savefig(f"{save_dir}/{plotname}.png", dpi=300, bbox_inches="tight")
     plt.show()
@@ -233,7 +234,7 @@ print("-"*30)
 
 print("Exploring oncogenicity distribution within the top oncogenic genes..")
 
-top_onco_genes = oncogenic_genes.head(30)["Gene"] 
+top_onco_genes = oncogenic_genes.head(20)["Gene"] 
 
 top_genes_variants = variants[variants["Hugo_Symbol"].isin(top_onco_genes)]
 
@@ -253,9 +254,9 @@ wanted_classes = ["Oncogenic", "Likely Neutral"]
 distribution_filtered = distribution[
     distribution["ONCOGENIC"].isin(wanted_classes)]
 
-sns.set_style(style="whitegrid") 
+plt.figure(figsize=(10,6)) 
 
-plt.figure(figsize=(12,7)) 
+sns.set_style(style="white") 
 
 sns.barplot(
     data=distribution_filtered,
@@ -263,30 +264,23 @@ sns.barplot(
     y="Count", 
     hue="ONCOGENIC", 
     palette=["#88aed1","#c4314a"],
-    edgecolor="0.1", 
-    linewidth=0.3
+    edgecolor="black", 
+    linewidth=0.5
 )
+
+sns.despine() 
 
 print("\nPlotting distribution..")
 
-plt.title("Oncogenicity Distribution in Top Oncogenic Genes", fontsize=14, pad=10)
-plt.xlabel("Gene", fontsize=12)
-plt.ylabel("Number of Variants", fontsize=12) 
+plt.title("Class Distribution in Top Oncogenic Genes", fontsize=14, pad=15)
+plt.xlabel("Gene", fontsize=12, labelpad=10)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10) 
 plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9)
-plt.legend(
-    title="Oncogenicity Class",
-    bbox_to_anchor=(1.05, 1),
-    loc='upper left',
-    fontsize=10,
-    title_fontsize=11,
-    markerscale=0.9
-)
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10, title_fontsize=11, markerscale=0.9, frameon=False)
 
 plt.tight_layout()
-
 plt.savefig(f"{save_dir}/distribution_top_onco.png", dpi=300, bbox_inches="tight")
-
 plt.show() 
 
 print(f"Plotting complete! Plot saved in folder '{save_dir}'\n")
@@ -310,7 +304,7 @@ pivot = distribution_filtered.pivot(
 
 pivot_pct = pivot.div(pivot.sum(axis=1), axis=0) * 100 
 
-sns.set_style(style="whitegrid") 
+sns.set_style(style="white") 
 
 pivot_pct.plot(
     kind="bar",
@@ -318,22 +312,17 @@ pivot_pct.plot(
     figsize=(10,6),
     color=["#88aed1","#c4314a"],
     edgecolor="0.1",
-    linewidth=0.3
+    linewidth=0.5
 )
+
+sns.despine() 
 
 plt.title("Oncogenicity Distribution in Top Oncogenic Genes (%)", fontsize=14, pad=10) 
 plt.xlabel("Gene", fontsize=12)
 plt.ylabel("Percentage of Variants (%)", fontsize=12) 
 plt.xticks(rotation=45, ha="right", fontsize=9) 
 plt.yticks(fontsize=9)
-plt.legend(
-    title="Oncogenicity Class",
-    bbox_to_anchor=(1.05, 1),
-    loc='upper left',
-    fontsize=10,
-    title_fontsize=11,
-    markerscale=0.9
-)
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10, title_fontsize=11, markerscale=0.9, frameon=False)
 
 plt.tight_layout()
 plt.savefig(f"{save_dir}/percentage_top_onco.png", dpi=300, bbox_inches="tight")

@@ -85,6 +85,7 @@ print(f"Loaded {len(variants):,} variants.\n")
 # ------------------------------------------------------------
 
 print("Filter and clean gnomAD data..")
+
 # Select classes 
 wanted = ["Oncogenic", "Likely Neutral"]
 filtered = variants[variants["ONCOGENIC"].isin(wanted)].copy()
@@ -175,7 +176,7 @@ print("Running gnomAD AF analysis for all given oncogenicity classes..\n")
 analyze_gnomad_af(filtered, "Oncogenic", color="#c4314a", plotname="gnomAD_onco.png")
 
 # Likely Neutral
-analyze_gnomad_af(variants, "Likely Neutral", color="#88aed1", plotname="gnomAD_likely_neutral.png")
+analyze_gnomad_af(filtered, "Likely Neutral", color="#88aed1", plotname="gnomAD_likely_neutral.png")
 
 print("gnomAD frequency analysis successfully completed for all oncogenicity classes.")
 print(f"Plots saved in folder '{save_dir}'")
@@ -198,7 +199,7 @@ palette = {
 print("Plotting density of gnomAD allele frequencies for Oncogenic vs. Likely Neutral..\n")
 
 plt.figure(figsize=(8,5)) 
-sns.set_style("whitegrid")
+sns.set_style("white")
 
 sns.kdeplot(
     data=filtered,
@@ -210,9 +211,12 @@ sns.kdeplot(
     common_norm=False
 )
 
-plt.title("gnomAD AF (Oncogenic and Neutral Variants)", fontsize=14, pad=10) 
-plt.xlabel("gnomAD_AF (log10 scale)", fontsize=12)
-plt.ylabel("Density", fontsize=12)
+sns.move_legend(plt.gca(), "upper left", bbox_to_anchor=(1.05, 1), title="Oncogenicity Class", frameon=False)
+sns.despine()
+
+plt.title("gnomAD Population Allele Frequencies", fontsize=14, pad=15) 
+plt.xlabel("Allele frequency (log10 scale)", fontsize=12, labelpad=10)
+plt.ylabel("Density", fontsize=12, labelpad=10)
 
 plt.tight_layout()
 plt.savefig(f"{save_dir}/gnomAD_combined_KDE.png", dpi=300, bbox_inches="tight") 

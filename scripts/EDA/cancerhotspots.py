@@ -177,23 +177,27 @@ counts = (variants_onco_neutral
 palette = {"Oncogenic": "#c4314a", "Likely Neutral": "#88aed1"}
 
 plt.figure(figsize=(8,5))
-sns.set_style("whitegrid")
+
+sns.set_style("white")
 
 sns.barplot(data=counts, 
             x="In_Hotspot",
             y="Variant_Count",
             hue="ONCOGENIC", 
             palette=palette, 
-            edgecolor="0.1",
-            linewidth=0.3) 
+            edgecolor="black",
+            linewidth=0.8) 
 
-plt.title("Number of Variants in Cancer Hotspots", fontsize=14, pad=10)
-plt.xlabel("Variant in Hotspot", fontsize=12)
-plt.ylabel("Counts", fontsize=12) 
-plt.xticks(rotation=90, fontsize=10)
+sns.despine() 
+
+plt.title("Variants in Cancer Mutation Hotspots", fontsize=14, pad=15)
+plt.xlabel("Variant in Hotspot", fontsize=12, labelpad=10)
+plt.ylabel("Counts", fontsize=12, labelpad=10) 
+plt.xticks(rotation=90, fontsize=9)
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout() 
-plt.savefig(f"{save_dir}/variants_in_hotspots.png", dpi=300)
+plt.savefig(f"{save_dir}/variants_in_hotspots.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Plot saved as '{save_dir}/variants_in_hotspots.png'")
@@ -217,21 +221,27 @@ print("-"*50)
 print("Plotting fraction of variants in cancer hotspots (oncogenic vs. neutral)..")
 
 plt.figure(figsize=(8,5)) 
-sns.set_style("whitegrid")
+
+sns.set_style("white")
 
 sns.barplot(data=counts, 
             x="In_Hotspot",
             y="Fraction",
             hue="ONCOGENIC",
             palette=palette,
-            edgecolor="0.1",
-            linewidth=0.3)
+            edgecolor="black",
+            linewidth=0.8)
 
-plt.title("Fraction of Variants in Cancer Hotspots", fontsize=14, pad=10) 
-plt.xlabel("Variant in Hotspot", fontsize=12)
-plt.ylabel("Fraction", fontsize=12)
+sns.despine() 
+
+plt.title("Fraction of Variants in Cancer Mutation Hotspots", fontsize=14, pad=15) 
+plt.xlabel("Variant in Hotspot", fontsize=12, labelpad=10)
+plt.ylabel("Fraction", fontsize=12, labelpad=10)
+plt.xticks(rotation=90, fontsize=9)
+plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
+
 plt.tight_layout()
-plt.savefig(f"{save_dir}/fractions_in_hotspots.png", dpi=300)
+plt.savefig(f"{save_dir}/fractions_in_hotspots.png", dpi=300, bbox_inches="tight")
 plt.show() 
 
 print(f"Plotting complete! Plot saved as '{save_dir}/fractions_in_hotspots.png'\n")
@@ -267,23 +277,25 @@ print("Plotting Oncogenic Variants in Cancer Hotspots across Genes...\n")
 top_oncogenes = onco_genes.head(20) 
 
 plt.figure(figsize=(8,5))
-sns.set_style("whitegrid")
+sns.set_style("white")
 
 sns.barplot(data=top_oncogenes,
             x="Hugo_Symbol",
             y="Hotspot_Variant_Count",
             color="#c4314a",
-            edgecolor="0.1",
-            linewidth=0.3) 
+            edgecolor="black",
+            linewidth=0.8) 
 
-plt.title("Top Oncogenic Genes in Cancer Hotspots", fontsize=14, pad=10) 
-plt.xlabel("Gene (Hugo Symbol)", fontsize=12) 
-plt.ylabel("Number of Variants", fontsize=12) 
+sns.despine() 
+
+plt.title("Top Oncogenic Genes in Cancer Mutation Hotspots", fontsize=14, pad=15) 
+plt.xlabel("Gene (Hugo Symbol)", fontsize=12, labelpad=10) 
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10) 
 plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9) 
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/oncogenes_in_hotspots.png", dpi=300)
+plt.savefig(f"{save_dir}/oncogenes_in_hotspots.png", dpi=300, bbox_inches="tight")
 plt.show() 
 
 print(f"Plotting complete! Plot saved as '{save_dir}/oncogenes_in_hotspots.png'\n")
@@ -340,7 +352,8 @@ print("Example output frequently mutated genes:")
 print(top_genes.head(5),"\n")
 
 plt.figure(figsize=(8,5)) 
-sns.set_style("whitegrid")
+
+sns.set_style("white")
 
 sns.barplot(
   data=top_genes.head(15), 
@@ -348,20 +361,21 @@ sns.barplot(
   y="Total_Oncogenic",
   hue="Hotspot_Fraction",
   palette="YlOrRd",
-  dodge=False,
-  edgecolor="0.1",
-  linewidth=0.3
+  edgecolor="black",
+  linewidth=0.8
 )
 
-plt.title("Oncogenic Genes with Hotspot Enrichment", fontsize=14, pad=10)
-plt.xlabel("Gene", fontsize=12)
-plt.ylabel("Oncogenic Variants", fontsize=12)
+sns.despine()
+
+plt.title("Genes with Cancer Mutation Hotspot Enrichment", fontsize=14, pad=15)
+plt.xlabel("Gene", fontsize=12, labelpad=10)
+plt.ylabel("Number of Variants (Oncogenic)", fontsize=12, labelpad=10)
 plt.xticks(rotation=45, ha="right", fontsize=9)
 plt.yticks(fontsize=9)
-plt.legend(title="Hotspot Fraction", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(title="Hotspot Fraction", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/oncogenes_hotspot_fraction.png", dpi=300)
+plt.savefig(f"{save_dir}/oncogenes_hotspot_fraction.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Figure saved as '{save_dir}/oncogenes_hotspot_fraction.png'\n")
@@ -437,55 +451,64 @@ print("-"*50)
 
 print("Plotting cancer hotspot evidence..")
 
-hotspot_palette = {True: "#EE6F63", False: "#BFCFEF"}
+sns.set_style("white")
 
+# ----------------
 # OS3 PLOT
-plt.figure(figsize=(8,5))
-sns.set_style("whitegrid")
+# ----------------
 
-sns.barplot(
+plt.figure(figsize=(8, 5))
+
+ax = sns.barplot(
     data=summary_OS3,
     x="ONCOGENIC",
     y="Variant_Count",
     hue="Meets_Hotspot_OS3",
-    palette=hotspot_palette,
-    edgecolor="0.1",
-    linewidth=0.3
+    palette={True: "#f0483c", False: "#d9d7d7"},
+    edgecolor="black",
+    linewidth=0.8
 )
 
-plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OS3)", fontsize=14, pad=10)
-plt.xlabel("Oncogenicity", fontsize=12)
-plt.ylabel("Number of Variants", fontsize=12)
-plt.legend(title="Meets OS3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
+sns.despine()
+
+plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OS3)", fontsize=14, pad=15)
+plt.xlabel("Oncogenicity", fontsize=12, labelpad=10)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
+
+plt.legend(title="Criterion Met", bbox_to_anchor=(1.05, 1), loc="upper left", frameon=False)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/meets_hotspot_OS3.png", dpi=300)
+plt.savefig(f"{save_dir}/meets_hotspot_OS3.png", dpi=300, bbox_inches="tight")
 plt.show()
-
 print(f"OS3 plot saved as '{save_dir}/meets_hotspot_OS3.png'")
 
 
+# ----------------
 # OM3 PLOT
-plt.figure(figsize=(8,5))
-sns.set_style("whitegrid")
+# ----------------
 
-sns.barplot(
+plt.figure(figsize=(8, 5))
+
+ax = sns.barplot(
     data=summary_OM3,
     x="ONCOGENIC",
     y="Variant_Count",
     hue="Meets_Hotspot_OM3",
-    palette=hotspot_palette,
-    edgecolor="0.1",
-    linewidth=0.3
+    palette={True: "#ff8c45", False: "#d9d7d7"},
+    edgecolor="black",
+    linewidth=0.8
 )
 
-plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OM3)", fontsize=14, pad=10)
-plt.xlabel("Oncogenicity", fontsize=12)
-plt.ylabel("Number of Variants", fontsize=12)
-plt.legend(title="Meets OM3 Criterion", bbox_to_anchor=(1.05, 1), loc="upper left")
+sns.despine()
+
+plt.title("ClinGen/CGC/VICC Cancer Hotspot Evidence (OM3)", fontsize=14, pad=15)
+plt.xlabel("Oncogenicity", fontsize=12, labelpad=10)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
+
+plt.legend(title="Criterion Met", bbox_to_anchor=(1.05, 1), loc="upper left", frameon=False)
 
 plt.tight_layout()
-plt.savefig(f"{save_dir}/meets_hotspot_OM3.png", dpi=300)
+plt.savefig(f"{save_dir}/meets_hotspot_OM3.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"OM3 plot saved as '{save_dir}/meets_hotspot_OM3.png'")

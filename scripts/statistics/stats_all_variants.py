@@ -57,7 +57,8 @@ print("-"*30)
 variants["has_gnomAD_AF"] = ( 
     (variants["gnomAD_AF"].notna()) & 
     (variants["gnomAD_AF"] != "NA") & 
-    (variants["gnomAD_AF"] != "") 
+    (variants["gnomAD_AF"] != "") & 
+    (variants["gnomAD_AF"] > 0)
 )
 
 # -------------------------------------------

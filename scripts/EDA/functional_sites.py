@@ -340,8 +340,8 @@ pivot_heatmap = top_genes.pivot(
 ).fillna(0)
 
 plt.figure(figsize=(8,6))
-sns.heatmap(pivot_heatmap, annot=True, cmap="Reds", fmt=".2f")
-plt.title("Gene Contribution per Functional Site Type\n(Fraction of oncogenic variants within each functional site type)", fontsize=14, pad=10)
+sns.heatmap(pivot_heatmap, annot=True, cmap="Reds", fmt=".2f", cbar_kws={'label': 'Fraction of total oncogenic variants in site type'})
+plt.title("Oncogenic Variant Contribution per Functional Site Type", fontsize=14, pad=10)
 plt.xlabel("Functional Site Type", fontsize=12)
 plt.ylabel("Gene", fontsize=12)
 

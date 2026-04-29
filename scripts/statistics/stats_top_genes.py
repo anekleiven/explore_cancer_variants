@@ -77,10 +77,11 @@ top_10_gene_variants = variants[variants["Hugo_Symbol"].isin(top_10_onco_genes)]
 # Add feature about gnomAD presence 
 # -------------------------------------------
 
-top_10_gene_variants["has_gnomAD_AF"] = ( 
-    (top_10_gene_variants["gnomAD_AF"].notna()) & 
-    (top_10_gene_variants["gnomAD_AF"] != "NA") & 
-    (top_10_gene_variants["gnomAD_AF"] != "") 
+variants["has_gnomAD_AF"] = ( 
+    (variants["gnomAD_AF"].notna()) & 
+    (variants["gnomAD_AF"] != "NA") & 
+    (variants["gnomAD_AF"] != "") & 
+    (variants["gnomAD_AF"] > 0)
 )
 
 # -------------------------------------------
