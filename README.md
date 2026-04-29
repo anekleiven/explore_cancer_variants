@@ -12,6 +12,7 @@ Each script contains further explanations on purpose and outputs.
     Color intensity reflects the proportion of variants classified as oncogenic within each gene–domain combination.
   </figcaption>
 </figure>
+<br>
 
 The classification evidence includes: 
 - Population frequencies from gnomAD
