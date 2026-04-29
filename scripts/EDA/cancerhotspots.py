@@ -180,9 +180,13 @@ plt.figure(figsize=(8,5))
 
 sns.set_style("white")
 
-sns.barplot(data=counts, 
+counts_plot = counts.copy() 
+counts_plot['In_Hotspot'] = counts_plot['In_Hotspot'].map({True: 'In Hotspot', False: 'Outside Hotspot'})
+
+sns.barplot(data=counts_plot, 
             x="In_Hotspot",
             y="Variant_Count",
+            order=['In Hotspot', 'Outside Hotspot'],
             hue="ONCOGENIC", 
             palette=palette, 
             edgecolor="black",
@@ -193,7 +197,7 @@ sns.despine()
 plt.title("Variants in Cancer Mutation Hotspots", fontsize=14, pad=15)
 plt.xlabel("Variant in Hotspot", fontsize=12, labelpad=10)
 plt.ylabel("Counts", fontsize=12, labelpad=10) 
-plt.xticks(rotation=90, fontsize=9)
+plt.xticks(rotation=0, fontsize=9)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout() 
@@ -224,9 +228,13 @@ plt.figure(figsize=(8,5))
 
 sns.set_style("white")
 
-sns.barplot(data=counts, 
+counts_plot2 = counts.copy()
+counts_plot2['In_Hotspot'] = counts_plot2['In_Hotspot'].map({True: 'In Hotspot', False: 'Outside Hotspot'})
+
+sns.barplot(data=counts_plot2, 
             x="In_Hotspot",
             y="Fraction",
+            order=['In Hotspot', 'Outside Hotspot'],
             hue="ONCOGENIC",
             palette=palette,
             edgecolor="black",
@@ -237,7 +245,7 @@ sns.despine()
 plt.title("Fraction of Variants in Cancer Mutation Hotspots", fontsize=14, pad=15) 
 plt.xlabel("Variant in Hotspot", fontsize=12, labelpad=10)
 plt.ylabel("Fraction", fontsize=12, labelpad=10)
-plt.xticks(rotation=90, fontsize=9)
+plt.xticks(rotation=0, fontsize=9)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
 
 plt.tight_layout()
