@@ -216,7 +216,7 @@ sns.barplot(
     hue="ONCOGENIC",
     palette=palette, 
     edgecolor="black",
-    linewidth=0.5
+    linewidth=0.8
 )
 
 sns.despine() 
@@ -254,7 +254,7 @@ onco_counts = (
 feature_totals = onco_counts.groupby("FEATURE_TYPE")["Count"].sum()
 
 # Calculate contribution fraction: 
-# "How much of this sites total oncogenic burden comes from this gene?"
+# "How much of this site's total oncogenic burden comes from this gene?"
 onco_counts["Contribution_Fraction"] = (
     onco_counts["Count"] / onco_counts["FEATURE_TYPE"].map(feature_totals)
 )

@@ -100,6 +100,8 @@ def analyse_top_domains(df, n_top=10, alpha=0.05):
         # Expected = 0 in any cell: use Fisher's exact, else: Chi-Square
         chi2, _, _, expected = chi2_contingency(observed_table)
 
+        cramers_v = np.sqrt(chi2 / total) if total > 0 else 0
+
         if expected.min() < 5 or any(0 in row for row in observed_table):
             _, p = fisher_exact(observed_table)
             test_used = "Fisher"
@@ -109,15 +111,15 @@ def analyse_top_domains(df, n_top=10, alpha=0.05):
 
         # Odds ratio 
         or_result = scipy_odds_ratio(observed_table)
-        or_value = or_result.statistic
-        ci = or_result.confidence_interval()
+
         
         results.append({
             "Domain":      d, 
             "p_value":     p, 
-            "Odds_Ratio":  or_value,
-            "CI_95_low":   ci.low,
-            "CI_95_high":  ci.high,
+            "Cramers_V": cramers_v,
+            "Odds_Ratio":  or_result.statistic,
+            "CI_95_low":   or_result.confidence_interval().low,
+            "CI_95_high":  or_result.confidence_interval().high,
             "Count_Onco_in":  onc_in,
             "Count_Neu_in":   neu_in,
             "Test":        test_used
