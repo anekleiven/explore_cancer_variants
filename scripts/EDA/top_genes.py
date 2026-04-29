@@ -151,6 +151,27 @@ n_unique_neutral = neutral_variants["Hugo_Symbol"].nunique()
 print(f"Total number of genes with neutral variants: {n_unique_neutral}")
 
 #--------------------------------------------------------------------
+# Check number of overlapping genes
+#--------------------------------------------------------------------
+
+from matplotlib_venn import venn2
+
+oncogenic_genes_set = set(oncogenic_variants["Hugo_Symbol"])
+neutral_genes_set = set(neutral_variants["Hugo_Symbol"])
+
+overlap = oncogenic_genes_set & neutral_genes_set
+
+print(f"Number of overlapping genes: {len(overlap)}")
+print(f"Overlapping genes: {overlap}")
+
+venn2([oncogenic_genes_set, neutral_genes_set], 
+      set_labels=('Oncogenic', 'Neutral'),
+      set_colors=('#c4314a', '#88aed1'),
+      alpha=0.6)
+
+plt.savefig(f"{save_dir}/venn.png", dpi=300, bbox_inches="tight")
+
+#-------------------------------------------------------------------
 # Visualize top 30 genes for all oncogenicity classes 
 #--------------------------------------------------------------------
 
@@ -303,6 +324,7 @@ pivot = distribution_filtered.pivot(
 ).fillna(0)
 
 pivot_pct = pivot.div(pivot.sum(axis=1), axis=0) * 100 
+pivot_pct = pivot_pct.sort_values(by="Oncogenic", ascending=False)
 
 sns.set_style(style="white") 
 
