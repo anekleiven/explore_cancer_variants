@@ -14,7 +14,7 @@ Multiplexed Assays of Variant Effect (MAVEs)
 Major outputs:
 --------------
 1. Number of variants with MAVE scores
-2. Number of variants with MAVE scores for each oncogenicity class 
+2. Number of variants with MAVE scores per oncogenicity class (oncogenic vs neutral)
 3. Top genes with MAVE scores
 4. Filter out wanted MAVE experiments (by number of variants with MAVE score)
 5. Box plot of MaveDB score distributions within top MAVE experiments (single genes)
@@ -89,75 +89,91 @@ variants = pd.read_csv(
     low_memory=False
 )
 
-print(f"Loaded {len(variants):,} somatic variants.")
+print(f"Loaded {len(variants):,} somatic variants (exploded version).")
 print("-"*30)
 
 # ------------------------------------------------------------
 # Explore number of variants with MAVE scores
 # ------------------------------------------------------------
 
+# remove rows with no Mave score 
 variants_with_mave = variants[variants["MaveDB_score"].notna()]
+
+# make sure mave column is numeric 
 variants_with_mave["MaveDB_score"] = pd.to_numeric(variants_with_mave["MaveDB_score"], errors='coerce')
 
-print(f"Number of variants with MAVE scores: {len(variants_with_mave):,} variants.") 
-print(f"Percentage of variants with MAVE scores: {(len(variants_with_mave)/len(variants)*100):.2f}%.")
+# display number of mave rows 
+print(f"Number of rows with MAVE scores: {len(variants_with_mave):,} rows.") 
+print(f"Percentage of rows with MAVE scores: {(len(variants_with_mave)/len(variants)*100):.2f}%.\n")
+
+# find the number of unique Mave-variants
+variant_id_cols = ["Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"]
+wanted_classes = ["Oncogenic", "Likely Neutral"]
+
+mave_subset = variants_with_mave[variants_with_mave["ONCOGENIC"].isin(wanted_classes)]
+unique_mave_var = mave_subset.drop_duplicates(variant_id_cols) 
+
+unique_counts = unique_mave_var["ONCOGENIC"].value_counts() 
+
+# print number of unique variants per class 
+print("Unique variants with MAVE scores:")
+for c in wanted_classes:
+    count = unique_counts.get(c,0)
+    print(f"{c}: {count}")
 print("-"*30)
 
 # ------------------------------------------------------------
 # Explore number of variants with MAVE scores for
-# different oncogenicity classes 
+# the two oncogenicity classes 
 # ------------------------------------------------------------
 
-# Create summary table 
-oncogenicity_summary = (
-    variants_with_mave["ONCOGENIC"]
+print("Plotting MAVE variants per oncogenicity class...")
+
+unique_counts_df = (
+    unique_mave_var["ONCOGENIC"]
     .value_counts()
-    .reset_index(name="Variant_Count")
-    .rename(columns={"index": "Oncogenicity_Class", "ONCOGENIC": "Oncogenicity_Class"})
+    .reset_index(name="count")
+    .rename(columns={"index": "ONCOGENIC"})
 )
-
-print("Number of MAVE scores per oncogenicity class:")
-print(oncogenicity_summary,"\n") 
-
-# Plot summary 
-print("Plotting MAVE score per oncogenicity class...")
 
 oncogenicity_palette = {
     "Oncogenic": "#c4314a",
-    "Likely Oncogenic": "#D98C6A",
-    "Likely Neutral": "#88aed1",
-    "Inconclusive": "#f9c74f",
-    "Unknown": "#848a8e",
-    "Resistance": "#ba7ad4"
+    "Likely Neutral": "#88aed1"
 }
 
 plt.figure(figsize=(8,5))
-sns.barplot(data=oncogenicity_summary, 
-            x="Oncogenicity_Class",
-            y="Variant_Count",
-            hue="Oncogenicity_Class", 
-            palette=oncogenicity_palette, 
-            edgecolor="0.1",
-            linewidth=0.3) 
+sns.set_style("white")
 
-plt.title("Variants with MAVE Scores per Oncogenicity Class", fontsize=14, pad=10)
-plt.xlabel("Oncogenicity Class", fontsize=12)
-plt.ylabel("Number of Variants", fontsize=12) 
-plt.xticks(rotation=45, ha='right', fontsize=9)
+sns.barplot(
+    data=unique_counts_df, 
+    x="ONCOGENIC",
+    y="count",
+    hue="ONCOGENIC", 
+    palette=oncogenicity_palette, 
+    edgecolor="black",
+    linewidth=0.5) 
+
+sns.despine() 
+
+plt.title("Variants with MAVE Scores per Oncogenicity Class", fontsize=14, pad=15)
+plt.xlabel("Oncogenicity Class", fontsize=12, labelpad=10)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10) 
+plt.xticks(rotation=0, ha='right', fontsize=9)
+
 plt.tight_layout() 
-plt.savefig(f"{save_dir}/oncogenicity_classes_maves.png", dpi=300)
+plt.savefig(f"{save_dir}/oncogenicity_classes_maves.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Plot saved as '{save_dir}/oncogenicity_classes_maves.png'\n")
 print("-"*30)
 
 # ------------------------------------------------------------
-# Explore top genes with MAVEdb_score 
+# Explore genes with MaveDB_score
 # ------------------------------------------------------------
 
 # Summary per gene 
-gene_summary = (
-  variants_with_mave.groupby("Hugo_Symbol")
+gene_summary_unique = (
+  unique_mave_var.groupby("Hugo_Symbol")
   .size()
   .reset_index(name="Variant_Count")
   .rename(columns={"Hugo_Symbol": "Gene"})
@@ -165,25 +181,30 @@ gene_summary = (
 )
 # Print summary 
 print("Number of MaveDB_scores per gene:")
-print(gene_summary.head(10), "\n") 
+print(gene_summary_unique.head(10), "\n") 
 
 # Plot summary 
-print("Plotting top genes with MaveDB score (by variant count)..")
+print("Plotting genes with MaveDB score (by variant count)..")
 
+sns.set_style("white")
 plt.figure(figsize=(8,5))
-sns.barplot(data=gene_summary.head(10), 
+
+sns.barplot(data=gene_summary_unique.head(10), 
             x="Gene",
             y="Variant_Count",
             color="#c4314a",
-            edgecolor="0.1",
-            linewidth=0.3) 
+            edgecolor="black",
+            linewidth=0.5) 
 
-plt.title("Top Genes with MAVE Scores", fontsize=14, pad=10)
-plt.xlabel("Gene", fontsize=12)
-plt.ylabel("Number of Variants", fontsize=12) 
-plt.xticks(rotation=45, ha='right', fontsize=9)
+sns.despine()
+
+plt.title("Genes with MAVE Scores", fontsize=14, pad=15)
+plt.xlabel("Gene", fontsize=12, labelpad=10)
+plt.ylabel("Number of Variants", fontsize=12, labelpad=10) 
+
+plt.xticks(rotation=0, ha='right', fontsize=9)
 plt.tight_layout() 
-plt.savefig(f"{save_dir}/top_genes_with_maves.png", dpi=300)
+plt.savefig(f"{save_dir}/top_genes_with_maves.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 print(f"Plotting complete! Plot saved as '{save_dir}/top_genes_with_maves.png'")
@@ -193,8 +214,7 @@ print("-"*30)
 # Find oncogenicity distribution per gene and MaveDB score set: 
 # ------------------------------------------------------------
 
-oncogenicity_classes = ["Likely Neutral", "Oncogenic"] 
-variants_with_mave_filtered = variants_with_mave[variants_with_mave["ONCOGENIC"].isin(oncogenicity_classes)]
+variants_with_mave_filtered = variants_with_mave[variants_with_mave["ONCOGENIC"].isin(wanted_classes)]
 
 mave_summary = (
   variants_with_mave_filtered.groupby(["Hugo_Symbol", "MaveDB_urn", "ONCOGENIC"])
@@ -224,58 +244,115 @@ palette = {
     "Likely Neutral": "#88aed1",
 }
 
-# --- BOXPLOT ---
+#--------------
+# KDE plot
+#--------------
 
-g = sns.FacetGrid(mave_filtered, col="Hugo_Symbol", sharey=False, sharex=False)
-g.map_dataframe(sns.boxplot, x="ONCOGENIC", y="MaveDB_score", 
-                order=oncogenicity_classes,
-                palette=palette,
-                hue="ONCOGENIC",
-                hue_order=oncogenicity_classes)
+unique_genes = mave_filtered["Hugo_Symbol"].unique() 
 
-# Titles and axis labels
-g.set_titles(col_template="{col_name}") 
-g.set_axis_labels(x_var="Oncogenicity", y_var="MAVE Functional Score")
-g.figure.suptitle("MAVE Score Distribution by Oncogenicity Class", 
-                   fontsize=14, y=1.02)
-
-plt.tight_layout()
-plt.savefig(f"{save_dir}/mave_score_by_oncogenicity.png", dpi=300, bbox_inches="tight")
-
-
-# --- KDE PLOT ---
-
-g = sns.FacetGrid(mave_filtered, col="Hugo_Symbol", sharey=False, sharex=False, 
-                  hue="ONCOGENIC", hue_order=oncogenicity_classes, palette=palette)
-g.map(sns.kdeplot, "MaveDB_score", fill=True, alpha=0.5)
-
-# Add sample size annotations per panel
-for ax, gene in zip(g.axes.flat, g.col_names):
+for gene in unique_genes: 
     gene_data = mave_filtered[mave_filtered["Hugo_Symbol"] == gene]
+
+    plt.figure(figsize=(8,5))
+
+    sns.kdeplot(
+        data=gene_data,
+        x="MaveDB_score",
+        hue="ONCOGENIC",
+        hue_order=wanted_classes,
+        palette=palette,
+        fill=True,
+        alpha=0.5
+    )
+
     n_neutral = (gene_data["ONCOGENIC"] == "Likely Neutral").sum()
     n_oncogenic = (gene_data["ONCOGENIC"] == "Oncogenic").sum()
+
     
-    ax.annotate(
+    plt.gca().annotate(
         f"n(Likely Neutral) = {n_neutral}\nn(Oncogenic) = {n_oncogenic}",
-        xy=(0.05, 0.95),           
+        xy=(0.05, 0.95),
         xycoords="axes fraction",
-        fontsize=6,
+        fontsize=8,
         va="top",
         ha="left",
         bbox=dict(boxstyle="round,pad=0.1", fc="white", alpha=0.5)
     )
+    
+    sns.despine()
 
-# Titles and axis labels
-g.set_titles(col_template="{col_name}")
-g.set_axis_labels(x_var="MAVE Functional Score", y_var="Density")
-g.figure.suptitle("MAVE Score Distribution by Oncogenicity Class",
-                   fontsize=14, y=1.02)
-g.add_legend(title="Oncogenicity", fontsize=9)
+    plt.title(f"MAVE Score Distribution: {gene}", fontsize=14, pad=15)
+    plt.xlabel("MAVE Functional Score (MaveDB)", fontsize=12, labelpad=10)
+    plt.ylabel("Density", fontsize=12, labelpad=10)
+    
+    plt.tight_layout()
+    file_name = f"mave_density_{gene}.png"
+    plt.savefig(f"{save_dir}/{file_name}", dpi=300, bbox_inches="tight")
+    
+    print(f"Saved plot for {gene} to {file_name}")
 
-plt.tight_layout()
-plt.savefig(f"{save_dir}/mave_score_density_by_oncogenicity.png", dpi=300, bbox_inches="tight")
+#--------------
+# Box plot
+#--------------
 
-print(f"Plotting complete. Plots saved in folder: {save_dir}.\n")
+unique_genes = mave_filtered["Hugo_Symbol"].unique() 
+
+for gene in unique_genes: 
+    gene_data = mave_filtered[mave_filtered["Hugo_Symbol"] == gene]
+
+    plt.figure(figsize=(8,5))
+    sns.set_style("white")
+
+    sns.boxplot(
+        data=gene_data,
+        x="ONCOGENIC",
+        y="MaveDB_score",
+        order=wanted_classes,
+        hue="ONCOGENIC",
+        hue_order=wanted_classes,
+        palette=palette,
+        legend=False, 
+        width=0.6,
+        linewidth=1.2
+    )
+
+    sns.stripplot(
+        data=gene_data,
+        x="ONCOGENIC",
+        y="MaveDB_score",
+        order=wanted_classes,
+        color="black",
+        alpha=0.3,
+        size=4,
+        jitter=True
+    )
+
+    n_neutral = (gene_data["ONCOGENIC"] == "Likely Neutral").sum()
+    n_oncogenic = (gene_data["ONCOGENIC"] == "Oncogenic").sum()
+
+    
+    plt.gca().annotate(
+        f"n(Likely Neutral) = {n_neutral}\nn(Oncogenic) = {n_oncogenic}",
+        xy=(0.05, 0.95),
+        xycoords="axes fraction",
+        fontsize=9,
+        va="top",
+        ha="left",
+        bbox=dict(boxstyle="round,pad=0.2", fc="white", alpha=0.5)
+    )
+    
+    sns.despine()
+
+    plt.title(f"MAVE Score Distribution: {gene}", fontsize=14, pad=15)
+    plt.xlabel("MAVE Functional Score (MaveDB)", fontsize=12, labelpad=10)
+    plt.ylabel("Density", fontsize=12, labelpad=10)
+    
+    plt.tight_layout()
+
+    file_name = f"mave_boxplot_{gene}.png"
+    plt.savefig(f"{save_dir}/{file_name}", dpi=300, bbox_inches="tight")
+    
+    print(f"Saved plot for {gene} to {file_name}")
 
 
 #----------------------------------------------------------
