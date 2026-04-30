@@ -185,6 +185,8 @@ print(f"Plotting complete! Plot saved as '{save_dir}/combined_dist.png'.\n")
 print("-"*50)
 print("Plotting germline distances per class..\n")
 
+sns.set_style("white")
+
 g = sns.FacetGrid(
     variants_plot, col="ONCOGENIC", hue="ONCOGENIC",
     palette=palette, height=4, aspect=1.2, sharey=True
@@ -198,10 +200,12 @@ for ax, label in zip(g.axes.flat, wanted_classes):
     n_count = len(subset)
 
     ax.axvline(median_val, color="black", linestyle="--", alpha=0.7)
-    ax.set_title(f"{label} (n={n_count})\n(Median: 10^{median_val:.1f} bp)", fontsize=12)
+    actual_median = (10**median_val) - 1
+    ax.set_title(f"{label} (n={n_count})\n(Median: {actual_median:.0f} bp)", fontsize=12)
 
 g.set_axis_labels("Log10(Distance + 1)", "Proportion")
 
+sns.despine() 
 plt.tight_layout()
 plt.savefig(f"{save_dir}/dists_per_class.png", bbox_inches="tight")
 plt.show()
@@ -259,6 +263,7 @@ for gene in top_genes_full.head(20).index:
     n_neut = len(gene_data[gene_data["ONCOGENIC"] == "Likely Neutral"])
 
     plt.figure(figsize=(8, 5))
+    sns.set_style("white") 
 
     ax = sns.kdeplot(
         data=gene_data,
@@ -271,11 +276,13 @@ for gene in top_genes_full.head(20).index:
         linewidth=2
     )
 
-    sns.move_legend(ax, "upper right")
+    sns.move_legend(ax, "upper right", frameon=False)
+    sns.despine() 
+
     plt.xlim(-1, 5)
-    plt.title(f"{gene}: Germline Proximity\n(Oncogenic n={n_onco}, Neutral n={n_neut})", fontsize=14)
-    plt.xlabel("Distance to nearest pathogenic germline variant (Log10 bp + 1)", fontsize=12)
-    plt.ylabel("Density", fontsize=12)
+    plt.title(f"Germline Proximity: {gene}\n(Oncogenic n={n_onco}, Neutral n={n_neut})", fontsize=14, pad=15)
+    plt.xlabel("Distance to nearest pathogenic germline variant (Log10 bp + 1)", fontsize=12, labelpad=10)
+    plt.ylabel("Density", fontsize=12, labelpad=10)
     plt.savefig(f"{save_dir}/dist_{gene}.png", bbox_inches="tight")
     plt.show()
 
@@ -285,8 +292,9 @@ for gene in top_genes_full.head(20).index:
 # Save variants with germline distances in top genes to .tsv 
 # ------------------------------------------------------------
 
-print("Saving variants with germline distances to .tsv file..")
+print("Saving variants with germline distances in top genes to .tsv file..")
 top_20_genes = top_genes_full.head(20).index.tolist() 
+print(f"The top 20 genes: {top_20_genes}")
 top_20_variants = variants_plot[variants_plot["Hugo_Symbol"].isin(top_20_genes)]
 
 # save as .tsv 
