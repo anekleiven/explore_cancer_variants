@@ -15,7 +15,6 @@ p-values are adjusted for multiple testing using the Benjamini-Hochberg procedur
 
 """
 
-
 print("-"*50)
 print("Statistics Germline Proximity🔎🔢")
 print("-"*50)
