@@ -3,6 +3,16 @@
 # Statistics: MAVE experiment for TP53 gene
 # ============================================================
 
+"""
+Script purpose: 
+
+Perform statistics on the MAVE score set for TP53
+
+The discriminatory power of the MAVE score set for TP53
+is tested using Mann-Whitney U with rank-biserial correlation. 
+
+"""
+
 print("-"*50)
 print("Statistics TP53 MAVE EXPERIMENT🔎🔢")
 print("-"*50)

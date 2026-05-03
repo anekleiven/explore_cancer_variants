@@ -1,7 +1,23 @@
 
 # ============================================================
-# Statistics: Top 10 oncogenic genes (by variant counts)
+# Statistics: Top 10 oncogenic genes 
 # ============================================================
+
+"""
+Script purpose: 
+
+Perform statistics on top 10 oncogenic genes (by oncogenic variant counts)
+using the stats_func() 
+
+Features included: 
+"gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "is_null_var_tsg", "is_null_variant"
+
+The statistics function performs Mann-Whitney U test with rank-biserial correlation on continuous features, 
+Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR on categorical features. 
+
+p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+
+"""
 
 # -------------------------------------------
 # import libraries 
@@ -52,6 +68,17 @@ print(f"Loaded {len(variants)} variants.")
 print("-"*30)
 
 # -------------------------------------------
+# Add feature about gnomAD presence 
+# -------------------------------------------
+
+variants["has_gnomAD_AF"] = ( 
+    (variants["gnomAD_AF"].notna()) & 
+    (variants["gnomAD_AF"] != "NA") & 
+    (variants["gnomAD_AF"] != "") & 
+    (variants["gnomAD_AF"] > 0)
+)
+
+# -------------------------------------------
 # Extract top oncogenic genes 
 # -------------------------------------------
 
@@ -73,22 +100,12 @@ print(top_10_onco_genes)
 
 top_10_gene_variants = variants[variants["Hugo_Symbol"].isin(top_10_onco_genes)]
 
-# -------------------------------------------
-# Add feature about gnomAD presence 
-# -------------------------------------------
-
-variants["has_gnomAD_AF"] = ( 
-    (variants["gnomAD_AF"].notna()) & 
-    (variants["gnomAD_AF"] != "NA") & 
-    (variants["gnomAD_AF"] != "") & 
-    (variants["gnomAD_AF"] > 0)
-)
 
 # -------------------------------------------
 # Define the features 
 # -------------------------------------------
 
-features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "is_null_variant", "is_null_var_tsg"]
+features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "is_null_var_tsg", "is_null_variant"]
 
 # -------------------------------------------
 # Run statistics function 

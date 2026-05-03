@@ -2,6 +2,18 @@
 # Statistics: Protein Domains (Top 10) - One-by-one
 # ============================================================
 
+"""
+Script purpose: 
+
+Perform statistics on the top 10 protein domains. 
+
+The discriminatory power of different protein domains are tested using 
+Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR.'
+
+p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+
+"""
+
 print("-" * 50)
 print("Statistics Protein Domains (Top 10)")
 print("-" * 50)

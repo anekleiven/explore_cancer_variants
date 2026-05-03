@@ -2,6 +2,22 @@
 # Statistics: All variants 
 # ============================================================
 
+"""
+Script purpose: 
+
+Perform statistics on all variants
+using the stats_func() 
+
+Features included: 
+"gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "is_null_var_tsg", "is_null_variant"
+
+The statistics function performs Mann-Whitney U test with rank-biserial correlation on continuous features, 
+Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR on categorical features. 
+
+p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+
+"""
+
 # -------------------------------------------
 # import libraries 
 # -------------------------------------------

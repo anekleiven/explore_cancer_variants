@@ -2,6 +2,18 @@
 # Statistics: Functional sites (one-by-one)
 # ============================================================
 
+"""
+Script purpose: 
+
+Perform statistics on different functional site types from UniProt.
+
+The discriminatory power of different functional sites are tested using 
+Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR.
+
+p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+
+"""
+
 print("-"*50)
 print("Statistics Functional Sites (One-by-one)")
 print("-"*50)
