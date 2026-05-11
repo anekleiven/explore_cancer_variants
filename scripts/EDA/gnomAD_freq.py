@@ -145,8 +145,8 @@ def analyze_gnomad_af(df: pd.DataFrame, status: str, plotname: str, color: str =
         linewidth=0.3
     )
 
-    plt.axvline(0.001, color="red", linestyle="--", label="Rare/common cutoff (0.001)")
-    plt.axvline(0.01, color="orange", linestyle="--", label="Polymorphism threshold (0.01)")
+    plt.axvline(0.01, color="red", linestyle="--", label="Rare/common cutoff (0.01)")
+    plt.axvline(0.1, color="orange", linestyle="--", label="Polymorphism threshold (0.1)")
     plt.title(f"gnomAD AF for '{status}' Variants", fontsize=14, pad=10)
     plt.xlabel("gnomAD_AF (log10 scale)", fontsize=12)
     plt.ylabel("Number of variants", fontsize=12)
@@ -161,8 +161,8 @@ def analyze_gnomad_af(df: pd.DataFrame, status: str, plotname: str, color: str =
     rare = (subset["gnomAD_AF"] <= 0.01).sum()
 
     print("\nDistribution of common vs. rare variants:")
-    print(f"Common '{status}' variants (gnomAD_AF > 0.001): {common:,}")
-    print(f"Rare   '{status}' variants (gnomAD_AF ≤ 0.001): {rare:,}")
+    print(f"Common '{status}' variants (gnomAD_AF > 0.01): {common:,}")
+    print(f"Rare   '{status}' variants (gnomAD_AF ≤ 0.01): {rare:,}")
     print(f"Total with AF available: {len(subset):,}")
     print("-"*50)
 
