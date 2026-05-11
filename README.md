@@ -59,9 +59,9 @@ The dataset follows a tab-separated format (TSV) and includes genomic informatio
 | `IN_FUNC_SITE` | Binary indicator (True/False) for functional site overlap.
 | `gnomAD_AF_log` | Log-transformed population allele frequency. |
 | `is_null_var_tsg` | Indicator for loss-of-function variants in tumor suppressor genes. |
-| `is_null_variant` | Indicator for loss of function variants |   
-| `Germline_Proximity` | Distance to the nearest known pathogenic germline variant | 
-| `MaveDB_score` | Functional assay scores from MaveDB | 
+| `is_null_variant` | Indicator for loss of function variants. |   
+| `Germline_Proximity` | Distance to the nearest known pathogenic germline variant. | 
+| `MaveDB_score` | Functional assay scores from MaveDB. | 
 
 You can inspect this file to understand the input requirements for the exploratory analyses and statistics. 
 
