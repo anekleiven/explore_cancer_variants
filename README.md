@@ -77,8 +77,9 @@ The dataset follows a tab-separated format (TSV) and includes genomic informatio
 
 You can inspect this file to understand the input requirements for the exploratory analyses and statistics. 
 
+## Scripts Included 
 
-## Exploratory Analysis Scripts
+### Exploratory Analysis
 
 These scripts explore the prevalence of oncogenicity-associated features across oncogenic and neutral variant classes.
 
@@ -95,7 +96,7 @@ These scripts explore the prevalence of oncogenicity-associated features across 
 | `maves.py` | Analysis of MaveDB functional scores across oncogenicity classes |
 | `tsg_og.py` | Variant distribution in oncogenes and tumor suppressor genes, including null variant visualization |
 
-## Statistics Scripts
+### Statistics 
 
 These scripts perform statistical comparisons between oncogenic and neutral variant classes using shared utility functions.
 
