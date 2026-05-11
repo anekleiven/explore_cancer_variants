@@ -23,8 +23,7 @@ Script content:
 2. Extract variants by oncogenicity class (Oncogenic, Likely Oncogenic,
    Likely Neutral)
 3. Identify and visualize the top genes by number of variants per class
-4. Compare oncogenic and likely neutral variant counts within the top
-   oncogenic genes
+4. Compare oncogenic and likely neutral variant counts within the genes with the highest number of oncogenic variants 
 5. Visualize both absolute counts and relative (percentage) distributions
    of oncogenicity classes per gene
 
@@ -53,7 +52,7 @@ from pathlib import Path
 
 def getargs(): 
     parser = argparse.ArgumentParser(
-        description="Explore oncogenes and tumor suppressor genes in variant data."
+        description="Explore top genes within oncogenicity classes"
     ) 
 
     parser.add_argument(
@@ -253,7 +252,7 @@ print("-"*30)
 print("Count class distribution \nin top oncogenic genes")
 print("-"*30)
 
-print("Exploring oncogenicity distribution within the top oncogenic genes..")
+print("Exploring oncogenicity distribution within the gene with the highest number of oncogenic variants..")
 
 top_onco_genes = oncogenic_genes.head(20)["Gene"] 
 
@@ -293,7 +292,7 @@ sns.despine()
 
 print("\nPlotting distribution..")
 
-plt.title("Class Distribution in Top Oncogenic Genes", fontsize=14, pad=15)
+plt.title("Class Distribution in Genes with Most Oncogenic Variants", fontsize=14, pad=15)
 plt.xlabel("Gene", fontsize=12, labelpad=10)
 plt.ylabel("Number of Variants", fontsize=12, labelpad=10) 
 plt.xticks(rotation=45, ha="right", fontsize=9)
@@ -307,15 +306,15 @@ plt.show()
 print(f"Plotting complete! Plot saved in folder '{save_dir}'\n")
 
 # ============================================================
-# Class distribution in the oncogenic genes (PIVOT)
+# Class distribution in genes with most oncogenic variants (PIVOT)
 # (Oncogenic and Likely Neutral) 
 # ============================================================
 
 print("-"*30)
-print("Percentage class distribution \nin top oncogenic genes")
+print("Percentage class distribution \nin genes with most oncogenic variants")
 print("-"*30)
 
-print("Plotting the percentage class distribution in the top oncogenic genes..")
+print("Plotting the percentage class distribution in genes with most oncogenic variants..")
 
 pivot = distribution_filtered.pivot(
     index="Hugo_Symbol",
@@ -339,7 +338,7 @@ pivot_pct.plot(
 
 sns.despine() 
 
-plt.title("Oncogenicity Distribution in Top Oncogenic Genes (%)", fontsize=14, pad=15) 
+plt.title("Oncogenicity Distribution in Genes with Most Oncogenic Variants (%)", fontsize=14, pad=15) 
 plt.xlabel("Gene", fontsize=12, labelpad=10)
 plt.ylabel("Percentage of Variants (%)", fontsize=12, labelpad=10) 
 plt.xticks(rotation=45, ha="right", fontsize=9) 
