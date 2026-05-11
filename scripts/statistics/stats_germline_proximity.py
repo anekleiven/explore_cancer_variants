@@ -106,13 +106,13 @@ if p_values_list:
     summary = pd.DataFrame({
         'Gene': gene_names,
         'P_value': p_values_list,
-        'Q_value': q_values,
+        'P_adj': q_values,
         'Significant_FDR': reject 
-    }).sort_values("Q_value")
+    }).sort_values("P_adj")
 
     # round values
     summary["P_value"] = summary["P_value"].round(4)
-    summary["Q_value"] = summary["Q_value"].round(4)
+    summary["P_adj"] = summary["P_adj"].round(4)
 
     print("\n" + "="*60)
     print("OVERALL GENE SUMMARY (FDR-CORRECTED)")
