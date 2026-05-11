@@ -23,7 +23,7 @@ Script content:
 2. Extract variants by oncogenicity class (Oncogenic, Likely Oncogenic,
    Likely Neutral)
 3. Identify and visualize the top genes by number of variants per class
-4. Compare oncogenic and likely neutral variant counts within the genes with the highest number of oncogenic variants 
+4. Compare oncogenic and likely neutral variant counts within the genes with the most oncogenic variants 
 5. Visualize both absolute counts and relative (percentage) distributions
    of oncogenicity classes per gene
 

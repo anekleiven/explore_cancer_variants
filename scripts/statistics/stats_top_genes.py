@@ -1,12 +1,12 @@
 
 # ============================================================
-# Statistics: Top 10 oncogenic genes 
+# Statistics: Top 10 genes with the most oncogenic variants 
 # ============================================================
 
 """
 Script purpose: 
 
-Perform statistics on top 10 oncogenic genes (by oncogenic variant counts)
+Perform statistics on variants in the ten genes with most oncogenic variants 
 using the stats_func() 
 
 Features included: 
@@ -39,7 +39,7 @@ from scripts.statistics.stats_function import stats_func
 
 def getargs(): 
     parser = argparse.ArgumentParser(
-        description="Perform statistics on variant data."
+        description="Perform statistics variants in the genes with most oncogenic variants."
     ) 
 
     parser.add_argument(
@@ -79,7 +79,8 @@ variants["has_gnomAD_AF"] = (
 )
 
 # -------------------------------------------
-# Extract top oncogenic genes 
+# Extract top genes 
+# with the most oncogenic variants 
 # -------------------------------------------
 
 oncogenic_variants = variants[variants['ONCOGENIC'] == 'Oncogenic']
@@ -91,7 +92,7 @@ oncogenic_genes = (
 )
 
 top_10_onco_genes = oncogenic_genes["Hugo_Symbol"].head(10).tolist() 
-print("Top 10 oncogenic genes (by variant count):")
+print("Top 10 genes with the most oncogenic variants:")
 print(top_10_onco_genes)
 
 # -------------------------------------------
@@ -111,5 +112,5 @@ features = ["gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SI
 # Run statistics function 
 # -------------------------------------------
 
-stats_func(top_10_gene_variants, features, "Top 10 oncogenic genes")
+stats_func(top_10_gene_variants, features, "Variants from the ten genes with most oncogenic variants")
 print("\n")

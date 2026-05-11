@@ -186,11 +186,12 @@ print(stats_all.to_string(index=False))
 print("-"*30)
 
 # ------------------------------------------------
-# Functional site analysis: top 10 oncogenic genes 
+# Functional site analysis: top genes 
+# (genes with most oncogenic variants) 
 # ------------------------------------------------
 
 print("-"*40) 
-print("Top 10 oncogenic genes") 
+print("Top genes: genes with most oncogenic variants") 
 print("-"*40)
 
 top_10_onco_genes = (
@@ -202,11 +203,11 @@ top_10_onco_genes = (
 
 print(f"Top 10 genes: {top_10_onco_genes}")
 
-# extract top oncogenic variants
+# extract variants from the genes with most oncogenic variants 
 df_top_genes = df_with_func_sites[df_with_func_sites["Hugo_Symbol"].isin(top_10_onco_genes)]
 stats_top_10 = analyse_func_sites(df_top_genes, alpha=args.alpha) 
 
-print("Results top 10 oncogenic genes:")
+print("Results top 10 genes:")
 print(stats_top_10.to_string(index=False))
 print("-"*30)
 

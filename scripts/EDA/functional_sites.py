@@ -13,9 +13,9 @@ Major outputs:
 1. Counts and fractions of Oncogenic vs Likely Neutral variants inside/outside functional sites
 2. Plot: Variant counts per functional site type per class
 3. Plot: Fraction of variants per functional site type per class 
-4. Plot: Top genes by oncogenic variant burden per functional site
-5. Plot: Heatmap of top oncogenic genes (variant burden) in filtered functional sites  
-6. Plot: Oncogenic-to-neutral ratios in top oncogenic genes per functional site type
+4. Plot: Genes with most oncogenic variants per functional site
+5. Plot: Heatmap of genes with most oncogenic variants in filtered functional sites  
+6. Plot: Oncogenic-to-neutral ratios in genes with most oncogenic variants per functional site type
 
 All plots are saved in:
     plots/functionalsites

@@ -12,7 +12,7 @@ variants distribute across different protein domains and genes.
 
 Major outputs:
   1. Variant distribution inside/outside protein domains 
-  2. Top domains (by variant count)
+  2. Top domains (by total variant count)
   3. Top domains enriched for oncogenic variants 
   4. Heatmap of oncogenic fractions across top domains and top genes 
 

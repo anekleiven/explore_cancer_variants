@@ -36,7 +36,7 @@ from pathlib import Path
 
 def getargs(): 
     parser = argparse.ArgumentParser(
-        description="Perform statistics on variant data."
+        description="Perform statistics on protein domains."
     ) 
 
     parser.add_argument(
@@ -164,7 +164,7 @@ print("\nResults: Top 10 Domains (All Variants)")
 stats_domains_all = analyse_top_domains(df_domains, n_top=10, alpha=args.alpha)
 print(stats_domains_all.to_string(index=False))
 
-# Analyze for top 10 oncogenes
+# Analyze for the 10 genes with most oncogenic variants 
 top_10_onco_genes = (
     variants[variants['ONCOGENIC'] == 'Oncogenic']['Hugo_Symbol']
     .value_counts()
@@ -172,7 +172,7 @@ top_10_onco_genes = (
     .index.tolist()
 )
 
-print("\nResults: Top 10 Domains (Top 10 Oncogenic Genes)")
+print("\nResults: Top 10 Domains (In the ten genes with most oncogenic variants)")
 df_top_genes_domains = df_domains[df_domains["Hugo_Symbol"].isin(top_10_onco_genes)]
 stats_domains_top = analyse_top_domains(df_top_genes_domains, n_top=10, alpha=args.alpha)
 print(stats_domains_top.to_string(index=False))

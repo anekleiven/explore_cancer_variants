@@ -16,7 +16,7 @@ Major outputs:
 1. Number of variants with a germline distance
 2. Descriptive statistics 
 3. Distribution of germline distance between classes 
-5. Germline distance distributions per gene (top oncogenic genes)
+5. Germline distance distributions per gene (genes with most oncogenic variants)
 
 All plots are saved in:
    plots/germline_proximity/
@@ -237,13 +237,13 @@ print(f"Plotting complete! Boxplot saved as '{save_dir}/boxplot_germline_dist.pn
 
 
 # ------------------------------------------------------------
-# Find the top oncogenic genes with germline distances
+# Find the top genes (genes with most oncogenic variants) with germline distances
 # ------------------------------------------------------------
 
 oncogenic_var = variants_plot[variants_plot["ONCOGENIC"] == "Oncogenic"].copy()
 top_genes_full = oncogenic_var["Hugo_Symbol"].value_counts()
 
-print("\nThe top 10 oncogenic genes total are:")
+print("\nThe top 10 genes (with most oncogenic variants) are:")
 print(top_genes_full.head(10), "\n")
 
 # ------------------------------------------------------------
@@ -292,7 +292,7 @@ for gene in top_genes_full.head(20).index:
 # Save variants with germline distances in top genes to .tsv 
 # ------------------------------------------------------------
 
-print("Saving variants with germline distances in top genes to .tsv file..")
+print("Saving variants with germline distances in gene with most oncogenic variants to .tsv file..")
 top_20_genes = top_genes_full.head(20).index.tolist() 
 print(f"The top 20 genes: {top_20_genes}")
 top_20_variants = variants_plot[variants_plot["Hugo_Symbol"].isin(top_20_genes)]

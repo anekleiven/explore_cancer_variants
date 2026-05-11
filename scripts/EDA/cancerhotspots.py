@@ -296,7 +296,7 @@ sns.barplot(data=top_oncogenes,
 
 sns.despine() 
 
-plt.title("Top Oncogenic Genes in Cancer Mutation Hotspots", fontsize=14, pad=15) 
+plt.title("Top Genes by Oncogenic Variant Burden in Cancer Mutation Hotspots", fontsize=14, pad=15) 
 plt.xlabel("Gene (Hugo Symbol)", fontsize=12, labelpad=10) 
 plt.ylabel("Number of Variants", fontsize=12, labelpad=10) 
 plt.xticks(rotation=45, ha="right", fontsize=9)
