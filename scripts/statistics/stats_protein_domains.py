@@ -112,14 +112,14 @@ def analyse_top_domains(df, n_top=10, alpha=0.05):
         # Expected = 0 in any cell: use Fisher's exact, else: Chi-Square
         chi2, _, _, expected = chi2_contingency(observed_table)
 
-        cramers_v = np.sqrt(chi2 / total) if total > 0 else 0
-
         if expected.min() < 5 or any(0 in row for row in observed_table):
             _, p = fisher_exact(observed_table)
             test_used = "Fisher"
+            cramers_v = np.nan  # Cramers V is only relevant for Chi-square test 
         else:
-            _, p, _, _ = chi2_contingency(observed_table)
+            chi2, p, _, _ = chi2_contingency(observed_table)
             test_used = "Chi-Square"
+            cramers_v = np.sqrt(chi2 / total) 
 
         # Odds ratio 
         or_result = scipy_odds_ratio(observed_table)
