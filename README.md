@@ -26,18 +26,6 @@ The classification evidence includes:
 ## Requirements 💻
 - Python 3.10+
 
-## Prerequisites
-
-The scripts in this repository are designed for the exploratory analysis and statistics of a somatic cancer variant annotation project. 
-They require an annotated dataset as input. To generate the necessary data, please follow the workflows in these repositories in the following order:
-
-1. **[genie_oncokb_processing_scripts](https://github.com/anekleiven/genie_oncokb_processing_scripts)**: 
-   Processes raw GENIE data and integrates oncogenicity labels from OncoKB.
-2. **[cancer_variants_annotation_pipeline](https://github.com/anekleiven/cancer_variants_annotation_pipeline)**: 
-   Performs multi-step feature annotation from biological resources (e.g., gnomAD, hotspots, and domain information).
-
-Once you have generated the final annotated TSV file, you can proceed with the analyses provided here. 
-
 ## Setup Instructions 🔧
 
 1. **Clone the repository:**
@@ -52,6 +40,18 @@ cd explore_cancer_variants
 
 3. **Install Python Requirements:**
 `pip install -r requirements.txt`
+
+## Prerequisites
+
+The scripts in this repository are designed for the exploratory analysis and statistics of a somatic cancer variant annotation project. 
+They require an annotated dataset as input. To generate the necessary data, please follow the workflows in these repositories in the following order:
+
+1. **[genie_oncokb_processing_scripts](https://github.com/anekleiven/genie_oncokb_processing_scripts)**: 
+   Processes raw GENIE data and integrates oncogenicity labels from OncoKB.
+2. **[cancer_variants_annotation_pipeline](https://github.com/anekleiven/cancer_variants_annotation_pipeline)**: 
+   Performs multi-step feature annotation from biological resources (e.g., gnomAD, hotspots, and domain information).
+
+Once you have generated the final annotated TSV file, you can proceed with the analyses provided here. 
 
 ## Sample Data
 Due to OncoKB's data policy, no variant file can be provided in this repository. 
