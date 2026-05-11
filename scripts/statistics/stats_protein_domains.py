@@ -172,7 +172,7 @@ top_10_onco_genes = (
     .index.tolist()
 )
 
-print("\nResults: Top 10 Domains (In the ten genes with most oncogenic variants)")
+print("\nResults: Top 10 Domains (Variants from the ten genes with most oncogenic variants)")
 df_top_genes_domains = df_domains[df_domains["Hugo_Symbol"].isin(top_10_onco_genes)]
 stats_domains_top = analyse_top_domains(df_top_genes_domains, n_top=10, alpha=args.alpha)
 print(stats_domains_top.to_string(index=False))

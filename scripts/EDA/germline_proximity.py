@@ -9,14 +9,14 @@ Author: Ane Kleiven
 
 This script performs a multi-step analysis to explore how somatic cancer
 variants with different oncogenicity distribute in relation to
-known pathogenic germline variants 
+known pathogenic germline variants (PGVs)
 
 Major outputs:
 --------------
-1. Number of variants with a germline distance
+1. Number of variants with a PGV distance
 2. Descriptive statistics 
-3. Distribution of germline distance between classes 
-5. Germline distance distributions per gene (genes with most oncogenic variants)
+3. Distribution of PGV distance between classes 
+5. PGV distance distributions per gene (genes with most oncogenic variants)
 
 All plots are saved in:
    plots/germline_proximity/
@@ -24,7 +24,7 @@ All plots are saved in:
 """
 
 print("-"*50)
-print("Variant Germline Proximity Analysis🤓")
+print("Pathogenic Germline Variant (PGV) Proximity Analysis🤓")
 print("-"*50)
 
 # ------------------------------------------------------------
@@ -100,10 +100,10 @@ variants_with_dist = variants[variants["Germline_Proximity"].notna()]
 variants_with_dist["Germline_Proximity"] = pd.to_numeric(variants_with_dist["Germline_Proximity"], errors='coerce')
 
 count_with_distance = len(variants_with_dist)
-print(f"Number of variants with germline distances: {count_with_distance:,}")
+print(f"Number of variants with PGV distances: {count_with_distance:,}")
 
 percent_with_distance = (count_with_distance / len(variants)) * 100
-print(f"Percent of variants with germline distances: {percent_with_distance:.2f}%\n")
+print(f"Percent of variants with PGV distances: {percent_with_distance:.2f}%\n")
 
 # ------------------------------------------------------------
 # Number of variants with germline distance within each class 
@@ -115,7 +115,7 @@ has_dist_summary = (
   .count()
 )
 
-print("Number of variants with a germline distance per class:")
+print("Number of variants with a PGV distance per class:")
 print(has_dist_summary, "\n")
 
 # ------------------------------------------------------------
@@ -130,7 +130,7 @@ stats_summary = variants.groupby("ONCOGENIC")["Germline_Proximity"].agg(
 ).reset_index()
 
 print("-"*50)
-print("Descriptive statistics of germline distances:")
+print("Descriptive statistics of PGV distances:")
 print(stats_summary)
 print("-"*50)
 
@@ -157,7 +157,7 @@ palette = {
 # Density plot with both classes
 # ------------------------------------------------------------
 
-print("\nPlotting distribution of germline proximity (comparison plot)..\n")
+print("\nPlotting distribution of PGV proximity (comparison plot)..\n")
 
 plt.figure(figsize=(8, 5))
 sns.kdeplot(
@@ -170,8 +170,8 @@ sns.kdeplot(
     alpha=0.5
 )
 
-plt.title("Distribution of Germline Distances (Comparison)", fontsize=14)
-plt.xlabel("Distance to nearest pathogenic germline variant (Log10 bp + 1)", fontsize=12)
+plt.title("Distribution of Pathogenic Germline Variant (PGV) Distances (Comparison)", fontsize=14)
+plt.xlabel("Distance to nearest PGV (Log10 bp + 1)", fontsize=12)
 plt.ylabel("Density", fontsize=12)
 plt.savefig(f"{save_dir}/combined_dist.png", bbox_inches="tight")
 plt.show()
@@ -183,7 +183,7 @@ print(f"Plotting complete! Plot saved as '{save_dir}/combined_dist.png'.\n")
 # ------------------------------------------------------------
 
 print("-"*50)
-print("Plotting germline distances per class..\n")
+print("Plotting PGV distances per class..\n")
 
 sns.set_style("white")
 
@@ -213,11 +213,11 @@ plt.show()
 print(f"Plotting complete! Plot saved as '{save_dir}/dists_per_class.png'.\n")
 
 # ------------------------------------------------------------
-# Boxplot of germline distances 
+# Boxplot of PGV distances 
 # ------------------------------------------------------------
 
 print("-"*50)
-print("Plotting boxplot of germline distance data..\n")
+print("Plotting boxplot of PGV distance data..\n")
 
 plt.figure(figsize=(8, 5))
 sns.boxplot(
@@ -227,7 +227,7 @@ sns.boxplot(
     palette=palette
 )
 
-plt.title("Boxplot of Distances (Log-scaled)")
+plt.title("Boxplot of PGV Distances (Log-scaled)")
 plt.ylabel("Log10(Distance + 1)")
 plt.tight_layout()
 plt.savefig(f"{save_dir}/boxplot_germline_dist.png", dpi=300, bbox_inches="tight")
@@ -237,7 +237,8 @@ print(f"Plotting complete! Boxplot saved as '{save_dir}/boxplot_germline_dist.pn
 
 
 # ------------------------------------------------------------
-# Find the top genes (genes with most oncogenic variants) with germline distances
+# Find the top genes (genes with most oncogenic variants) 
+# with PGV distances
 # ------------------------------------------------------------
 
 oncogenic_var = variants_plot[variants_plot["ONCOGENIC"] == "Oncogenic"].copy()
@@ -247,7 +248,7 @@ print("\nThe top 10 genes (with most oncogenic variants) are:")
 print(top_genes_full.head(10), "\n")
 
 # ------------------------------------------------------------
-# Germline distances in top genes (original data)
+# PGV distances in top genes (original data)
 # ------------------------------------------------------------
 
 for gene in top_genes_full.head(20).index:
@@ -257,7 +258,7 @@ for gene in top_genes_full.head(20).index:
         print(f"Skipping {gene}: Not enough groups to compare.\n")
         continue
     else: 
-        print(f"Plotting {gene} germline distances..")
+        print(f"Plotting {gene} PGV distances..")
 
     n_onco = len(gene_data[gene_data["ONCOGENIC"] == "Oncogenic"])
     n_neut = len(gene_data[gene_data["ONCOGENIC"] == "Likely Neutral"])
@@ -280,8 +281,8 @@ for gene in top_genes_full.head(20).index:
     sns.despine() 
 
     plt.xlim(-1, 5)
-    plt.title(f"Germline Proximity: {gene}\n(Oncogenic n={n_onco}, Neutral n={n_neut})", fontsize=14, pad=15)
-    plt.xlabel("Distance to nearest pathogenic germline variant (Log10 bp + 1)", fontsize=12, labelpad=10)
+    plt.title(f"Pathogenic Germline Variant (PGV) Proximity: {gene}\n(Oncogenic n={n_onco}, Neutral n={n_neut})", fontsize=14, pad=15)
+    plt.xlabel("Distance to nearest PGV (Log10 bp + 1)", fontsize=12, labelpad=10)
     plt.ylabel("Density", fontsize=12, labelpad=10)
     plt.savefig(f"{save_dir}/dist_{gene}.png", bbox_inches="tight")
     plt.show()
@@ -289,10 +290,10 @@ for gene in top_genes_full.head(20).index:
     print(f"\nPlotting complete! Plot saved as '{save_dir}/dist_{gene}.png'.\n")
 
 # ------------------------------------------------------------
-# Save variants with germline distances in top genes to .tsv 
+# Save variants with PGV distances in top genes to .tsv 
 # ------------------------------------------------------------
 
-print("Saving variants with germline distances in gene with most oncogenic variants to .tsv file..")
+print("Saving variants with PGV distances in gene with most oncogenic variants to .tsv file..")
 top_20_genes = top_genes_full.head(20).index.tolist() 
 print(f"The top 20 genes: {top_20_genes}")
 top_20_variants = variants_plot[variants_plot["Hugo_Symbol"].isin(top_20_genes)]
@@ -303,4 +304,4 @@ print(f"Filtered variant file saved as: \n {args.output}")
 print("-"*30)
 
 
-print("\nGermline distance exploratory analyses complete!🥳🧬")
+print("\nPGV distance exploratory analyses complete!🥳🧬\n")
