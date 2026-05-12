@@ -24,7 +24,7 @@ The classification evidence includes:
 - Null variants in Tumor Suppressor genes 
 
 ## Requirements 💻
-- Python 3.10+
+- Python 3.12+
 
 ## Setup Instructions 🔧
 
