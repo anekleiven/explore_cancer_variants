@@ -43,8 +43,7 @@ cd explore_cancer_variants
 
 ## Prerequisites
 
-The scripts in this repository are designed for the exploratory analysis and statistics of a somatic cancer variant annotation project. 
-They require an annotated dataset as input. To generate the necessary data, please follow the workflows in these repositories in the following order:
+In order to run these scripts, an annotated variant file is needed. Please follow the instructions in the repositories listed below, before running these notebooks.
 
 1. **[genie_oncokb_processing_scripts](https://github.com/anekleiven/genie_oncokb_processing_scripts)**: 
    Processes raw GENIE data and integrates oncogenicity labels from OncoKB.
