@@ -3,14 +3,17 @@
 # ============================================================
 
 """
+Script: stats_protein_domains.py
+Author: Ane Kleiven
+
 Script purpose: 
 
-Perform statistics on the top 10 protein domains. 
+    Perform statistics on the top 10 protein domains. 
 
-The discriminatory power of different protein domains are tested using 
-Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR.'
+    The discriminatory power of different protein domains are tested using 
+    Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR.'
 
-p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+    p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
 
 """
 
@@ -42,8 +45,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

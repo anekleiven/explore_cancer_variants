@@ -4,18 +4,21 @@
 # ============================================================
 
 """
+Script: stats_top_genes.py
+Author: Ane Kleiven
+
 Script purpose: 
 
-Perform statistics on variants in the ten genes with most oncogenic variants 
-using the stats_func() 
+    Perform statistics on variants in the ten genes with most oncogenic variants 
+    using the stats_func() (see stats_function.py)
 
-Features included: 
-"gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "is_null_var_tsg", "is_null_variant"
+    Features included: 
+    "gnomAD_AF", "has_gnomAD_AF", "In_Hotspot", "IN_DOMAIN", "IN_FUNC_SITE", "is_null_var_tsg", "is_null_variant"
 
-The statistics function performs Mann-Whitney U test with rank-biserial correlation on continuous features, 
-Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR on categorical features. 
+    The statistics function performs Mann-Whitney U test with rank-biserial correlation on continuous features, 
+    Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR on categorical features. 
 
-p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+    p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
 
 """
 
@@ -39,14 +42,13 @@ from scripts.statistics.stats_function import stats_func
 
 def getargs(): 
     parser = argparse.ArgumentParser(
-        description="Perform statistics variants in the genes with most oncogenic variants."
+        description="Perform statistics on variants in the genes with most oncogenic variants."
     ) 
 
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

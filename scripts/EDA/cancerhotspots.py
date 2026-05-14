@@ -12,13 +12,13 @@ variants (oncogenic and likely neutral) distribute across different cancer hotsp
 
 Major outputs:
 --------------
-1. Overview of the cancer hotspot data 
-2. Barplot of variant counts in cancer hotspots 
-3. Barplot of variant fractions cancer hotspots
-4. Genes with recurrent oncogenic variants in cancer hotspots
-5. Gene-level summary of oncogenic hotspot enrichment
-6. Visualization of frequently mutated genes with high hotspot fractions
-7. Overview and plot of variants meeting ClinGen/CGC/VICC hotspot criteria (OS3, OM3)
+    1. Overview of the cancer hotspot data 
+    2. Barplot of variant counts in cancer hotspots 
+    3. Barplot of variant fractions cancer hotspots
+    4. Genes with recurrent oncogenic variants in cancer hotspots
+    5. Gene-level summary of oncogenic hotspot enrichment
+    6. Visualization of frequently mutated genes with high hotspot fractions
+    7. Overview and plot of variants meeting ClinGen/CGC/VICC hotspot criteria (OS3, OM3)
 
 All plots are saved in:
    plots/cancerhotspots 
@@ -52,8 +52,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

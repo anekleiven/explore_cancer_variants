@@ -4,12 +4,15 @@
 # ============================================================
 
 """
+Script: stats_maves.py
+Author: Ane Kleiven
+
 Script purpose: 
 
-Perform statistics on the MAVE score set for TP53
+    Perform statistics on the MAVE score set for TP53
 
-The discriminatory power of the MAVE score set for TP53
-is tested using Mann-Whitney U with rank-biserial correlation. 
+    The discriminatory power of the MAVE score set for TP53
+    is tested using Mann-Whitney U with rank-biserial correlation. 
 
 """
 
@@ -43,8 +46,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/explore_cancer_variants/output/mave_urn_filtered.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

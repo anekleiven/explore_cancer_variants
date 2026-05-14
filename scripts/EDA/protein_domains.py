@@ -11,6 +11,7 @@ This script performs a multi-step analysis to explore how somatic cancer
 variants distribute across different protein domains and genes.  
 
 Major outputs:
+
   1. Variant distribution inside/outside protein domains 
   2. Top domains (by total variant count)
   3. Top domains enriched for oncogenic variants 
@@ -49,8 +50,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

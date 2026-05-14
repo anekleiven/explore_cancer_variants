@@ -11,11 +11,11 @@ gnomAD allele frequencies.
 
 Script content:
 --------------
-1. Load variant data 
-2. Filter and clean variant data 
-3. Perform descriptive statistics per oncogenicity class 
-4. gnomAD AF analysis per oncogenicity class
-5. Log-scaled KDE-comparison between oncogenic and likely neutral variants. 
+    1. Load variant data 
+    2. Filter and clean variant data 
+    3. Perform descriptive statistics per oncogenicity class 
+    4. gnomAD AF analysis per oncogenicity class
+    5. Log-scaled KDE-comparison between oncogenic and likely neutral variants. 
 
 
 All plots are saved in:
@@ -49,9 +49,8 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
-        help="Path to the input file with variant data."
+        required=True, 
+        help="Path to the input variant file."
     )
 
     return parser.parse_args() 

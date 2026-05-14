@@ -13,10 +13,10 @@ known pathogenic germline variants (PGVs)
 
 Major outputs:
 --------------
-1. Number of variants with a PGV distance
-2. Descriptive statistics 
-3. Distribution of PGV distance between classes 
-5. PGV distance distributions per gene (genes with most oncogenic variants)
+    1. Number of variants with a PGV distance
+    2. Descriptive statistics 
+    3. Distribution of PGV distance between classes 
+    5. PGV distance distributions per gene (genes with most oncogenic variants)
 
 All plots are saved in:
    plots/germline_proximity/
@@ -52,17 +52,15 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 
     parser.add_argument(
         "--output", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv",
-        help="Path to the output file path."
+        required=True, 
+        help="Path to the output variant file."
     )
 
     return parser.parse_args() 
@@ -152,6 +150,7 @@ palette = {
     "Oncogenic": "#c4314a",
     "Likely Neutral": "#88aed1",
 }
+
 
 # ------------------------------------------------------------
 # Density plot with both classes

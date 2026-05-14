@@ -1,7 +1,8 @@
-"""
-Functional Sites Analysis 
------------------------------------------------
+# ====================================================================
+# Functional Site Analysis 
+# ====================================================================
 
+"""
 Script: functional_sites.py
 Author: Ane Kleiven
 
@@ -10,12 +11,12 @@ variants distribute across different functional protein features.
 
 Major outputs:
 --------------
-1. Counts and fractions of Oncogenic vs Likely Neutral variants inside/outside functional sites
-2. Plot: Variant counts per functional site type per class
-3. Plot: Fraction of variants per functional site type per class 
-4. Plot: Genes with most oncogenic variants per functional site
-5. Plot: Heatmap of genes with most oncogenic variants in filtered functional sites  
-6. Plot: Oncogenic-to-neutral ratios in genes with most oncogenic variants per functional site type
+    1. Counts and fractions of Oncogenic vs Likely Neutral variants inside/outside functional sites
+    2. Plot: Variant counts per functional site type per class
+    3. Plot: Fraction of variants per functional site type per class 
+    4. Plot: Genes with most oncogenic variants per functional site
+    5. Plot: Heatmap of genes with most oncogenic variants in filtered functional sites  
+    6. Plot: Oncogenic-to-neutral ratios in genes with most oncogenic variants per functional site type
 
 All plots are saved in:
     plots/functionalsites
@@ -49,8 +50,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

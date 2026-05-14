@@ -39,24 +39,21 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with ClinVar variant data."
     )
 
     parser.add_argument(
         "--clinvar", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/data/variant_summary.txt/variant_summary.txt",
+        required=True, 
         help="Path to the input file with ClinVar variant data."
     )
 
     parser.add_argument(
         "--output", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/neutral_clinvar_filtered.tsv",
+        required=True, 
         help="Path to the output file path."
     )
 

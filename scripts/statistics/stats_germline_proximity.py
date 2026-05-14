@@ -4,14 +4,17 @@
 # ============================================================
 
 """
+Script: stats_germline_proximity.py 
+Author: Ane Kleiven 
+
 Script purpose: 
 
-Perform statistics on germline proximity in top oncogenic genes. 
+    Perform statistics on germline proximity in top oncogenic genes. 
 
-The discriminatory power of germline proximity in selected genes is tested
-using Mann-Whitney U with rank-biserial correlation. 
+    The discriminatory power of germline proximity in selected genes is tested
+    using Mann-Whitney U with rank-biserial correlation. 
 
-p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+    p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
 
 """
 
@@ -46,8 +49,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/explore_cancer_variants/output/germline_dist_filtered.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

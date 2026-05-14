@@ -7,7 +7,7 @@ Script: tsg_og.py
 Author: Ane Kleiven
 
 This script performs a multi-step analysis to explore how somatic cancer
-variant classes distribute oncogenes and tumor suppressor genes. 
+variant classes distribute in oncogenes and tumor suppressor genes. 
 
 Major outputs:
     1. Distribution of variants in tumor suppressor genes and oncogenes (Oncogenic and Likely Neutral variants) 
@@ -48,8 +48,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 
@@ -205,7 +204,7 @@ ax = sns.barplot(
 
 sns.despine()
 
-plt.title("Prevalence of Null Variants by Oncogenicity Class", fontsize=14, pad=15)
+plt.title("Frequency of Null Variants by Oncogenicity Class", fontsize=14, pad=15)
 plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
 plt.xlabel("Null Variant Status", fontsize=12, labelpad=10)
 plt.legend(title="Oncogenicity Class", bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False)
@@ -262,7 +261,7 @@ ax = sns.barplot(
 
 sns.despine()
 
-plt.title("Prevalence of Null Variants in TSGs by Oncogenicity Class", fontsize=14, pad=15)
+plt.title("Frequency of Null Variants in TSGs by Oncogenicity Class", fontsize=14, pad=15)
 plt.ylabel("Number of Variants", fontsize=12, labelpad=10)
 plt.xlabel("Variant Type", fontsize=12, labelpad=10)
 plt.xticks(rotation=0, fontsize=9)

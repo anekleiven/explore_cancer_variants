@@ -13,12 +13,12 @@ Multiplexed Assays of Variant Effect (MAVEs)
 
 Major outputs:
 --------------
-1. Number of variants with MAVE scores
-2. Number of variants with MAVE scores per oncogenicity class (oncogenic vs neutral)
-3. Top genes with MAVE scores
-4. Filter out wanted MAVE experiments (by number of variants with MAVE score)
-5. Box plot of MaveDB score distributions within top MAVE experiments (single genes)
-6. KDE plot of MaveDB score distributions within top MAVE experiments (single genes)
+    1. Number of variants with MAVE scores
+    2. Number of variants with MAVE scores per oncogenicity class (oncogenic vs neutral)
+    3. Top genes with MAVE scores
+    4. Filter out wanted MAVE experiments (by number of variants with MAVE score)
+    5. Box plot of MaveDB score distributions within top MAVE experiments (single genes)
+    6. KDE plot of MaveDB score distributions within top MAVE experiments (single genes)
 
 All plots are saved in:
    plots/maves
@@ -52,17 +52,15 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_with_maves_expanded.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 
     parser.add_argument(
         "--output", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/explore_cancer_variants/output/mave_urn_filtered.tsv",
-        help="Path to the output file path."
+        required=True, 
+        help="Path to the filtered MAVE output file."
     )
 
     return parser.parse_args() 

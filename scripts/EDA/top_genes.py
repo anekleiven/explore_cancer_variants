@@ -9,23 +9,16 @@ Author: Ane Kleiven
 
 This script performs exploratory analyses to identify genes that harbor the
 highest numbers of somatic variants across different oncogenicity classes.
-Specifically, it quantifies and compares the distribution of Oncogenic,
-Likely Oncogenic, and Likely Neutral variants across genes, with a focus on
-genes enriched for oncogenic variants.
-
-The analysis aims to highlight recurrently altered cancer genes and to
-examine whether genes with many oncogenic variants also accumulate a
-substantial fraction of likely neutral variation.
 
 Script content:
 --------------
-1. Load annotated somatic variant data
-2. Extract variants by oncogenicity class (Oncogenic, Likely Oncogenic,
-   Likely Neutral)
-3. Identify and visualize the top genes by number of variants per class
-4. Compare oncogenic and likely neutral variant counts within the genes with the most oncogenic variants 
-5. Visualize both absolute counts and relative (percentage) distributions
-   of oncogenicity classes per gene
+    1. Load annotated somatic variant data
+    2. Extract variants by oncogenicity class (Oncogenic, Likely Oncogenic,
+    Likely Neutral)
+    3. Identify and visualize the top genes by number of variants per class
+    4. Compare oncogenic and likely neutral variant counts within the genes with the most oncogenic variants 
+    5. Visualize both absolute counts and relative (percentage) distributions
+    of oncogenicity classes per gene
 
 All plots are saved in:
     plots/top_genes
@@ -58,8 +51,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 

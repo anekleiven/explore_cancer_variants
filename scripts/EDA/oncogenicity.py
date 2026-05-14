@@ -11,11 +11,11 @@ in cancer variant data.
 
 Script content:
 --------------
-1. Group data by oncogenicity and sort descending. 
-2. Plot distribution of oncogenicity classes 
+    1. Group data by oncogenicity and sort descending. 
+    2. Plot distribution of oncogenicity classes 
 
-All plots are saved in:
-    plots/oncogenicity 
+    All plots are saved in:
+        plots/oncogenicity 
 
 """
 
@@ -46,8 +46,7 @@ def getargs():
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True,  
         help="Path to the input file with variant data."
     )
 

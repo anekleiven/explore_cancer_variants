@@ -11,15 +11,15 @@ Statistics function for cancer variants.
 
 Purpose: 
 Perform statistics on variant features such as: 
-  gnomAD_AF (population frequency data)
-  has_gnomAD_AF (presence of population frequency data)
-  cancer hotspots
-  protein domains
-  functional sites 
-  germline proximity 
-  MAVE scores 
-  Null variants
-  Null variants in TSG
+    gnomAD_AF (population frequency data)
+    has_gnomAD_AF (presence of population frequency data)
+    cancer hotspots
+    protein domains
+    functional sites 
+    germline proximity 
+    MAVE scores 
+    Null variants
+    Null variants in TSG
 
 Statistical tests: 
 *   Mann Whitney U for continuous data (Rank-biserion correlation for effect size) 

@@ -3,14 +3,17 @@
 # ============================================================
 
 """
-Script purpose: 
+Script: stats_func_sites.py
+Author: Ane Kleiven
 
-Perform statistics on different functional site types from UniProt.
+Main purpose: 
 
-The discriminatory power of different functional sites are tested using 
-Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR.
+    Perform statistics on different functional site types from UniProt.
 
-p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
+    The discriminatory power of different functional sites are tested using 
+    Chi-Square test with Cramer's V/OR or Fisher's Exact test with OR.
+
+    p-values are adjusted for multiple testing using the Benjamini-Hochberg procedure. 
 
 """
 
@@ -36,21 +39,20 @@ import argparse
 
 def getargs(): 
     parser = argparse.ArgumentParser(
-        description="Perform statistics on variant data."
+        description="Perform statistics on variant data (functional sites)."
     ) 
 
     parser.add_argument(
         "--variants", 
         type=Path, 
-        required=False, 
-        default="/home/anekl/git/master/cancer_variants_annotation_pipeline/output/variants_tsg_og.tsv",
+        required=True, 
         help="Path to the input file with variant data."
     )
 
     parser.add_argument(
         "--alpha",
         type=float,
-        required=False,
+        required=False, 
         default=0.05,
         help="Significance level for hypothesis testing (default: 0.05)."
     )
