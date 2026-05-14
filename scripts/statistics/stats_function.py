@@ -91,7 +91,7 @@ def stats_func(df, features, label="Dataset", alpha=0.05):
             print(f"Mann-Whitney U: {stat:.3f}, p-value: {p:.4f}")
             print(f"Rank-biserial r: {r:.3f} | P(oncogenic > neutral): {probability*100:.2f}%")
             results.append({"feature": f, "test": "Mann-Whitney", "p_value": p})
-            print(f"{'Reject H₀: distributions differ.' if p < alpha else 'Failed to reject H₀.'}\n")
+            print(f"{'Reject H0: distributions differ.' if p < alpha else 'Failed to reject H0.'}\n")
 
 
         else: 
@@ -146,7 +146,7 @@ def stats_func(df, features, label="Dataset", alpha=0.05):
                 print(f"{'Oncogenic':<12} | {onc_in:<10} | {onc_out:<10} | {onc_in + onc_out:<6}")
                 print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
                 print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f}) | p-value: {p:.4f}")
-                print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < alpha else 'Failed to reject H₀.'}\n")
+                print(f"{'Reject H0: association between oncogenicity and ' + f + '.' if p < alpha else 'Failed to reject H0.'}\n")
             else:
                 print(f"[{f}]")
                 print(f"Test: {test_used}")
@@ -156,7 +156,7 @@ def stats_func(df, features, label="Dataset", alpha=0.05):
                 print(f"{'Neutral':<12} | {neu_in:<10} | {neu_out:<10} | {neu_in + neu_out:<6}")
                 print(f"OR: {or_result.statistic:.3f} (95% CI: {ci.low:.3f}–{ci.high:.3f})")
                 print(f"p-value: {p:.4f} | Cramer's V: {cramers_v:.3f}")
-                print(f"{'Reject H₀: association between oncogenicity and ' + f + '.' if p < alpha else 'Failed to reject H₀.'}\n")
+                print(f"{'Reject H0: association between oncogenicity and ' + f + '.' if p < alpha else 'Failed to reject H0.'}\n")
 
             results.append({"feature": f, "test": test_used, "p_value": p})
             
